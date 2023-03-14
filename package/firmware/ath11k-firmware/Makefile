@@ -12,7 +12,7 @@ PKG_VERSION:=2023.03.13
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://gitlab.com/interactive-mobility/connect/drivers/wireless/ath11k-firmware.git
+PKG_SOURCE_URL:=https://damien24:glpat-MJg_dge3kZeQpmGzpouc@gitlab.com/interactive-mobility/connect/drivers/wireless/ath11k-firmware.git
 PKG_SOURCE_VERSION:=fe07efe2795738419f307ba89625cab58f77ced1
 PKG_MIRROR_HASH:=b497ed6d16dfabd55a66e8a4bddcec9cd069c803d6630c02314be5cfee12a530
 
