@@ -21,14 +21,11 @@ define KernelPackage/ath11k
   DEPENDS:=\
 	+kmod-mac80211 \
 	+kmod-ath \
-	+@DRIVER_11N_SUPPORT \
-	+@PCI_SUPPORT \
 	+kmod-hwmon-core \
 	+kmod-mhi-bus \
 	+kmod-qrtr \
 	+kmod-qrtr-mhi \
-	+kmod-qmi-helpers
-  	+kmod-other
+	+kmod-qcom-qmi-helpers
   FILES:=\
 	$(LINUX_DIR)/drivers/net/wireless/ath/ath11k/ath11k.ko \
 	$(LINUX_DIR)/drivers/net/wireless/ath/ath11k/ath11k_pci.ko
