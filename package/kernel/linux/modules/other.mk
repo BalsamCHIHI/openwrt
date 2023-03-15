@@ -1340,3 +1340,17 @@ define KernelPackage/mhi-pci-generic/description
 endef
 
 $(eval $(call KernelPackage,mhi-pci-generic))
+
+define KernelPackage/qmi-helpers
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=Qualcomm QMI helpers
+  KCONFIG:=CONFIG_QMI_HELPERS
+  FILES:=$(LINUX_DIR)/drivers/soc/qcom/qmi_helpers.ko
+  AUTOLOAD:=$(call AutoProbe,qmi_helpers,1)
+endef
+
+define KernelPackage/qmi-helpers/description
+  Kernel module qmi_helpers
+endef
+
+$(eval $(call KernelPackage,qmi-helpers))

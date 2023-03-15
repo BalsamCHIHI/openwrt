@@ -18,22 +18,34 @@ include $(INCLUDE_DIR)/package.mk
 define KernelPackage/ath11k
   SUBMENU:=Wireless Drivers
   TITLE:=Atheros 802.11ax wireless cards support
-  DEPENDS:=+kmod-mac80211 +kmod-ath
+  DEPENDS:=\
+	+kmod-mac80211 \
+	+kmod-ath \
+	+@DRIVER_11N_SUPPORT \
+	+@PCI_SUPPORT \
+	+kmod-hwmon-core \
+	+kmod-mhi-bus \
+	+kmod-qrtr \
+	+kmod-qrtr-mhi \
+	+kmod-qmi-helpers
+  	+kmod-other
   FILES:=\
-	$(BUILD_DIR)/drivers/bus/mhi/core/mhi.ko \
-  	$(BUILD_DIR)/net/qrtr/qrtr.ko \
-	$(BUILD_DIR)/net/qrtr/qrtr-mhi.ko \
-	$(BUILD_DIR)/drivers/net/ath11k/ath11k_pci.ko \
-	$(BUILD_DIR)/drivers/net/ath11k/ath11k_core.ko
+	$(LINUX_DIR)/drivers/net/wireless/ath/ath11k/ath11k.ko \
+	$(LINUX_DIR)/drivers/net/wireless/ath/ath11k/ath11k_pci.ko
   AUTOLOAD:=$(call AutoProbe,ath11k)
 endef
 
 define Build/Compile
-	$(BUILD_DIR)/drivers/bus/mhi/core/mhi.ko $(1)/lib/moduels/$(KERNEL_VERSION)/mhi.ko
-  	$(BUILD_DIR)/net/qrtr/qrtr.ko $(1)/lib/moduels/$(KERNEL_VERSION)/qrtr.ko
-	$(BUILD_DIR)/net/qrtr/qrtr-mhi.ko $(1)/lib/moduels/$(KERNEL_VERSION)/qrtr-mhi.ko
-	$(BUILD_DIR)/drivers/net/ath11k/ath11k_pci.ko $(1)/lib/moduels/$(KERNEL_VERSION)/ath11k_pci.ko
-	$(BUILD_DIR)/drivers/net/ath11k/ath11k_core.ko $(1)/lib/moduels/$(KERNEL_VERSION)/ath11k_core.ko
+
+endef
+
+define Package/ath11k/install
+	$(INSTALL_DIR) $(1)/lib/modules/$(LINUX_VERSION)
+	$(INSTALL_DATA) $(LINUX_DIR)/drivers/bus/mhi/core/mhi.ko $(1)/lib/modules/$(LINUX_VERSION)/mhi.ko
+	$(INSTALL_DATA) $(LINUX_DIR)/net/qrtr/qrtr.ko $(1)/lib/modules/$(LINUX_VERSION)/qrtr.ko
+	$(INSTALL_DATA) $(LINUX_DIR)/net/qrtr/qrtr-mhi.ko $(1)/lib/modules/$(LINUX_VERSION)/qrtr-mhi.ko
+	$(INSTALL_DATA) $(LINUX_DIR)/drivers/net/wireless/ath/ath11k/ath11k.ko $(1)/lib/modules/$(LINUX_VERSION)/ath11k.ko
+	$(INSTALL_DATA) $(LINUX_DIR)/drivers/net/wireless/ath/ath11k/ath11k_pci.ko $(1)/lib/modules/$(LINUX_VERSION)/ath11k_pci.ko
 endef
 
 $(eval $(call KernelPackage,ath11k))
