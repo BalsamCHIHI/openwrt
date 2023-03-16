@@ -28,7 +28,14 @@ define KernelPackage/ath11k
 	+kmod-qcom-qmi-helpers
   FILES:=\
 	$(LINUX_DIR)/drivers/net/wireless/ath/ath11k/ath11k.ko \
-	$(LINUX_DIR)/drivers/net/wireless/ath/ath11k/ath11k_pci.ko
+	$(LINUX_DIR)/drivers/net/wireless/ath/ath11k/ath11k_pci.ko \
+	$(LINUX_DIR)/drivers/bus/mhi/core/mhi.ko \
+	$(LINUX_DIR)/drivers/soc/qcom/qmi_helpers.ko \
+	$(LINUX_DIR)/drivers/hwmon/hwmon.ko \
+	$(LINUX_DIR)/net/wireless/cfg80211.ko \
+	$(LINUX_DIR)/net/mac80211/mac80211.ko \
+	$(LINUX_DIR)/net/qrtr/qrtr.ko \
+	$(LINUX_DIR)/net/qrtr/qrtr-mhi.ko
   AUTOLOAD:=$(call AutoProbe,ath11k)
 endef
 
@@ -38,15 +45,15 @@ endef
 
 define Package/ath11k/install
 	$(INSTALL_DIR) $(1)/lib/modules/$(LINUX_VERSION)
-	$(INSTALL_DATA) $(LINUX_DIR)/net/wireless/cfg80211.ko $(1)/lib/modules/$(LINUX_VERSION)/cfg80211.ko
-	$(INSTALL_DATA) $(LINUX_DIR)/net/mac80211/mac80211.ko $(1)/lib/modules/$(LINUX_VERSION)/mac80211.ko
-	$(INSTALL_DATA) $(LINUX_DIR)/net/qrtr/qrtr.ko $(1)/lib/modules/$(LINUX_VERSION)/qrtr.ko
-	$(INSTALL_DATA) $(LINUX_DIR)/net/qrtr/qrtr-mhi.ko $(1)/lib/modules/$(LINUX_VERSION)/qrtr-mhi.ko
-	$(INSTALL_DATA) $(LINUX_DIR)/drivers/hwmon/hwmon.ko $(1)/lib/modules/$(LINUX_VERSION)/hwmon.ko
-	$(INSTALL_DATA) $(LINUX_DIR)/drivers/bus/mhi/core/mhi.ko $(1)/lib/modules/$(LINUX_VERSION)/mhi.ko
-	$(INSTALL_DATA) $(LINUX_DIR)/drivers/soc/qcom/qmi_helpers.ko $(1)/lib/modules/$(LINUX_VERSION)/qmi_helpers.ko
-	$(INSTALL_DATA) $(LINUX_DIR)/drivers/net/wireless/ath/ath11k/ath11k.ko $(1)/lib/modules/$(LINUX_VERSION)/ath11k.ko
-	$(INSTALL_DATA) $(LINUX_DIR)/drivers/net/wireless/ath/ath11k/ath11k_pci.ko $(1)/lib/modules/$(LINUX_VERSION)/ath11k_pci.ko
+#	$(INSTALL_DATA) $(LINUX_DIR)/net/wireless/cfg80211.ko $(1)/lib/modules/$(LINUX_VERSION)/cfg80211.ko
+#	$(INSTALL_DATA) $(LINUX_DIR)/net/mac80211/mac80211.ko $(1)/lib/modules/$(LINUX_VERSION)/mac80211.ko
+#	$(INSTALL_DATA) $(LINUX_DIR)/net/qrtr/qrtr.ko $(1)/lib/modules/$(LINUX_VERSION)/qrtr.ko
+#	$(INSTALL_DATA) $(LINUX_DIR)/net/qrtr/qrtr-mhi.ko $(1)/lib/modules/$(LINUX_VERSION)/qrtr-mhi.ko
+#	$(INSTALL_DATA) $(LINUX_DIR)/drivers/hwmon/hwmon.ko $(1)/lib/modules/$(LINUX_VERSION)/hwmon.ko
+#	$(INSTALL_DATA) $(LINUX_DIR)/drivers/bus/mhi/core/mhi.ko $(1)/lib/modules/$(LINUX_VERSION)/mhi.ko
+#	$(INSTALL_DATA) $(LINUX_DIR)/drivers/soc/qcom/qmi_helpers.ko $(1)/lib/modules/$(LINUX_VERSION)/qmi_helpers.ko
+#	$(INSTALL_DATA) $(LINUX_DIR)/drivers/net/wireless/ath/ath11k/ath11k.ko $(1)/lib/modules/$(LINUX_VERSION)/ath11k.ko
+#	$(INSTALL_DATA) $(LINUX_DIR)/drivers/net/wireless/ath/ath11k/ath11k_pci.ko $(1)/lib/modules/$(LINUX_VERSION)/ath11k_pci.ko
 endef
 
 $(eval $(call KernelPackage,ath11k))
