@@ -1,1 +1,3 @@
-99-scripts-fix-compilation-error.patch
+99-fix-lpthread-compilation
+100-fix-libiwinfo-ax
+101-ath11k-fix-multiple-pci-devices
