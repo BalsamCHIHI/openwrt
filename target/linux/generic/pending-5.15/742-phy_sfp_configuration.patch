@@ -1,0 +1,64 @@
+--- a/drivers/net/phy/mscc/mscc_main.c
++++ b/drivers/net/phy/mscc/mscc_main.c
+@@ -1685,19 +1685,11 @@ static int vsc8574_config_host_serdes(st
+ 		usleep_range(10000, 20000);
+ 	}
+ 
+-	/* Disable SerDes for 100Base-FX */
+-	ret = vsc8584_cmd(phydev, PROC_CMD_FIBER_MEDIA_CONF |
+-			  PROC_CMD_FIBER_PORT(vsc8531->addr) |
+-			  PROC_CMD_FIBER_DISABLE |
+-			  PROC_CMD_READ_MOD_WRITE_PORT |
+-			  PROC_CMD_RST_CONF_PORT | PROC_CMD_FIBER_100BASE_FX);
+-	if (ret)
+-		return ret;
+-
++	// TODO : Filter here which PHY and which port from device tree conf
+ 	/* Disable SerDes for 1000Base-X */
+ 	return vsc8584_cmd(phydev, PROC_CMD_FIBER_MEDIA_CONF |
+-			   PROC_CMD_FIBER_PORT(vsc8531->addr) |
+-			   PROC_CMD_FIBER_DISABLE |
++			   //PROC_CMD_FIBER_PORT(vsc8531->addr) |
++			   0xf00 |
+ 			   PROC_CMD_READ_MOD_WRITE_PORT |
+ 			   PROC_CMD_RST_CONF_PORT | PROC_CMD_FIBER_1000BASE_X);
+ }
+@@ -1777,8 +1769,25 @@ static int vsc8584_config_init(struct ph
+ 
+ 	val = phy_read(phydev, MSCC_PHY_EXT_PHY_CNTL_1);
+ 	val &= ~(MEDIA_OP_MODE_MASK | VSC8584_MAC_IF_SELECTION_MASK);
+-	val |= (MEDIA_OP_MODE_COPPER << MEDIA_OP_MODE_POS) |
+-	       (VSC8584_MAC_IF_SELECTION_SGMII << VSC8584_MAC_IF_SELECTION_POS);
++	// TODO : Filter here which PHY and which port from device tree conf
++	// 1000BASE-X SFP Fiber
++
++	// PHY1 :
++	// SFP only
++	// Set register 23 bits 10:8 = 010 -> MSCC_PHY_EXT_PHY_CNTL_1 |= (2<<8)
++	// Set register 0 bit 12 = 1 (enable autonegotiation).
++	// Set register 18G = 0x83C1
++	// ou SFP + Cu
++	// Set register 23 bit 10 = 1 (enable AMS).
++	// Set register 23 bit 11 to the port preferences.
++
++	// PHY2 :
++	// Set register 23 bits 10:8 = 010.
++	// Set register 0 bit 12 = 1 (enable autonegotiation).
++	// Set register 18G = 0x8FC1
++
++	val |= (MEDIA_OP_MODE_1000BASEX	 << MEDIA_OP_MODE_POS);
++
+ 	ret = phy_write(phydev, MSCC_PHY_EXT_PHY_CNTL_1, val);
+ 	if (ret)
+ 		return ret;
+@@ -2238,9 +2247,7 @@ static int vsc8514_probe(struct phy_devi
+ static int vsc8574_probe(struct phy_device *phydev)
+ {
+ 	struct vsc8531_private *vsc8531;
+-	u32 default_mode[4] = {VSC8531_LINK_1000_ACTIVITY,
+-	   VSC8531_LINK_100_ACTIVITY, VSC8531_LINK_ACTIVITY,
+-	   VSC8531_DUPLEX_COLLISION};
++	u32 default_mode[4] = { VSC8531_LINK_ACTIVITY, VSC8531_LINK_1000_ACTIVITY, VSC8531_LINK_ACTIVITY, VSC8531_LINK_1000_ACTIVITY };
+ 
+ 	vsc8531 = devm_kzalloc(&phydev->mdio.dev, sizeof(*vsc8531), GFP_KERNEL);
+ 	if (!vsc8531)
