@@ -8,11 +8,12 @@ boot() {
 	uci set network.@device[0].ports='eth1 eth2 eth3 eth4 eth5 eth6'
 	uci set network.lan.ipaddr='192.168.10.1'
 	uci set network.wan=interface
-	uci set network.wan.proto='dhcp'
+	uci set network.wan.proto='static'
 	uci set network.wan.device='eth0'
-	uci set network.wan6=interface
-	uci set network.wan6.proto='dhcp6'
-	uci set network.wan6.device='eth0'
+	uci set network.wan.ipaddr='172.100.1.2'
+	uci set network.wan.gateway='172.100.1.1'
+	uci set network.wan.netmask='255.255.255.0'
+	uci delete network.wan6
 	uci commit
 	reload_config
 	ls-addni dpmac.2
