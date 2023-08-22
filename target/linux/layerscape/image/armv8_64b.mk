@@ -404,3 +404,30 @@ define Device/traverse_ls1043
   SUPPORTED_DEVICES := traverse,ls1043s traverse,ls1043v
 endef
 TARGET_DEVICES += traverse_ls1043
+
+define Device/moment_ls1088a-connect
+  $(Device/fix-sysupgrade)
+  DEVICE_VENDOR := Moment
+  DEVICE_MODEL := LS1088A Connect
+  DEVICE_PACKAGES += \
+    layerscape-mc \
+    layerscape-dpl \
+    tfa-ls1088a-rdb \
+    restool \
+    kmod-ahci-qoriq \
+    kmod-hwmon-ina2xx \
+    kmod-hwmon-lm90
+  IMAGE/firmware.bin := \
+    ls-clean | \
+    ls-append-dtb $$(DEVICE_DTS) | pad-to 16M | \
+    append-kernel | pad-to 32M | \
+    append-rootfs | pad-rootfs | check-size
+endef
+TARGET_DEVICES += moment_ls1088a-connect
+#ls-append $(1)-bl2.pbl | pad-to 1M | \
+#ls-append $(1)-fip.bin | pad-to 5M | \
+#ls-append $(1)-uboot-env.bin | pad-to 10M | \
+#ls-append $(1)-mc.itb | pad-to 13M | \
+#ls-append $(1)-dpl.dtb | pad-to 14M | \
+#ls-append $(1)-dpc.dtb | pad-to 15M | \
+
