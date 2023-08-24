@@ -405,25 +405,39 @@ define Device/traverse_ls1043
 endef
 TARGET_DEVICES += traverse_ls1043
 
+#define Device/moment_ls1088a-connect
+#  DEVICE_VENDOR := Moment
+#  DEVICE_MODEL := LS1088A Connect
+#endef
+
 define Device/moment_ls1088a-connect
-  $(Device/fix-sysupgrade)
+  $(Device/rework-sdcard-images)
+  $(Device/fsl-sdboot)
   DEVICE_VENDOR := Moment
   DEVICE_MODEL := LS1088A Connect
   DEVICE_PACKAGES += \
     layerscape-mc \
     layerscape-dpl \
-    tfa-ls1088a-rdb \
+    tfa-ls1088a-connect-sdboot \
     restool \
     kmod-ahci-qoriq \
     kmod-hwmon-ina2xx \
     kmod-hwmon-lm90
-  IMAGE/firmware.bin := \
+  DEVICE_DTS := freescale/moment-ls1088a-connect
+  IMAGE/sdcard.img.gz := \
     ls-clean | \
-    ls-append-dtb $$(DEVICE_DTS) | pad-to 16M | \
-    append-kernel | pad-to 32M | \
-    append-rootfs | pad-rootfs | check-size
+    ls-append-sdhead $(1) | pad-to 4K | \
+    ls-append moment_ls1088a-connect-mc.itb | pad-to 13M | \
+    ls-append moment_ls1088a-connect-dpl.dtb | pad-to 14M | \
+    ls-append moment_ls1088a-connect-dpc.dtb | pad-to 16M | \
+    ls-append-kernel | pad-to $(LS_SD_ROOTFSPART_OFFSET)M | \
+    append-rootfs | pad-to $(LS_SD_IMAGE_SIZE)M | gzip
 endef
 TARGET_DEVICES += moment_ls1088a-connect
+#    ls-append $(1)-bl2.pbl | pad-to 1M | \
+#    ls-append $(1)-fip.bin | pad-to 5M | \
+#    ls-append $(1)-uboot-env.bin | pad-to 10M | \
+
 #ls-append $(1)-bl2.pbl | pad-to 1M | \
 #ls-append $(1)-fip.bin | pad-to 5M | \
 #ls-append $(1)-uboot-env.bin | pad-to 10M | \
@@ -431,3 +445,28 @@ TARGET_DEVICES += moment_ls1088a-connect
 #ls-append $(1)-dpl.dtb | pad-to 14M | \
 #ls-append $(1)-dpc.dtb | pad-to 15M | \
 
+#  $(Device/rework-sdcard-images)
+#  $(Device/fsl-sdboot)
+#  DEVICE_VENDOR := NXP
+#  DEVICE_MODEL := LS1088A-RDB
+#  DEVICE_VARIANT := SD Card Boot
+#  DEVICE_PACKAGES += \
+#    layerscape-mc \
+#    layerscape-dpl \
+#    tfa-ls1088a-rdb-sdboot \
+#    restool \
+#    kmod-ahci-qoriq \
+#    kmod-hwmon-ina2xx \
+#    kmod-hwmon-lm90
+#  DEVICE_DTS := freescale/fsl-ls1088a-rdb
+#  IMAGE/sdcard.img.gz := \
+#    ls-clean | \
+#    ls-append-sdhead $(1) | pad-to 4K | \
+#    ls-append $(1)-bl2.pbl | pad-to 1M | \
+#    ls-append $(1)-fip.bin | pad-to 5M | \
+#    ls-append $(1)-uboot-env.bin | pad-to 10M | \
+#    ls-append fsl_ls1088a-rdb-mc.itb | pad-to 13M | \
+#    ls-append fsl_ls1088a-rdb-dpl.dtb | pad-to 14M | \
+#    ls-append fsl_ls1088a-rdb-dpc.dtb | pad-to 16M | \
+#    ls-append-kernel | pad-to $(LS_SD_ROOTFSPART_OFFSET)M | \
+#    append-rootfs | pad-to $(LS_SD_IMAGE_SIZE)M | gzip

@@ -46,6 +46,10 @@ define Build/InstallDev
 		$(STAGING_DIR_IMAGE)/fsl_lx2160a-rdb-dpl.dtb
 	$(CP) $(PKG_BUILD_DIR)/config/lx2160a/LX2160A-RDB/dpc-usxgmii.dtb \
 		$(STAGING_DIR_IMAGE)/fsl_lx2160a-rdb-dpc.dtb
+	$(CP) $(PKG_BUILD_DIR)/config/ls1088a/LS1088A-RDB/dpl-eth.0x1D_0x0D.dtb \
+		$(STAGING_DIR_IMAGE)/moment_ls1088a-connect-dpl.dtb
+	$(CP) $(PKG_BUILD_DIR)/config/ls1088a/LS1088A-RDB/dpc.0x1D-0x0D.dtb \
+		$(STAGING_DIR_IMAGE)/moment_ls1088a-connect-dpc.dtb
 endef
 
 $(eval $(call BuildPackage,layerscape-dpl))
