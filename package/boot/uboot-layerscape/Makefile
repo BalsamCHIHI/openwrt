@@ -123,6 +123,12 @@ define U-Boot/fsl_ls1021a-iot-sdboot
   ENV_SIZE:=0x2000
 endef
 
+define U-Boot/moment_ls1088a-connect
+  NAME:=Moment LS1088A Connect
+  UBOOT_CONFIG:=ls1088a_connect_tfa
+endef
+
+
 UBOOT_TARGETS := \
   fsl_ls1012a-frdm \
   fsl_ls1012a-rdb \
@@ -140,7 +146,8 @@ UBOOT_TARGETS := \
   fsl_lx2160a-rdb-sdboot \
   fsl_ls1021a-twr \
   fsl_ls1021a-twr-sdboot \
-  fsl_ls1021a-iot-sdboot
+  fsl_ls1021a-iot-sdboot \
+  moment_ls1088a-connect
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(STAGING_DIR_IMAGE)
