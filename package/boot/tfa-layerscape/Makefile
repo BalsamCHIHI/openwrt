@@ -39,7 +39,7 @@ define Host/Install
 endef
 
 define Package/tfa-generic
-  PREFIX:=fsl
+  PREFIX:=fsl_
   SECTION:=boot
   CATEGORY:=Boot Loaders
   DEPENDS:=@TARGET_layerscape_armv8_64b +layerscape-rcw +u-boot-fsl_$(subst tfa-,,$(1))
@@ -47,7 +47,7 @@ define Package/tfa-generic
 endef
 
 define Package/tfa-moment
-  PREFIX:=moment
+  PREFIX:=
   SECTION:=boot
   CATEGORY:=Boot Loaders
   DEPENDS:=@TARGET_layerscape_armv8_64b +layerscape-rcw +u-boot-$(subst tfa-,,$(1))
@@ -162,17 +162,17 @@ endef
 define Build/InstallDev
 	$(INSTALL_DIR) $(STAGING_DIR_IMAGE)
 	$(CP) $(PKG_BUILD_DIR)/build/$(PLAT)/release/bl2_$(BOOT_MODE).pbl \
-		$(STAGING_DIR_IMAGE)/$(PREFIX)_$(BUILD_VARIANT)-bl2.pbl
+		$(STAGING_DIR_IMAGE)/$(PREFIX)$(BUILD_VARIANT)-bl2.pbl
 	$(CP) $(PKG_BUILD_DIR)/build/$(PLAT)/release/fip.bin \
-		$(STAGING_DIR_IMAGE)/$(PREFIX)_$(BUILD_VARIANT)-fip.bin
+		$(STAGING_DIR_IMAGE)/$(PREFIX)$(BUILD_VARIANT)-fip.bin
 endef
 
 define Build/Compile
 	$(eval $(Package/tfa-$(BUILD_VARIANT))) \
 	$(MAKE) -C $(PKG_BUILD_DIR) CROSS_COMPILE=$(TARGET_CROSS) \
 		fip pbl PLAT=$(PLAT) BOOT_MODE=$(BOOT_MODE) \
-		RCW=$(STAGING_DIR_IMAGE)/$(PREFIX)_$(BUILD_VARIANT)-rcw.bin \
-		BL33=$(STAGING_DIR_IMAGE)/$(PREFIX)_$(BUILD_VARIANT)-uboot.bin \
+		RCW=$(STAGING_DIR_IMAGE)/$(PREFIX)$(BUILD_VARIANT)-rcw.bin \
+		BL33=$(STAGING_DIR_IMAGE)/$(PREFIX)$(BUILD_VARIANT)-uboot.bin \
 		FIPTOOL=$(STAGING_DIR_HOST)/bin/fiptool-layerscape \
 		CREATE_PBL=$(STAGING_DIR_HOST)/bin/tfa-create-pbl \
 		BYTE_SWAP=$(STAGING_DIR_HOST)/bin/tfa-byte-swap

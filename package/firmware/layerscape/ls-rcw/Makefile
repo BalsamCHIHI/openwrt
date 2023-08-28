@@ -42,7 +42,8 @@ BOARDS := \
   ls2088a-rdb \
   lx2160a-rdb \
   lx2160a-rdb-sdboot \
-  ls1021a-twr
+  ls1021a-tw \
+  moment_ls1088a-connect
 
 RCW_ls1012a-rdb         :=ls1012ardb/R_SPNH_3508/rcw_1000_default.bin
 RCW_ls1012a-frdm        :=ls1012afrdm/N_SSNP_3305/rcw_800.bin
@@ -59,11 +60,16 @@ RCW_ls2088a-rdb         :=ls2088ardb/FFFFFFFF_PP_HH_0x2a_0x41/rcw_1800.bin
 RCW_lx2160a-rdb         :=lx2160ardb_rev2/XGGFF_PP_HHHH_RR_19_5_2/rcw_2000_700_2900_19_5_2.bin
 RCW_lx2160a-rdb-sdboot  :=lx2160ardb_rev2/XGGFF_PP_HHHH_RR_19_5_2/rcw_2000_700_2900_19_5_2.bin
 RCW_ls1021a-twr         :=ls1021atwr/SSR_PNS_30/rcw_1200.bin
+RCW_moment_ls1088a-connect := ls1088ardb/FCQQQQQQQQ_PPP_H_0x1d_0x0d/rcw_1600_sd.bin
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(STAGING_DIR_IMAGE)
 	$(foreach board,$(BOARDS), \
-		$(CP) $(PKG_BUILD_DIR)/$(RCW_$(board)) $(STAGING_DIR_IMAGE)/fsl_$(board)-rcw.bin;)
+		$(if $(findstring moment, $(board)), \
+			$(CP) $(PKG_BUILD_DIR)/$(RCW_$(board)) $(STAGING_DIR_IMAGE)/$(board)-rcw.bin, \
+			$(CP) $(PKG_BUILD_DIR)/$(RCW_$(board)) $(STAGING_DIR_IMAGE)/fsl_$(board)-rcw.bin \
+		); \
+	)
 endef
 
 $(eval $(call BuildPackage,layerscape-rcw))
