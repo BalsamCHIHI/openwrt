@@ -60,13 +60,16 @@ RCW_ls2088a-rdb         :=ls2088ardb/FFFFFFFF_PP_HH_0x2a_0x41/rcw_1800.bin
 RCW_lx2160a-rdb         :=lx2160ardb_rev2/XGGFF_PP_HHHH_RR_19_5_2/rcw_2000_700_2900_19_5_2.bin
 RCW_lx2160a-rdb-sdboot  :=lx2160ardb_rev2/XGGFF_PP_HHHH_RR_19_5_2/rcw_2000_700_2900_19_5_2.bin
 RCW_ls1021a-twr         :=ls1021atwr/SSR_PNS_30/rcw_1200.bin
-RCW_moment_ls1088a-connect := ls1088ardb/FCQQQQQQQQ_PPP_H_0x1d_0x0d/rcw_1600_sd.bin
+RCW_moment_ls1088a-connect := moment_ls1088a-connect/rcw.bin
+
+# Moment RCW file is versioned locally as Quilt does not support binary patches
+CURRENT_DIR = $(shell pwd)
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(STAGING_DIR_IMAGE)
 	$(foreach board,$(BOARDS), \
 		$(if $(findstring moment, $(board)), \
-			$(CP) $(PKG_BUILD_DIR)/$(RCW_$(board)) $(STAGING_DIR_IMAGE)/$(board)-rcw.bin, \
+			$(CP) $(CURRENT_DIR)/$(RCW_$(board)) $(STAGING_DIR_IMAGE)/$(board)-rcw.bin, \
 			$(CP) $(PKG_BUILD_DIR)/$(RCW_$(board)) $(STAGING_DIR_IMAGE)/fsl_$(board)-rcw.bin \
 		); \
 	)
