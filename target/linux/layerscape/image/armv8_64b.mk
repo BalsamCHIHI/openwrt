@@ -411,25 +411,37 @@ define Device/moment_ls1088a-connect
   DEVICE_VENDOR := Moment
   DEVICE_MODEL := LS1088A Connect
   DEVICE_PACKAGES += \
-    layerscape-mc \
-    layerscape-dpl \
-    tfa-ls1088a-connect-sdboot \
-    restool \
-    kmod-ahci-qoriq \
-    kmod-hwmon-ina2xx \
-    kmod-hwmon-lm90
+    restool
+#    layerscape-mc \
+#    layerscape-dpl \
+#    tfa-ls1088a-connect-sdboot \
+#    restool \
+#    kmod-ahci-qoriq \
+#    kmod-hwmon-ina2xx \
+#    kmod-hwmon-lm90
   DEVICE_DTS := freescale/moment-ls1088a-connect
   IMAGE/sdcard.img.gz := \
     ls-clean | \
     ls-append-sdhead $(1) | pad-to 4K | \
-    ls-append $(1)-bl2.pbl | pad-to 1M | \
-    ls-append $(1)-fip.bin | pad-to 5M | \
-    ls-append $(1)-uboot-env.bin | pad-to 10M | \
-    ls-append $(1)-mc.itb | pad-to 13M | \
-    ls-append $(1)-dpl.dtb | pad-to 14M | \
-    ls-append $(1)-dpc.dtb | pad-to 16M | \
-    ls-append-kernel | pad-to $(LS_SD_ROOTFSPART_OFFSET)M | \
-    append-rootfs | pad-to $(LS_SD_IMAGE_SIZE)M | gzip
+    ls-append $(1)-rcw.bin | pad-to 1M | \
+    ls-append $(1)-uboot.bin | pad-to 10M
+#    ls-append $(1)-uboot.bin | pad-to 3M
+#    ls-append $(1)-uboot-env.bin | pad-to 10M | \
+#    ls-append $(1)-mc.itb | pad-to 13M | \
+#    ls-append $(1)-dpl.dtb | pad-to 14M | \
+#    ls-append $(1)-dpc.dtb | pad-to 16M | \
+#    ls-append-kernel | pad-to $(LS_SD_ROOTFSPART_OFFSET)M | \
+#    append-rootfs | pad-to $(LS_SD_IMAGE_SIZE)M | gzip
+#    ls-clean | \
+#    ls-append-sdhead $(1) | pad-to 4K | \
+#    ls-append $(1)-bl2.pbl | pad-to 1M | \
+#    ls-append $(1)-fip.bin | pad-to 5M | \
+#    ls-append $(1)-uboot-env.bin | pad-to 10M | \
+#    ls-append $(1)-mc.itb | pad-to 13M | \
+#    ls-append $(1)-dpl.dtb | pad-to 14M | \
+#    ls-append $(1)-dpc.dtb | pad-to 16M | \
+#    ls-append-kernel | pad-to $(LS_SD_ROOTFSPART_OFFSET)M | \
+#    append-rootfs | pad-to $(LS_SD_IMAGE_SIZE)M | gzip
 endef
 TARGET_DEVICES += moment_ls1088a-connect
 
