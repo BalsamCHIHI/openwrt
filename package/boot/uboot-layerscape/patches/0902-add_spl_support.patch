@@ -1,0 +1,5149 @@
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -2037,6 +2037,7 @@ source "board/spear/spear600/Kconfig"
+ source "board/spear/x600/Kconfig"
+ source "board/st/stv0991/Kconfig"
+ source "board/tcl/sl50/Kconfig"
++source "board/tqc/tqmls1088a/Kconfig"
+ source "board/toradex/colibri_pxa270/Kconfig"
+ source "board/variscite/dart_6ul/Kconfig"
+ source "board/vscom/baltos/Kconfig"
+--- a/arch/arm/cpu/armv8/Kconfig
++++ b/arch/arm/cpu/armv8/Kconfig
+@@ -108,6 +108,7 @@ config PSCI_RESET
+ 		   !TARGET_LS2080ARDB && !TARGET_LS2080A_EMU && \
+ 		   !TARGET_LS1088ARDB && !TARGET_LS1088AQDS && \
+ 		   !TARGET_LS1012ARDB && !TARGET_LS1012AFRDM && \
++		   !TARGET_TQMLS1088A && \
+ 		   !TARGET_LS1012A2G5RDB && !TARGET_LS1012AQDS && \
+ 		   !TARGET_LS1012AFRWY && \
+ 		   !TARGET_LS1028ARDB && !TARGET_LS1028AQDS && \
+--- a/arch/arm/dts/Makefile
++++ b/arch/arm/dts/Makefile
+@@ -424,7 +424,8 @@ dtb-$(CONFIG_FSL_LSCH3) += fsl-ls2080a-q
+ 	fsl-lx2162a-qds.dtb\
+ 	fsl-lx2162a-qds-17-x.dtb\
+ 	fsl-lx2162a-qds-18-x.dtb\
+-	fsl-lx2162a-qds-20-x.dtb
++	fsl-lx2162a-qds-20-x.dtb \
++	moment-tqmls1088a-connect.dtb
+ dtb-$(CONFIG_FSL_LSCH2) += fsl-ls1043a-qds-duart.dtb \
+ 	fsl-ls1043a-qds-lpuart.dtb \
+ 	fsl-ls1043a-rdb.dtb \
+--- /dev/null
++++ b/arch/arm/dts/moment-tqmls1088a-connect.dts
+@@ -0,0 +1,155 @@
++// SPDX-License-Identifier: TBD
++/*
++ * Moment tqmls1088a Connect board device tree source
++ *
++ * Copyright 2023 Quetzal Lab
++ */
++
++/dts-v1/;
++
++#include "fsl-ls1088a.dtsi"
++
++/ {
++	model = "Moment TQMLS1088A Connect Board";
++	
++	aliases {
++		spi0 = &qspi;
++	};
++};
++
++&dpmac2 {
++	status = "okay";
++	phy-connection-type = "xgmii";
++};
++
++&dpmac3 {
++	status = "okay";
++	phy-handle = <&mdio1_phy8>;
++	phy-connection-type = "qsgmii";
++};
++
++&dpmac4 {
++	status = "okay";
++	phy-handle = <&mdio1_phy9>;
++	phy-connection-type = "qsgmii";
++};
++
++&dpmac5 {
++	status = "okay";
++	phy-handle = <&mdio1_phy10>;
++	phy-connection-type = "qsgmii";
++};
++
++&dpmac6 {
++	status = "okay";
++	phy-handle = <&mdio1_phy11>;
++	phy-connection-type = "qsgmii";
++};
++
++&dpmac7 {
++	status = "okay";
++	phy-handle = <&mdio1_phy4>;
++	phy-connection-type = "qsgmii";
++};
++
++&dpmac8 {
++	status = "okay";
++	phy-handle = <&mdio1_phy5>;
++	phy-connection-type = "qsgmii";
++};
++
++&dpmac9 {
++	status = "okay";
++	phy-handle = <&mdio1_phy6>;
++	phy-connection-type = "qsgmii";
++};
++
++&dpmac10 {
++	status = "okay";
++	phy-handle = <&mdio1_phy7>;
++	phy-connection-type = "qsgmii";
++};
++
++&emdio1 {
++	status = "okay";
++
++	mdio1_phy4: emdio1_phy@4 {
++		reg = <0x04>;
++		};
++	mdio1_phy5: emdio1_phy@5 {
++		reg = <0x05>;
++		};
++	mdio1_phy6: emdio1_phy@6 {
++		reg = <0x06>;
++		};
++	mdio1_phy7: emdio1_phy@7 {
++		reg = <0x07>;
++	};
++
++	mdio1_phy8: emdio1_phy@8 {
++		reg = <0x08>;
++	};
++	mdio1_phy9: emdio1_phy@9 {
++		reg = <0x09>;
++	};
++	mdio1_phy10: emdio1_phy@10 {
++		reg = <0x10>;
++	};
++	mdio1_phy11: emdio1_phy@11 {
++		reg = <0x11>;
++	};
++};
++
++&i2c0 {
++	status = "okay";
++	u-boot,dm-pre-reloc;
++
++	temp-sensor@18 {
++		compatible = "jc42";
++		reg = <0x18>;
++	};
++
++	eeprom@50 {
++		compatible = "atmel,24c02";
++		reg = <0x50>;
++	};
++
++	rtc@51 {
++		compatible = "nxp,pcf85063";
++		reg = <0x51>;
++	};
++
++	eeprom@57 {
++		compatible = "atmel,24c256";
++		reg = <0x57>;
++	};
++
++	pca9555: pca9555@20 {
++		compatible = "nxp,pca9555";
++		gpio-controller;
++		#gpio-cells = <2>;
++		reg = <0x20>;
++		gpio-base = <0>;
++	};
++};
++
++&qspi {
++	status = "okay";
++
++	qflash0: mx66u51235f@0 {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		compatible = "spi-flash";
++		spi-max-frequency = <62500000>;
++		reg = <0>;
++	};
++
++	qflash1: mx66u51235f@1 {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		compatible = "spi-flash";
++		spi-max-frequency = <62500000>;
++		reg = <1>;
++	};
++};
++
+--- /dev/null
++++ b/board/tqc/common/Kconfig
+@@ -0,0 +1,13 @@
++config TQC_EEPROM
++	bool
++	default n
++
++config TQC_MBLS10XXA
++	bool
++	default n
++
++config TQC_MOMENT_CONNECT
++	bool
++	default n
++
++source "board/freescale/common/Kconfig"
+--- /dev/null
++++ b/board/tqc/common/Makefile
+@@ -0,0 +1,12 @@
++# SPDX-License-Identifier: GPL-2.0+
++#
++# Copyright 2018 TQ-Systems GmbH
++
++# necessary to create built-in.o
++obj- := __dummy__.o
++
++obj-$(CONFIG_TQC_EEPROM) += tqc_eeprom.o
++obj-$(CONFIG_LAYERSCAPE_NS_ACCESS)	+= ns_access.o
++
++obj-$(CONFIG_TQC_MBLS10XXA) += tqc_mbls10xxa.o
++obj-$(CONFIG_TQC_MOMENT_CONNECT) += tqc_moment_connect.o
+--- /dev/null
++++ b/board/tqc/common/Si5341-RevA-Registers.h
+@@ -0,0 +1,301 @@
++/*
++ * Si538x/4x Registers Export
++ * 
++ * Part: Si5341
++ * Project File: <not saved>
++ * Design ID: <none>
++ * Includes Pre/Post Download Control Register Writes: Yes
++ * Die Revision: A1
++ * Creator: ClockBuilder Pro v1.5 [2014-12-03]
++ * Created On: 2022-11-16 15:16:44 GMT+01:00
++*/
++
++#ifndef SI5341_REVA_REG_CONFIG_HEADER
++#define SI5341_REVA_REG_CONFIG_HEADER
++
++typedef struct
++{
++    unsigned int address; /* 16-bit register address */
++    unsigned char value; /* 8-bit register data */
++} si5341_reva_register_t;
++
++si5341_reva_register_t const si5341_reva_registers[] =
++{
++    { 0x0B24,0xD8 },
++    { 0x0B25,0x00 },
++    { 0x000B,0x74 },
++    { 0x0017,0x3A },
++    { 0x0018,0xFF },
++    { 0x0021,0x0F },
++    { 0x0022,0x00 },
++    { 0x002B,0x02 },
++    { 0x002C,0x20 },
++    { 0x002D,0x00 },
++    { 0x002E,0x00 },
++    { 0x002F,0x00 },
++    { 0x0030,0x00 },
++    { 0x0031,0x00 },
++    { 0x0032,0x00 },
++    { 0x0033,0x00 },
++    { 0x0034,0x00 },
++    { 0x0035,0x00 },
++    { 0x0036,0x00 },
++    { 0x0037,0x00 },
++    { 0x0038,0x00 },
++    { 0x0039,0x00 },
++    { 0x003A,0x00 },
++    { 0x003B,0x00 },
++    { 0x003C,0x00 },
++    { 0x003D,0x00 },
++    { 0x0041,0x00 },
++    { 0x0042,0x00 },
++    { 0x0043,0x00 },
++    { 0x0044,0x00 },
++    { 0x009E,0x00 },
++    { 0x0102,0x01 },
++    { 0x0108,0x02 },
++    { 0x0109,0x09 },
++    { 0x010A,0x3B },
++    { 0x010B,0x00 },
++    { 0x010D,0x06 },
++    { 0x010E,0x09 },
++    { 0x010F,0x3B },
++    { 0x0110,0x01 },
++    { 0x0112,0x02 },
++    { 0x0113,0x09 },
++    { 0x0114,0x3B },
++    { 0x0115,0x00 },
++    { 0x0117,0x02 },
++    { 0x0118,0x09 },
++    { 0x0119,0x3B },
++    { 0x011A,0x00 },
++    { 0x011C,0x02 },
++    { 0x011D,0x09 },
++    { 0x011E,0x3B },
++    { 0x011F,0x00 },
++    { 0x0121,0x02 },
++    { 0x0122,0x09 },
++    { 0x0123,0x3B },
++    { 0x0124,0x00 },
++    { 0x0126,0x02 },
++    { 0x0127,0x09 },
++    { 0x0128,0x3B },
++    { 0x0129,0x00 },
++    { 0x012B,0x02 },
++    { 0x012C,0x09 },
++    { 0x012D,0x3B },
++    { 0x012E,0x00 },
++    { 0x0130,0x01 },
++    { 0x0131,0x09 },
++    { 0x0132,0x3B },
++    { 0x0133,0x00 },
++    { 0x013A,0x01 },
++    { 0x013B,0x09 },
++    { 0x013C,0x3B },
++    { 0x013D,0x00 },
++    { 0x013F,0x00 },
++    { 0x0140,0x00 },
++    { 0x0141,0x40 },
++    { 0x0202,0x00 },
++    { 0x0203,0x00 },
++    { 0x0204,0x00 },
++    { 0x0205,0x00 },
++    { 0x0206,0x00 },
++    { 0x0208,0x00 },
++    { 0x0209,0x00 },
++    { 0x020A,0x00 },
++    { 0x020B,0x00 },
++    { 0x020C,0x00 },
++    { 0x020D,0x00 },
++    { 0x020E,0x00 },
++    { 0x020F,0x00 },
++    { 0x0210,0x00 },
++    { 0x0211,0x00 },
++    { 0x0212,0x00 },
++    { 0x0213,0x00 },
++    { 0x0214,0x00 },
++    { 0x0215,0x00 },
++    { 0x0216,0x00 },
++    { 0x0217,0x00 },
++    { 0x0218,0x00 },
++    { 0x0219,0x00 },
++    { 0x021A,0x00 },
++    { 0x021B,0x00 },
++    { 0x021C,0x00 },
++    { 0x021D,0x00 },
++    { 0x021E,0x00 },
++    { 0x021F,0x00 },
++    { 0x0220,0x00 },
++    { 0x0221,0x00 },
++    { 0x0222,0x00 },
++    { 0x0223,0x00 },
++    { 0x0224,0x00 },
++    { 0x0225,0x00 },
++    { 0x0226,0x00 },
++    { 0x0227,0x00 },
++    { 0x0228,0x00 },
++    { 0x0229,0x00 },
++    { 0x022A,0x00 },
++    { 0x022B,0x00 },
++    { 0x022C,0x00 },
++    { 0x022D,0x00 },
++    { 0x022E,0x00 },
++    { 0x022F,0x00 },
++    { 0x0235,0x00 },
++    { 0x0236,0x00 },
++    { 0x0237,0x00 },
++    { 0x0238,0xC0 },
++    { 0x0239,0xDA },
++    { 0x023A,0x00 },
++    { 0x023B,0x00 },
++    { 0x023C,0x00 },
++    { 0x023D,0x00 },
++    { 0x023E,0xC0 },
++    { 0x024A,0x03 },
++    { 0x024B,0x00 },
++    { 0x024C,0x00 },
++    { 0x024D,0x00 },
++    { 0x024E,0x00 },
++    { 0x024F,0x00 },
++    { 0x0250,0x04 },
++    { 0x0251,0x00 },
++    { 0x0252,0x00 },
++    { 0x0253,0x04 },
++    { 0x0254,0x00 },
++    { 0x0255,0x00 },
++    { 0x0256,0x04 },
++    { 0x0257,0x00 },
++    { 0x0258,0x00 },
++    { 0x0259,0x04 },
++    { 0x025A,0x00 },
++    { 0x025B,0x00 },
++    { 0x025C,0x03 },
++    { 0x025D,0x00 },
++    { 0x025E,0x00 },
++    { 0x025F,0x03 },
++    { 0x0260,0x00 },
++    { 0x0261,0x00 },
++    { 0x0262,0x00 },
++    { 0x0263,0x00 },
++    { 0x0264,0x00 },
++    { 0x0268,0x00 },
++    { 0x0269,0x00 },
++    { 0x026A,0x00 },
++    { 0x026B,0x00 },
++    { 0x026C,0x00 },
++    { 0x026D,0x00 },
++    { 0x026E,0x00 },
++    { 0x026F,0x00 },
++    { 0x0270,0x00 },
++    { 0x0271,0x00 },
++    { 0x0272,0x00 },
++    { 0x0302,0x00 },
++    { 0x0303,0x00 },
++    { 0x0304,0x00 },
++    { 0x0305,0x00 },
++    { 0x0306,0x07 },
++    { 0x0307,0x00 },
++    { 0x0308,0x00 },
++    { 0x0309,0x00 },
++    { 0x030A,0x00 },
++    { 0x030B,0x80 },
++    { 0x030D,0x00 },
++    { 0x030E,0x00 },
++    { 0x030F,0x00 },
++    { 0x0310,0x00 },
++    { 0x0311,0x1C },
++    { 0x0312,0x00 },
++    { 0x0313,0x00 },
++    { 0x0314,0x00 },
++    { 0x0315,0x00 },
++    { 0x0316,0xA0 },
++    { 0x0318,0x00 },
++    { 0x0319,0x00 },
++    { 0x031A,0x00 },
++    { 0x031B,0x00 },
++    { 0x031C,0x00 },
++    { 0x031D,0x00 },
++    { 0x031E,0x00 },
++    { 0x031F,0x00 },
++    { 0x0320,0x00 },
++    { 0x0321,0x00 },
++    { 0x0323,0x00 },
++    { 0x0324,0x00 },
++    { 0x0325,0x00 },
++    { 0x0326,0x00 },
++    { 0x0327,0x00 },
++    { 0x0328,0x00 },
++    { 0x0329,0x00 },
++    { 0x032A,0x00 },
++    { 0x032B,0x00 },
++    { 0x032C,0x00 },
++    { 0x032E,0x00 },
++    { 0x032F,0x00 },
++    { 0x0330,0x00 },
++    { 0x0331,0x00 },
++    { 0x0332,0x00 },
++    { 0x0333,0x00 },
++    { 0x0334,0x00 },
++    { 0x0335,0x00 },
++    { 0x0336,0x00 },
++    { 0x0337,0x00 },
++    { 0x0339,0x1F },
++    { 0x033B,0x00 },
++    { 0x033C,0x00 },
++    { 0x033D,0x00 },
++    { 0x033E,0x00 },
++    { 0x033F,0x00 },
++    { 0x0340,0x00 },
++    { 0x0341,0x00 },
++    { 0x0342,0x00 },
++    { 0x0343,0x00 },
++    { 0x0344,0x00 },
++    { 0x0345,0x00 },
++    { 0x0346,0x00 },
++    { 0x0347,0x00 },
++    { 0x0348,0x00 },
++    { 0x0349,0x00 },
++    { 0x034A,0x00 },
++    { 0x034B,0x00 },
++    { 0x034C,0x00 },
++    { 0x034D,0x00 },
++    { 0x034E,0x00 },
++    { 0x034F,0x00 },
++    { 0x0350,0x00 },
++    { 0x0351,0x00 },
++    { 0x0352,0x00 },
++    { 0x0353,0x00 },
++    { 0x0354,0x00 },
++    { 0x0355,0x00 },
++    { 0x0356,0x00 },
++    { 0x0357,0x00 },
++    { 0x0358,0x00 },
++    { 0x0359,0x00 },
++    { 0x035A,0x00 },
++    { 0x035B,0x00 },
++    { 0x035C,0x00 },
++    { 0x035D,0x00 },
++    { 0x035E,0x00 },
++    { 0x035F,0x00 },
++    { 0x0360,0x00 },
++    { 0x0361,0x00 },
++    { 0x0362,0x00 },
++    { 0x090E,0x02 },
++    { 0x091C,0x04 },
++    { 0x0943,0x00 },
++    { 0x0949,0x08 },
++    { 0x094A,0x80 },
++    { 0x0A02,0x00 },
++    { 0x0A03,0x03 },
++    { 0x0A04,0x01 },
++    { 0x0A05,0x03 },
++    { 0x0B44,0x07 },
++    { 0x0B4A,0x1C },
++    { 0x001C,0x01 },
++    { 0x0B24,0xDB },
++    { 0x0B25,0x02 }
++};
++
++#define SI5341_REVA_REG_CONFIG_NUM_REGS 273
++
++#endif
+--- /dev/null
++++ b/board/tqc/common/Si5341-RevD-Registers.h
+@@ -0,0 +1,940 @@
++/*
++ * Si5341 Rev D Configuration Register Export Header File
++ *
++ * This file represents a series of Skyworks Si5341 Rev D 
++ * register writes that can be performed to load a single configuration 
++ * on a device. It was created by a Skyworks ClockBuilder Pro
++ * export tool.
++ *
++ * Part:		                                       Si5341 Rev D
++ * Design ID:                                          
++ * Includes Pre/Post Download Control Register Writes: Yes
++ * Created By:                                         ClockBuilder Pro v4.6 [2022-10-07]
++ * Timestamp:                                          2022-11-16 14:54:12 GMT+01:00
++ *
++ * A complete design report corresponding to this export is included at the end 
++ * of this header file.
++ *
++ */
++
++#ifndef SI5341_REVD_REG_CONFIG_HEADER
++#define SI5341_REVD_REG_CONFIG_HEADER
++
++#define SI5341_REVD_REG_CONFIG_NUM_REGS				387
++
++typedef struct
++{
++	unsigned int address; /* 16-bit register address */
++	unsigned char value; /* 8-bit register data */
++
++} si5341_revd_register_t;
++
++si5341_revd_register_t const si5341_revd_registers[SI5341_REVD_REG_CONFIG_NUM_REGS] =
++{
++
++	/* Start configuration preamble */
++	{ 0x0B24, 0xC0 },
++	{ 0x0B25, 0x00 },
++	/* Rev D stuck divider fix */
++	{ 0x0502, 0x01 },
++	{ 0x0505, 0x03 },
++	{ 0x0957, 0x17 },
++	{ 0x0B4E, 0x1A },
++	/* End configuration preamble */
++
++	/* Delay 300 msec */
++	/*    Delay is worst case time for device to complete any calibration */
++	/*    that is running due to device state change previous to this script */
++	/*    being processed. */
++
++	/* Start configuration registers */
++	{ 0x0006, 0x00 },
++	{ 0x0007, 0x00 },
++	{ 0x0008, 0x00 },
++	{ 0x000B, 0x74 },
++	{ 0x0017, 0xFA },
++	{ 0x0018, 0xFF },
++	{ 0x0021, 0x0F },
++	{ 0x0022, 0x00 },
++	{ 0x002B, 0x02 },
++	{ 0x002C, 0x20 },
++	{ 0x002D, 0x00 },
++	{ 0x002E, 0x00 },
++	{ 0x002F, 0x00 },
++	{ 0x0030, 0x00 },
++	{ 0x0031, 0x00 },
++	{ 0x0032, 0x00 },
++	{ 0x0033, 0x00 },
++	{ 0x0034, 0x00 },
++	{ 0x0035, 0x00 },
++	{ 0x0036, 0x00 },
++	{ 0x0037, 0x00 },
++	{ 0x0038, 0x00 },
++	{ 0x0039, 0x00 },
++	{ 0x003A, 0x00 },
++	{ 0x003B, 0x00 },
++	{ 0x003C, 0x00 },
++	{ 0x003D, 0x00 },
++	{ 0x0041, 0x00 },
++	{ 0x0042, 0x00 },
++	{ 0x0043, 0x00 },
++	{ 0x0044, 0x00 },
++	{ 0x009E, 0x00 },
++	{ 0x0102, 0x01 },
++	{ 0x0108, 0x02 },
++	{ 0x0109, 0x09 },
++	{ 0x010A, 0x3B },
++	{ 0x010B, 0x28 },
++	{ 0x010D, 0x06 },
++	{ 0x010E, 0x09 },
++	{ 0x010F, 0x3B },
++	{ 0x0110, 0x29 },
++	{ 0x0112, 0x02 },
++	{ 0x0113, 0x09 },
++	{ 0x0114, 0x3B },
++	{ 0x0115, 0x28 },
++	{ 0x0117, 0x02 },
++	{ 0x0118, 0x09 },
++	{ 0x0119, 0x3B },
++	{ 0x011A, 0x28 },
++	{ 0x011C, 0x02 },
++	{ 0x011D, 0x09 },
++	{ 0x011E, 0x3B },
++	{ 0x011F, 0x28 },
++	{ 0x0121, 0x02 },
++	{ 0x0122, 0x09 },
++	{ 0x0123, 0x3B },
++	{ 0x0124, 0x28 },
++	{ 0x0126, 0x02 },
++	{ 0x0127, 0x09 },
++	{ 0x0128, 0x3B },
++	{ 0x0129, 0x28 },
++	{ 0x012B, 0x02 },
++	{ 0x012C, 0x09 },
++	{ 0x012D, 0x3B },
++	{ 0x012E, 0x28 },
++	{ 0x0130, 0x01 },
++	{ 0x0131, 0x09 },
++	{ 0x0132, 0x3B },
++	{ 0x0133, 0x28 },
++	{ 0x013A, 0x01 },
++	{ 0x013B, 0x09 },
++	{ 0x013C, 0x3B },
++	{ 0x013D, 0x28 },
++	{ 0x013F, 0x00 },
++	{ 0x0140, 0x00 },
++	{ 0x0141, 0x40 },
++	{ 0x0206, 0x00 },
++	{ 0x0208, 0x00 },
++	{ 0x0209, 0x00 },
++	{ 0x020A, 0x00 },
++	{ 0x020B, 0x00 },
++	{ 0x020C, 0x00 },
++	{ 0x020D, 0x00 },
++	{ 0x020E, 0x00 },
++	{ 0x020F, 0x00 },
++	{ 0x0210, 0x00 },
++	{ 0x0211, 0x00 },
++	{ 0x0212, 0x00 },
++	{ 0x0213, 0x00 },
++	{ 0x0214, 0x00 },
++	{ 0x0215, 0x00 },
++	{ 0x0216, 0x00 },
++	{ 0x0217, 0x00 },
++	{ 0x0218, 0x00 },
++	{ 0x0219, 0x00 },
++	{ 0x021A, 0x00 },
++	{ 0x021B, 0x00 },
++	{ 0x021C, 0x00 },
++	{ 0x021D, 0x00 },
++	{ 0x021E, 0x00 },
++	{ 0x021F, 0x00 },
++	{ 0x0220, 0x00 },
++	{ 0x0221, 0x00 },
++	{ 0x0222, 0x00 },
++	{ 0x0223, 0x00 },
++	{ 0x0224, 0x00 },
++	{ 0x0225, 0x00 },
++	{ 0x0226, 0x00 },
++	{ 0x0227, 0x00 },
++	{ 0x0228, 0x00 },
++	{ 0x0229, 0x00 },
++	{ 0x022A, 0x00 },
++	{ 0x022B, 0x00 },
++	{ 0x022C, 0x00 },
++	{ 0x022D, 0x00 },
++	{ 0x022E, 0x00 },
++	{ 0x022F, 0x00 },
++	{ 0x0235, 0x00 },
++	{ 0x0236, 0x00 },
++	{ 0x0237, 0x00 },
++	{ 0x0238, 0xC0 },
++	{ 0x0239, 0xDA },
++	{ 0x023A, 0x00 },
++	{ 0x023B, 0x00 },
++	{ 0x023C, 0x00 },
++	{ 0x023D, 0x00 },
++	{ 0x023E, 0xC0 },
++	{ 0x024A, 0x03 },
++	{ 0x024B, 0x00 },
++	{ 0x024C, 0x00 },
++	{ 0x024D, 0x00 },
++	{ 0x024E, 0x00 },
++	{ 0x024F, 0x00 },
++	{ 0x0250, 0x04 },
++	{ 0x0251, 0x00 },
++	{ 0x0252, 0x00 },
++	{ 0x0253, 0x04 },
++	{ 0x0254, 0x00 },
++	{ 0x0255, 0x00 },
++	{ 0x0256, 0x04 },
++	{ 0x0257, 0x00 },
++	{ 0x0258, 0x00 },
++	{ 0x0259, 0x04 },
++	{ 0x025A, 0x00 },
++	{ 0x025B, 0x00 },
++	{ 0x025C, 0x03 },
++	{ 0x025D, 0x00 },
++	{ 0x025E, 0x00 },
++	{ 0x025F, 0x03 },
++	{ 0x0260, 0x00 },
++	{ 0x0261, 0x00 },
++	{ 0x0262, 0x00 },
++	{ 0x0263, 0x00 },
++	{ 0x0264, 0x00 },
++	{ 0x0268, 0x00 },
++	{ 0x0269, 0x00 },
++	{ 0x026A, 0x00 },
++	{ 0x026B, 0x00 },
++	{ 0x026C, 0x00 },
++	{ 0x026D, 0x00 },
++	{ 0x026E, 0x00 },
++	{ 0x026F, 0x00 },
++	{ 0x0270, 0x00 },
++	{ 0x0271, 0x00 },
++	{ 0x0272, 0x00 },
++	{ 0x0302, 0x00 },
++	{ 0x0303, 0x00 },
++	{ 0x0304, 0x00 },
++	{ 0x0305, 0x00 },
++	{ 0x0306, 0x07 },
++	{ 0x0307, 0x00 },
++	{ 0x0308, 0x00 },
++	{ 0x0309, 0x00 },
++	{ 0x030A, 0x00 },
++	{ 0x030B, 0x80 },
++	{ 0x030C, 0x00 },
++	{ 0x030D, 0x00 },
++	{ 0x030E, 0x00 },
++	{ 0x030F, 0x00 },
++	{ 0x0310, 0x00 },
++	{ 0x0311, 0x1C },
++	{ 0x0312, 0x00 },
++	{ 0x0313, 0x00 },
++	{ 0x0314, 0x00 },
++	{ 0x0315, 0x00 },
++	{ 0x0316, 0xA0 },
++	{ 0x0317, 0x00 },
++	{ 0x0318, 0x00 },
++	{ 0x0319, 0x00 },
++	{ 0x031A, 0x00 },
++	{ 0x031B, 0x00 },
++	{ 0x031C, 0x00 },
++	{ 0x031D, 0x00 },
++	{ 0x031E, 0x00 },
++	{ 0x031F, 0x00 },
++	{ 0x0320, 0x00 },
++	{ 0x0321, 0x00 },
++	{ 0x0322, 0x00 },
++	{ 0x0323, 0x00 },
++	{ 0x0324, 0x00 },
++	{ 0x0325, 0x00 },
++	{ 0x0326, 0x00 },
++	{ 0x0327, 0x00 },
++	{ 0x0328, 0x00 },
++	{ 0x0329, 0x00 },
++	{ 0x032A, 0x00 },
++	{ 0x032B, 0x00 },
++	{ 0x032C, 0x00 },
++	{ 0x032D, 0x00 },
++	{ 0x032E, 0x00 },
++	{ 0x032F, 0x00 },
++	{ 0x0330, 0x00 },
++	{ 0x0331, 0x00 },
++	{ 0x0332, 0x00 },
++	{ 0x0333, 0x00 },
++	{ 0x0334, 0x00 },
++	{ 0x0335, 0x00 },
++	{ 0x0336, 0x00 },
++	{ 0x0337, 0x00 },
++	{ 0x0338, 0x00 },
++	{ 0x0339, 0x1F },
++	{ 0x033B, 0x00 },
++	{ 0x033C, 0x00 },
++	{ 0x033D, 0x00 },
++	{ 0x033E, 0x00 },
++	{ 0x033F, 0x00 },
++	{ 0x0340, 0x00 },
++	{ 0x0341, 0x00 },
++	{ 0x0342, 0x00 },
++	{ 0x0343, 0x00 },
++	{ 0x0344, 0x00 },
++	{ 0x0345, 0x00 },
++	{ 0x0346, 0x00 },
++	{ 0x0347, 0x00 },
++	{ 0x0348, 0x00 },
++	{ 0x0349, 0x00 },
++	{ 0x034A, 0x00 },
++	{ 0x034B, 0x00 },
++	{ 0x034C, 0x00 },
++	{ 0x034D, 0x00 },
++	{ 0x034E, 0x00 },
++	{ 0x034F, 0x00 },
++	{ 0x0350, 0x00 },
++	{ 0x0351, 0x00 },
++	{ 0x0352, 0x00 },
++	{ 0x0353, 0x00 },
++	{ 0x0354, 0x00 },
++	{ 0x0355, 0x00 },
++	{ 0x0356, 0x00 },
++	{ 0x0357, 0x00 },
++	{ 0x0358, 0x00 },
++	{ 0x0359, 0x00 },
++	{ 0x035A, 0x00 },
++	{ 0x035B, 0x00 },
++	{ 0x035C, 0x00 },
++	{ 0x035D, 0x00 },
++	{ 0x035E, 0x00 },
++	{ 0x035F, 0x00 },
++	{ 0x0360, 0x00 },
++	{ 0x0361, 0x00 },
++	{ 0x0362, 0x00 },
++	{ 0x0802, 0x00 },
++	{ 0x0803, 0x00 },
++	{ 0x0804, 0x00 },
++	{ 0x0805, 0x00 },
++	{ 0x0806, 0x00 },
++	{ 0x0807, 0x00 },
++	{ 0x0808, 0x00 },
++	{ 0x0809, 0x00 },
++	{ 0x080A, 0x00 },
++	{ 0x080B, 0x00 },
++	{ 0x080C, 0x00 },
++	{ 0x080D, 0x00 },
++	{ 0x080E, 0x00 },
++	{ 0x080F, 0x00 },
++	{ 0x0810, 0x00 },
++	{ 0x0811, 0x00 },
++	{ 0x0812, 0x00 },
++	{ 0x0813, 0x00 },
++	{ 0x0814, 0x00 },
++	{ 0x0815, 0x00 },
++	{ 0x0816, 0x00 },
++	{ 0x0817, 0x00 },
++	{ 0x0818, 0x00 },
++	{ 0x0819, 0x00 },
++	{ 0x081A, 0x00 },
++	{ 0x081B, 0x00 },
++	{ 0x081C, 0x00 },
++	{ 0x081D, 0x00 },
++	{ 0x081E, 0x00 },
++	{ 0x081F, 0x00 },
++	{ 0x0820, 0x00 },
++	{ 0x0821, 0x00 },
++	{ 0x0822, 0x00 },
++	{ 0x0823, 0x00 },
++	{ 0x0824, 0x00 },
++	{ 0x0825, 0x00 },
++	{ 0x0826, 0x00 },
++	{ 0x0827, 0x00 },
++	{ 0x0828, 0x00 },
++	{ 0x0829, 0x00 },
++	{ 0x082A, 0x00 },
++	{ 0x082B, 0x00 },
++	{ 0x082C, 0x00 },
++	{ 0x082D, 0x00 },
++	{ 0x082E, 0x00 },
++	{ 0x082F, 0x00 },
++	{ 0x0830, 0x00 },
++	{ 0x0831, 0x00 },
++	{ 0x0832, 0x00 },
++	{ 0x0833, 0x00 },
++	{ 0x0834, 0x00 },
++	{ 0x0835, 0x00 },
++	{ 0x0836, 0x00 },
++	{ 0x0837, 0x00 },
++	{ 0x0838, 0x00 },
++	{ 0x0839, 0x00 },
++	{ 0x083A, 0x00 },
++	{ 0x083B, 0x00 },
++	{ 0x083C, 0x00 },
++	{ 0x083D, 0x00 },
++	{ 0x083E, 0x00 },
++	{ 0x083F, 0x00 },
++	{ 0x0840, 0x00 },
++	{ 0x0841, 0x00 },
++	{ 0x0842, 0x00 },
++	{ 0x0843, 0x00 },
++	{ 0x0844, 0x00 },
++	{ 0x0845, 0x00 },
++	{ 0x0846, 0x00 },
++	{ 0x0847, 0x00 },
++	{ 0x0848, 0x00 },
++	{ 0x0849, 0x00 },
++	{ 0x084A, 0x00 },
++	{ 0x084B, 0x00 },
++	{ 0x084C, 0x00 },
++	{ 0x084D, 0x00 },
++	{ 0x084E, 0x00 },
++	{ 0x084F, 0x00 },
++	{ 0x0850, 0x00 },
++	{ 0x0851, 0x00 },
++	{ 0x0852, 0x00 },
++	{ 0x0853, 0x00 },
++	{ 0x0854, 0x00 },
++	{ 0x0855, 0x00 },
++	{ 0x0856, 0x00 },
++	{ 0x0857, 0x00 },
++	{ 0x0858, 0x00 },
++	{ 0x0859, 0x00 },
++	{ 0x085A, 0x00 },
++	{ 0x085B, 0x00 },
++	{ 0x085C, 0x00 },
++	{ 0x085D, 0x00 },
++	{ 0x085E, 0x00 },
++	{ 0x085F, 0x00 },
++	{ 0x0860, 0x00 },
++	{ 0x0861, 0x00 },
++	{ 0x090E, 0x02 },
++	{ 0x091C, 0x04 },
++	{ 0x0943, 0x00 },
++	{ 0x0949, 0x00 },
++	{ 0x094A, 0x00 },
++	{ 0x094E, 0x49 },
++	{ 0x094F, 0x02 },
++	{ 0x095E, 0x00 },
++	{ 0x0A02, 0x00 },
++	{ 0x0A03, 0x03 },
++	{ 0x0A04, 0x01 },
++	{ 0x0A05, 0x03 },
++	{ 0x0A14, 0x00 },
++	{ 0x0A1A, 0x00 },
++	{ 0x0A20, 0x00 },
++	{ 0x0A26, 0x00 },
++	{ 0x0A2C, 0x00 },
++	{ 0x0B44, 0x0F },
++	{ 0x0B4A, 0x1C },
++	{ 0x0B57, 0x0E },
++	{ 0x0B58, 0x01 },
++	/* End configuration registers */
++
++	/* Start configuration postamble */
++	{ 0x001C, 0x01 },
++	{ 0x0B24, 0xC3 },
++	{ 0x0B25, 0x02 },
++	/* End configuration postamble */
++
++};
++
++/*
++ * Design Report
++ *
++ * Overview
++ * ========
++ * Part:               Si5341AB Rev D
++ * Project File:       C:\Users\rousselj\Documents\ClockBuilder Pro\Si5341-RevD-Project.slabtimeproj
++ * Design ID:          <none>
++ * Created By:         ClockBuilder Pro v4.6 [2022-10-07]
++ * Timestamp:          2022-11-16 14:54:11 GMT+01:00
++ * 
++ * Design Rule Check
++ * =================
++ * Errors:
++ * - No errors
++ * 
++ * Warnings:
++ * - OUT1 [156.25 MHz] and OUT2 [100 MHz] may have coupling [1]
++ * 
++ * Footnotes:
++ * [1] To avoid coupling in outputs, Skyworks recommends the following:
++ * 
++ * - Avoid adjacent frequency values that are close. CBPro uses an output's integration bandwidth (IBW) to determine whether two adjacent frequencies are too close. An IBW of 20 MHz is used for frequencies 80 MHz and larger. Lower frequencies will use IBW of OUT/4. CBPro will flag fundamental coupling and coupling up to the fourth harmonic, where coupling frequency = Absolute(OUTa*x - OUTb*y) for all combinations of x and y 1 through 4. If any one of these values is less than or equal to the IBW, the output is flagged as having possible coupling.
++ * - Adjacent frequency values that are integer multiples of one another are okay and these outputs should be grouped accordingly. For example, a 155.52 MHz and 622.08 MHz (155.52 x 4) can be adjacent.
++ * - Unused outputs can be used to separate clock outputs that might otherwise interfere with one another.
++ * 
++ * Skyworks recommends you validate your design's jitter performance using an Evaluation Board. You can request a custom phase noise report for your design from CBPro's design dashboard.
++ * 
++ * Device Grade
++ * ============
++ * Maximum Output Frequency: 156.25 MHz
++ * Frequency Synthesis Mode: Fractional
++ * Frequency Plan Grade:     B
++ * Minimum Base OPN:         Si5341B*
++ * 
++ * Base       Output Clock         Supported Frequency Synthesis Modes
++ * OPN Grade  Frequency Range      (Typical Jitter)
++ * ---------  -------------------  --------------------------------------------
++ * Si5341A    100 Hz to 1.028 GHz  Integer (< 100 fs) and fractional (< 150 fs)
++ * Si5341B*   100 Hz to 350 MHz    "
++ * Si5341C    100 Hz to 1.028 GHz  Integer only (< 100 fs)
++ * Si5341D    100 Hz to 350 MHz    "
++ * 
++ * * Based on your calculated frequency plan, a Si5341B grade device is
++ * sufficient for your design. For more in-system configuration flexibility
++ * (higher frequencies and/or to enable fractional synthesis), consider
++ * selecting device grade Si5341A when specifying an ordering part number (OPN)
++ * for your application. See the datasheet Ordering Guide for more information.
++ * 
++ * Design
++ * ======
++ * Host Interface:
++ *    I/O Power Supply: VDD (Core)
++ *    SPI Mode: 4-Wire
++ *    I2C Address Range: 116d to 119d / 0x74 to 0x77 (selected via A0/A1 pins)
++ * 
++ * Inputs:
++ *    XAXB: 48 MHz
++ *          Crystal Mode
++ *     IN0: Unused
++ *     IN1: Unused
++ *     IN2: Unused
++ *   FB_IN: Unused
++ * 
++ * Outputs:
++ *    OUT0: 125 MHz
++ *          Enabled, LVDS 2.5 V
++ *    OUT1: 156.25 MHz
++ *          Enabled, LVDS 2.5 V
++ *    OUT2: 100 MHz
++ *          Enabled, LVDS 2.5 V
++ *    OUT3: 100 MHz
++ *          Enabled, LVDS 2.5 V
++ *    OUT4: 100 MHz
++ *          Enabled, LVDS 2.5 V
++ *    OUT5: 100 MHz
++ *          Enabled, LVDS 2.5 V
++ *    OUT6: 125 MHz
++ *          Enabled, LVDS 2.5 V
++ *    OUT7: 125 MHz
++ *          Enabled, LVDS 2.5 V
++ *    OUT8: Unused
++ *    OUT9: Unused
++ * 
++ * Frequency Plan
++ * ==============
++ * Priority: maximize the number of low jitter outputs
++ * 
++ * Fpfd = 48 MHz
++ * Fvco = 14 GHz
++ * Fms0 = 1 GHz
++ * Fms1 = 312.5 MHz
++ * 
++ * P dividers:
++ *    P0  = Unused
++ *    P1  = Unused
++ *    P2  = Unused
++ *    P3  = Unused
++ *    Pxaxb = 1
++ * 
++ * M = 291.6666666666666666... [ 291 + 2/3 ]
++ * N dividers:
++ *    N0:
++ *       Value: 14
++ *       OUT0: 125 MHz
++ *       OUT2: 100 MHz
++ *       OUT3: 100 MHz
++ *       OUT4: 100 MHz
++ *       OUT5: 100 MHz
++ *       OUT6: 125 MHz
++ *       OUT7: 125 MHz
++ *    N1:
++ *       Value: 44.8
++ *       OUT1: 156.25 MHz
++ *    N2:
++ *       Unused
++ *    N3:
++ *       Unused
++ *    N4:
++ *       Unused
++ * 
++ * R dividers:
++ *    R0 = 8
++ *    R1 = 2
++ *    R2 = 10
++ *    R3 = 10
++ *    R4 = 10
++ *    R5 = 10
++ *    R6 = 8
++ *    R7 = 8
++ *    R8 = Unused
++ *    R9 = Unused
++ * 
++ * Dividers listed above show effective values. These values are translated to register settings by ClockBuilder Pro. For the actual register values, see below. Refer to the Family Reference Manual for information on registers related to frequency plan.
++ * 
++ * Digitally Controlled Oscillator (DCO)
++ * =====================================
++ * Mode: Register Direct Write
++ * 
++ * N0: DCO Disabled
++ * 
++ * N1: DCO Disabled
++ * 
++ * N2: DCO Disabled
++ * 
++ * N3: DCO Disabled
++ * 
++ * N4: DCO Disabled
++ * 
++ * Estimated Power & Junction Temperature
++ * ======================================
++ * Assumptions:
++ * 
++ * Revision: D
++ * VDD:      1.8 V
++ * Ta:       25 °C
++ * Theta-JA: 18.3 °C/W
++ * Airflow:  2 m/s
++ * 
++ * Total Power: 940 mW, On Chip Power: 892 mW, Tj: 41 °C
++ * 
++ *          Frequency  Format   Voltage   Current     Power
++ *         ----------  ------  --------  --------  --------
++ * VDD                            1.8 V  139.7 mA    251 mW
++ * VDDA                           3.3 V  114.4 mA    377 mW
++ * VDDO0      125 MHz  LVDS       2.5 V   15.6 mA     39 mW
++ * VDDO1   156.25 MHz  LVDS       2.5 V   15.7 mA     39 mW
++ * VDDO2      100 MHz  LVDS       2.5 V   15.5 mA     39 mW
++ * VDDO3      100 MHz  LVDS       2.5 V   15.5 mA     39 mW
++ * VDDO4      100 MHz  LVDS       2.5 V   15.5 mA     39 mW
++ * VDDO5      100 MHz  LVDS       2.5 V   15.5 mA     39 mW
++ * VDDO6      125 MHz  LVDS       2.5 V   15.6 mA     39 mW
++ * VDDO7      125 MHz  LVDS       2.5 V   15.6 mA     39 mW
++ * VDDO8       Unused                                      
++ * VDDO9       Unused                                      
++ *                                       --------  --------
++ *                                Total  378.4 mA    940 mW
++ * 
++ * Note:
++ * 
++ * -Tj is junction temperature. Tj must be less than 125 °C (on Si5341 Revision D) for device to comply with datasheet specifications. Tj = Ta + Theta_JA*On_Chip_Power.
++ * -Overall power includes on-chip power dissipation and adds differential load power dissipation to estimate total power requirements.
++ * -Above are estimates only: power and temperature should be measured on your PCB.
++ * -Selection of appropriate Theta-JA is required for most accurate estimate. Ideally, select 'User Specified Theta-JA' and enter a Theta-JA value based on the thermal properties of your PCB.
++ * 
++ * Settings
++ * ========
++ * 
++ * Location      Setting Name         Decimal Value      Hex Value        
++ * ------------  -------------------  -----------------  -----------------
++ * 0x0006[23:0]  TOOL_VERSION         0                  0x000000         
++ * 0x000B[6:0]   I2C_ADDR             116                0x74             
++ * 0x0017[0]     SYSINCAL_INTR_MSK    0                  0x0              
++ * 0x0017[1]     LOSXAXB_INTR_MSK     1                  0x1              
++ * 0x0017[2]     LOSREF_INTR_MSK      0                  0x0              
++ * 0x0017[3]     LOL_INTR_MSK         1                  0x1              
++ * 0x0017[5]     SMB_TMOUT_INTR_MSK   1                  0x1              
++ * 0x0018[3:0]   LOSIN_INTR_MSK       15                 0xF              
++ * 0x0021[0]     IN_SEL_REGCTRL       1                  0x1              
++ * 0x0021[2:1]   IN_SEL               3                  0x3              
++ * 0x0022[1]     OE                   0                  0x0              
++ * 0x002B[3]     SPI_3WIRE            0                  0x0              
++ * 0x002B[5]     AUTO_NDIV_UPDATE     0                  0x0              
++ * 0x002C[3:0]   LOS_EN               0                  0x0              
++ * 0x002C[4]     LOSXAXB_DIS          0                  0x0              
++ * 0x002D[1:0]   LOS0_VAL_TIME        0                  0x0              
++ * 0x002D[3:2]   LOS1_VAL_TIME        0                  0x0              
++ * 0x002D[5:4]   LOS2_VAL_TIME        0                  0x0              
++ * 0x002D[7:6]   LOS3_VAL_TIME        0                  0x0              
++ * 0x002E[15:0]  LOS0_TRG_THR         0                  0x0000           
++ * 0x0030[15:0]  LOS1_TRG_THR         0                  0x0000           
++ * 0x0032[15:0]  LOS2_TRG_THR         0                  0x0000           
++ * 0x0034[15:0]  LOS3_TRG_THR         0                  0x0000           
++ * 0x0036[15:0]  LOS0_CLR_THR         0                  0x0000           
++ * 0x0038[15:0]  LOS1_CLR_THR         0                  0x0000           
++ * 0x003A[15:0]  LOS2_CLR_THR         0                  0x0000           
++ * 0x003C[15:0]  LOS3_CLR_THR         0                  0x0000           
++ * 0x0041[4:0]   LOS0_DIV_SEL         0                  0x00             
++ * 0x0042[4:0]   LOS1_DIV_SEL         0                  0x00             
++ * 0x0043[4:0]   LOS2_DIV_SEL         0                  0x00             
++ * 0x0044[4:0]   LOS3_DIV_SEL         0                  0x00             
++ * 0x009E[7:4]   LOL_SET_THR          0                  0x0              
++ * 0x0102[0]     OUTALL_DISABLE_LOW   1                  0x1              
++ * 0x0108[0]     OUT0_PDN             0                  0x0              
++ * 0x0108[1]     OUT0_OE              1                  0x1              
++ * 0x0108[2]     OUT0_RDIV_FORCE2     0                  0x0              
++ * 0x0109[2:0]   OUT0_FORMAT          1                  0x1              
++ * 0x0109[3]     OUT0_SYNC_EN         1                  0x1              
++ * 0x0109[5:4]   OUT0_DIS_STATE       0                  0x0              
++ * 0x0109[7:6]   OUT0_CMOS_DRV        0                  0x0              
++ * 0x010A[3:0]   OUT0_CM              11                 0xB              
++ * 0x010A[6:4]   OUT0_AMPL            3                  0x3              
++ * 0x010B[2:0]   OUT0_MUX_SEL         0                  0x0              
++ * 0x010B[5:4]   OUT0_VDD_SEL         2                  0x2              
++ * 0x010B[3]     OUT0_VDD_SEL_EN      1                  0x1              
++ * 0x010B[7:6]   OUT0_INV             0                  0x0              
++ * 0x010D[0]     OUT1_PDN             0                  0x0              
++ * 0x010D[1]     OUT1_OE              1                  0x1              
++ * 0x010D[2]     OUT1_RDIV_FORCE2     1                  0x1              
++ * 0x010E[2:0]   OUT1_FORMAT          1                  0x1              
++ * 0x010E[3]     OUT1_SYNC_EN         1                  0x1              
++ * 0x010E[5:4]   OUT1_DIS_STATE       0                  0x0              
++ * 0x010E[7:6]   OUT1_CMOS_DRV        0                  0x0              
++ * 0x010F[3:0]   OUT1_CM              11                 0xB              
++ * 0x010F[6:4]   OUT1_AMPL            3                  0x3              
++ * 0x0110[2:0]   OUT1_MUX_SEL         1                  0x1              
++ * 0x0110[5:4]   OUT1_VDD_SEL         2                  0x2              
++ * 0x0110[3]     OUT1_VDD_SEL_EN      1                  0x1              
++ * 0x0110[7:6]   OUT1_INV             0                  0x0              
++ * 0x0112[0]     OUT2_PDN             0                  0x0              
++ * 0x0112[1]     OUT2_OE              1                  0x1              
++ * 0x0112[2]     OUT2_RDIV_FORCE2     0                  0x0              
++ * 0x0113[2:0]   OUT2_FORMAT          1                  0x1              
++ * 0x0113[3]     OUT2_SYNC_EN         1                  0x1              
++ * 0x0113[5:4]   OUT2_DIS_STATE       0                  0x0              
++ * 0x0113[7:6]   OUT2_CMOS_DRV        0                  0x0              
++ * 0x0114[3:0]   OUT2_CM              11                 0xB              
++ * 0x0114[6:4]   OUT2_AMPL            3                  0x3              
++ * 0x0115[2:0]   OUT2_MUX_SEL         0                  0x0              
++ * 0x0115[5:4]   OUT2_VDD_SEL         2                  0x2              
++ * 0x0115[3]     OUT2_VDD_SEL_EN      1                  0x1              
++ * 0x0115[7:6]   OUT2_INV             0                  0x0              
++ * 0x0117[0]     OUT3_PDN             0                  0x0              
++ * 0x0117[1]     OUT3_OE              1                  0x1              
++ * 0x0117[2]     OUT3_RDIV_FORCE2     0                  0x0              
++ * 0x0118[2:0]   OUT3_FORMAT          1                  0x1              
++ * 0x0118[3]     OUT3_SYNC_EN         1                  0x1              
++ * 0x0118[5:4]   OUT3_DIS_STATE       0                  0x0              
++ * 0x0118[7:6]   OUT3_CMOS_DRV        0                  0x0              
++ * 0x0119[3:0]   OUT3_CM              11                 0xB              
++ * 0x0119[6:4]   OUT3_AMPL            3                  0x3              
++ * 0x011A[2:0]   OUT3_MUX_SEL         0                  0x0              
++ * 0x011A[5:4]   OUT3_VDD_SEL         2                  0x2              
++ * 0x011A[3]     OUT3_VDD_SEL_EN      1                  0x1              
++ * 0x011A[7:6]   OUT3_INV             0                  0x0              
++ * 0x011C[0]     OUT4_PDN             0                  0x0              
++ * 0x011C[1]     OUT4_OE              1                  0x1              
++ * 0x011C[2]     OUT4_RDIV_FORCE2     0                  0x0              
++ * 0x011D[2:0]   OUT4_FORMAT          1                  0x1              
++ * 0x011D[3]     OUT4_SYNC_EN         1                  0x1              
++ * 0x011D[5:4]   OUT4_DIS_STATE       0                  0x0              
++ * 0x011D[7:6]   OUT4_CMOS_DRV        0                  0x0              
++ * 0x011E[3:0]   OUT4_CM              11                 0xB              
++ * 0x011E[6:4]   OUT4_AMPL            3                  0x3              
++ * 0x011F[2:0]   OUT4_MUX_SEL         0                  0x0              
++ * 0x011F[5:4]   OUT4_VDD_SEL         2                  0x2              
++ * 0x011F[3]     OUT4_VDD_SEL_EN      1                  0x1              
++ * 0x011F[7:6]   OUT4_INV             0                  0x0              
++ * 0x0121[0]     OUT5_PDN             0                  0x0              
++ * 0x0121[1]     OUT5_OE              1                  0x1              
++ * 0x0121[2]     OUT5_RDIV_FORCE2     0                  0x0              
++ * 0x0122[2:0]   OUT5_FORMAT          1                  0x1              
++ * 0x0122[3]     OUT5_SYNC_EN         1                  0x1              
++ * 0x0122[5:4]   OUT5_DIS_STATE       0                  0x0              
++ * 0x0122[7:6]   OUT5_CMOS_DRV        0                  0x0              
++ * 0x0123[3:0]   OUT5_CM              11                 0xB              
++ * 0x0123[6:4]   OUT5_AMPL            3                  0x3              
++ * 0x0124[2:0]   OUT5_MUX_SEL         0                  0x0              
++ * 0x0124[5:4]   OUT5_VDD_SEL         2                  0x2              
++ * 0x0124[3]     OUT5_VDD_SEL_EN      1                  0x1              
++ * 0x0124[7:6]   OUT5_INV             0                  0x0              
++ * 0x0126[0]     OUT6_PDN             0                  0x0              
++ * 0x0126[1]     OUT6_OE              1                  0x1              
++ * 0x0126[2]     OUT6_RDIV_FORCE2     0                  0x0              
++ * 0x0127[2:0]   OUT6_FORMAT          1                  0x1              
++ * 0x0127[3]     OUT6_SYNC_EN         1                  0x1              
++ * 0x0127[5:4]   OUT6_DIS_STATE       0                  0x0              
++ * 0x0127[7:6]   OUT6_CMOS_DRV        0                  0x0              
++ * 0x0128[3:0]   OUT6_CM              11                 0xB              
++ * 0x0128[6:4]   OUT6_AMPL            3                  0x3              
++ * 0x0129[2:0]   OUT6_MUX_SEL         0                  0x0              
++ * 0x0129[5:4]   OUT6_VDD_SEL         2                  0x2              
++ * 0x0129[3]     OUT6_VDD_SEL_EN      1                  0x1              
++ * 0x0129[7:6]   OUT6_INV             0                  0x0              
++ * 0x012B[0]     OUT7_PDN             0                  0x0              
++ * 0x012B[1]     OUT7_OE              1                  0x1              
++ * 0x012B[2]     OUT7_RDIV_FORCE2     0                  0x0              
++ * 0x012C[2:0]   OUT7_FORMAT          1                  0x1              
++ * 0x012C[3]     OUT7_SYNC_EN         1                  0x1              
++ * 0x012C[5:4]   OUT7_DIS_STATE       0                  0x0              
++ * 0x012C[7:6]   OUT7_CMOS_DRV        0                  0x0              
++ * 0x012D[3:0]   OUT7_CM              11                 0xB              
++ * 0x012D[6:4]   OUT7_AMPL            3                  0x3              
++ * 0x012E[2:0]   OUT7_MUX_SEL         0                  0x0              
++ * 0x012E[5:4]   OUT7_VDD_SEL         2                  0x2              
++ * 0x012E[3]     OUT7_VDD_SEL_EN      1                  0x1              
++ * 0x012E[7:6]   OUT7_INV             0                  0x0              
++ * 0x0130[0]     OUT8_PDN             1                  0x1              
++ * 0x0130[1]     OUT8_OE              0                  0x0              
++ * 0x0130[2]     OUT8_RDIV_FORCE2     0                  0x0              
++ * 0x0131[2:0]   OUT8_FORMAT          1                  0x1              
++ * 0x0131[3]     OUT8_SYNC_EN         1                  0x1              
++ * 0x0131[5:4]   OUT8_DIS_STATE       0                  0x0              
++ * 0x0131[7:6]   OUT8_CMOS_DRV        0                  0x0              
++ * 0x0132[3:0]   OUT8_CM              11                 0xB              
++ * 0x0132[6:4]   OUT8_AMPL            3                  0x3              
++ * 0x0133[2:0]   OUT8_MUX_SEL         0                  0x0              
++ * 0x0133[5:4]   OUT8_VDD_SEL         2                  0x2              
++ * 0x0133[3]     OUT8_VDD_SEL_EN      1                  0x1              
++ * 0x0133[7:6]   OUT8_INV             0                  0x0              
++ * 0x013A[0]     OUT9_PDN             1                  0x1              
++ * 0x013A[1]     OUT9_OE              0                  0x0              
++ * 0x013A[2]     OUT9_RDIV_FORCE2     0                  0x0              
++ * 0x013B[2:0]   OUT9_FORMAT          1                  0x1              
++ * 0x013B[3]     OUT9_SYNC_EN         1                  0x1              
++ * 0x013B[5:4]   OUT9_DIS_STATE       0                  0x0              
++ * 0x013B[7:6]   OUT9_CMOS_DRV        0                  0x0              
++ * 0x013C[3:0]   OUT9_CM              11                 0xB              
++ * 0x013C[6:4]   OUT9_AMPL            3                  0x3              
++ * 0x013D[2:0]   OUT9_MUX_SEL         0                  0x0              
++ * 0x013D[5:4]   OUT9_VDD_SEL         2                  0x2              
++ * 0x013D[3]     OUT9_VDD_SEL_EN      1                  0x1              
++ * 0x013D[7:6]   OUT9_INV             0                  0x0              
++ * 0x013F[11:0]  OUTX_ALWAYS_ON       0                  0x000            
++ * 0x0141[5]     OUT_DIS_LOL_MSK      0                  0x0              
++ * 0x0141[7]     OUT_DIS_MSK_LOS_PFD  0                  0x0              
++ * 0x0206[1:0]   PXAXB                0                  0x0              
++ * 0x0208[47:0]  P0                   0                  0x000000000000   
++ * 0x020E[31:0]  P0_SET               0                  0x00000000       
++ * 0x0212[47:0]  P1                   0                  0x000000000000   
++ * 0x0218[31:0]  P1_SET               0                  0x00000000       
++ * 0x021C[47:0]  P2                   0                  0x000000000000   
++ * 0x0222[31:0]  P2_SET               0                  0x00000000       
++ * 0x0226[47:0]  P3                   0                  0x000000000000   
++ * 0x022C[31:0]  P3_SET               0                  0x00000000       
++ * 0x0235[43:0]  M_NUM                939524096000       0x0DAC0000000    
++ * 0x023B[31:0]  M_DEN                3221225472         0xC0000000       
++ * 0x024A[23:0]  R0_REG               3                  0x000003         
++ * 0x024D[23:0]  R1_REG               0                  0x000000         
++ * 0x0250[23:0]  R2_REG               4                  0x000004         
++ * 0x0253[23:0]  R3_REG               4                  0x000004         
++ * 0x0256[23:0]  R4_REG               4                  0x000004         
++ * 0x0259[23:0]  R5_REG               4                  0x000004         
++ * 0x025C[23:0]  R6_REG               3                  0x000003         
++ * 0x025F[23:0]  R7_REG               3                  0x000003         
++ * 0x0262[23:0]  R8_REG               0                  0x000000         
++ * 0x0268[23:0]  R9_REG               0                  0x000000         
++ * 0x026B[7:0]   DESIGN_ID0           0                  0x00             
++ * 0x026C[7:0]   DESIGN_ID1           0                  0x00             
++ * 0x026D[7:0]   DESIGN_ID2           0                  0x00             
++ * 0x026E[7:0]   DESIGN_ID3           0                  0x00             
++ * 0x026F[7:0]   DESIGN_ID4           0                  0x00             
++ * 0x0270[7:0]   DESIGN_ID5           0                  0x00             
++ * 0x0271[7:0]   DESIGN_ID6           0                  0x00             
++ * 0x0272[7:0]   DESIGN_ID7           0                  0x00             
++ * 0x0302[43:0]  N0_NUM               30064771072        0x00700000000    
++ * 0x0308[31:0]  N0_DEN               2147483648         0x80000000       
++ * 0x030C[0]     N0_UPDATE            0                  0x0              
++ * 0x030D[43:0]  N1_NUM               120259084288       0x01C00000000    
++ * 0x0313[31:0]  N1_DEN               2684354560         0xA0000000       
++ * 0x0317[0]     N1_UPDATE            0                  0x0              
++ * 0x0318[43:0]  N2_NUM               0                  0x00000000000    
++ * 0x031E[31:0]  N2_DEN               0                  0x00000000       
++ * 0x0322[0]     N2_UPDATE            0                  0x0              
++ * 0x0323[43:0]  N3_NUM               0                  0x00000000000    
++ * 0x0329[31:0]  N3_DEN               0                  0x00000000       
++ * 0x032D[0]     N3_UPDATE            0                  0x0              
++ * 0x032E[43:0]  N4_NUM               0                  0x00000000000    
++ * 0x0334[31:0]  N4_DEN               0                  0x00000000       
++ * 0x0338[0]     N4_UPDATE            0                  0x0              
++ * 0x0338[1]     N_UPDATE             0                  0x0              
++ * 0x0339[4:0]   N_FSTEP_MSK          31                 0x1F             
++ * 0x033B[43:0]  N0_FSTEPW            0                  0x00000000000    
++ * 0x0341[43:0]  N1_FSTEPW            0                  0x00000000000    
++ * 0x0347[43:0]  N2_FSTEPW            0                  0x00000000000    
++ * 0x034D[43:0]  N3_FSTEPW            0                  0x00000000000    
++ * 0x0353[43:0]  N4_FSTEPW            0                  0x00000000000    
++ * 0x0359[15:0]  N0_DELAY             0                  0x0000           
++ * 0x035B[15:0]  N1_DELAY             0                  0x0000           
++ * 0x035D[15:0]  N2_DELAY             0                  0x0000           
++ * 0x035F[15:0]  N3_DELAY             0                  0x0000           
++ * 0x0361[15:0]  N4_DELAY             0                  0x0000           
++ * 0x0802[15:0]  FIXREGSA0            0                  0x0000           
++ * 0x0804[7:0]   FIXREGSD0            0                  0x00             
++ * 0x0805[15:0]  FIXREGSA1            0                  0x0000           
++ * 0x0807[7:0]   FIXREGSD1            0                  0x00             
++ * 0x0808[15:0]  FIXREGSA2            0                  0x0000           
++ * 0x080A[7:0]   FIXREGSD2            0                  0x00             
++ * 0x080B[15:0]  FIXREGSA3            0                  0x0000           
++ * 0x080D[7:0]   FIXREGSD3            0                  0x00             
++ * 0x080E[15:0]  FIXREGSA4            0                  0x0000           
++ * 0x0810[7:0]   FIXREGSD4            0                  0x00             
++ * 0x0811[15:0]  FIXREGSA5            0                  0x0000           
++ * 0x0813[7:0]   FIXREGSD5            0                  0x00             
++ * 0x0814[15:0]  FIXREGSA6            0                  0x0000           
++ * 0x0816[7:0]   FIXREGSD6            0                  0x00             
++ * 0x0817[15:0]  FIXREGSA7            0                  0x0000           
++ * 0x0819[7:0]   FIXREGSD7            0                  0x00             
++ * 0x081A[15:0]  FIXREGSA8            0                  0x0000           
++ * 0x081C[7:0]   FIXREGSD8            0                  0x00             
++ * 0x081D[15:0]  FIXREGSA9            0                  0x0000           
++ * 0x081F[7:0]   FIXREGSD9            0                  0x00             
++ * 0x0820[15:0]  FIXREGSA10           0                  0x0000           
++ * 0x0822[7:0]   FIXREGSD10           0                  0x00             
++ * 0x0823[15:0]  FIXREGSA11           0                  0x0000           
++ * 0x0825[7:0]   FIXREGSD11           0                  0x00             
++ * 0x0826[15:0]  FIXREGSA12           0                  0x0000           
++ * 0x0828[7:0]   FIXREGSD12           0                  0x00             
++ * 0x0829[15:0]  FIXREGSA13           0                  0x0000           
++ * 0x082B[7:0]   FIXREGSD13           0                  0x00             
++ * 0x082C[15:0]  FIXREGSA14           0                  0x0000           
++ * 0x082E[7:0]   FIXREGSD14           0                  0x00             
++ * 0x082F[15:0]  FIXREGSA15           0                  0x0000           
++ * 0x0831[7:0]   FIXREGSD15           0                  0x00             
++ * 0x0832[15:0]  FIXREGSA16           0                  0x0000           
++ * 0x0834[7:0]   FIXREGSD16           0                  0x00             
++ * 0x0835[15:0]  FIXREGSA17           0                  0x0000           
++ * 0x0837[7:0]   FIXREGSD17           0                  0x00             
++ * 0x0838[15:0]  FIXREGSA18           0                  0x0000           
++ * 0x083A[7:0]   FIXREGSD18           0                  0x00             
++ * 0x083B[15:0]  FIXREGSA19           0                  0x0000           
++ * 0x083D[7:0]   FIXREGSD19           0                  0x00             
++ * 0x083E[15:0]  FIXREGSA20           0                  0x0000           
++ * 0x0840[7:0]   FIXREGSD20           0                  0x00             
++ * 0x0841[15:0]  FIXREGSA21           0                  0x0000           
++ * 0x0843[7:0]   FIXREGSD21           0                  0x00             
++ * 0x0844[15:0]  FIXREGSA22           0                  0x0000           
++ * 0x0846[7:0]   FIXREGSD22           0                  0x00             
++ * 0x0847[15:0]  FIXREGSA23           0                  0x0000           
++ * 0x0849[7:0]   FIXREGSD23           0                  0x00             
++ * 0x084A[15:0]  FIXREGSA24           0                  0x0000           
++ * 0x084C[7:0]   FIXREGSD24           0                  0x00             
++ * 0x084D[15:0]  FIXREGSA25           0                  0x0000           
++ * 0x084F[7:0]   FIXREGSD25           0                  0x00             
++ * 0x0850[15:0]  FIXREGSA26           0                  0x0000           
++ * 0x0852[7:0]   FIXREGSD26           0                  0x00             
++ * 0x0853[15:0]  FIXREGSA27           0                  0x0000           
++ * 0x0855[7:0]   FIXREGSD27           0                  0x00             
++ * 0x0856[15:0]  FIXREGSA28           0                  0x0000           
++ * 0x0858[7:0]   FIXREGSD28           0                  0x00             
++ * 0x0859[15:0]  FIXREGSA29           0                  0x0000           
++ * 0x085B[7:0]   FIXREGSD29           0                  0x00             
++ * 0x085C[15:0]  FIXREGSA30           0                  0x0000           
++ * 0x085E[7:0]   FIXREGSD30           0                  0x00             
++ * 0x085F[15:0]  FIXREGSA31           0                  0x0000           
++ * 0x0861[7:0]   FIXREGSD31           0                  0x00             
++ * 0x090E[0]     XAXB_EXTCLK_EN       0                  0x0              
++ * 0x090E[1]     XAXB_PDNB            1                  0x1              
++ * 0x091C[2:0]   ZDM_EN               4                  0x4              
++ * 0x0943[0]     IO_VDD_SEL           0                  0x0              
++ * 0x0949[3:0]   IN_EN                0                  0x0              
++ * 0x0949[7:4]   IN_PULSED_CMOS_EN    0                  0x0              
++ * 0x094A[7:4]   INX_TO_PFD_EN        0                  0x0              
++ * 0x094E[11:0]  REFCLK_HYS_SEL       585                0x249            
++ * 0x095E[0]     M_INTEGER            0                  0x0              
++ * 0x0A02[4:0]   N_ADD_0P5            0                  0x00             
++ * 0x0A03[4:0]   N_CLK_TO_OUTX_EN     3                  0x03             
++ * 0x0A04[4:0]   N_PIBYP              1                  0x01             
++ * 0x0A05[4:0]   N_PDNB               3                  0x03             
++ * 0x0A14[3]     N0_HIGH_FREQ         0                  0x0              
++ * 0x0A1A[3]     N1_HIGH_FREQ         0                  0x0              
++ * 0x0A20[3]     N2_HIGH_FREQ         0                  0x0              
++ * 0x0A26[3]     N3_HIGH_FREQ         0                  0x0              
++ * 0x0A2C[3]     N4_HIGH_FREQ         0                  0x0              
++ * 0x0B44[3:0]   PDIV_ENB             15                 0xF              
++ * 0x0B4A[4:0]   N_CLK_DIS            28                 0x1C             
++ * 0x0B57[11:0]  VCO_RESET_CALCODE    270                0x10E
++ * 
++ *
++ */
++
++#endif
+\ No newline at end of file
+--- /dev/null
++++ b/board/tqc/common/ns_access.c
+@@ -0,0 +1 @@
++#include "../../freescale/common/ns_access.c"
+--- /dev/null
++++ b/board/tqc/common/tqc_bb.h
+@@ -0,0 +1,33 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Copyright (C) 2018 TQ Systems
++ */
++
++#ifndef __TQC_BB__
++#define __TQC_BB__
++
++#include <common.h>
++#include <mmc.h>
++
++int tqc_bb_board_mmc_init(struct bd_info *bis);
++int tqc_bb_board_mmc_getwp(struct mmc *mmc);
++int tqc_bb_board_mmc_getcd(struct mmc *mmc);
++
++int tqc_bb_board_early_init_f(void);
++int tqc_bb_board_init(void);
++int tqc_bb_misc_init_r(void);
++int tqc_bb_board_late_init(void);
++int tqc_bb_checkboard(void);
++
++const char *tqc_bb_get_boardname(void);
++
++int tqc_bb_board_eth_init(struct bd_info *bis);
++
++/*
++ * Device Tree Support
++ */
++#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
++int tqc_bb_ft_board_setup(void *blob, struct bd_info *bis);
++#endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */
++
++#endif
+--- /dev/null
++++ b/board/tqc/common/tqc_eeprom.c
+@@ -0,0 +1,127 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2014 - 2016 TQ Systems GmbH
++ * Markus Niebel <Markus.Niebel@tq-group.com>
++ */
++
++#include <common.h>
++#include <i2c.h>
++#include <malloc.h>
++#include <linux/ctype.h>
++
++#include "tqc_eeprom.h"
++
++int tqc_parse_eeprom_mac(struct tqc_eeprom_data *eeprom, char *buf,
++			 size_t len)
++{
++	u8 *p;
++	int ret;
++
++	if (!buf || !eeprom)
++		return -1;
++	/* MAC address */
++	p = eeprom->mac;
++	ret = snprintf(buf, len, "%02x:%02x:%02x:%02x:%02x:%02x",
++		       p[0], p[1], p[2], p[3], p[4], p[5]);
++	if (ret < 0)
++		return ret;
++	if (ret >= len)
++		return ret;
++
++	return 0;
++}
++
++int tqc_parse_eeprom_serial(struct tqc_eeprom_data *eeprom, char *buf,
++			    size_t len)
++{
++	unsigned i;
++
++	if (!buf || !eeprom)
++		return -1;
++	if (len < (sizeof(eeprom->serial) + 1))
++		return -1;
++
++	for (i = 0; i < (sizeof(eeprom->serial)) &&
++		isdigit(eeprom->serial[i]); i++)
++		buf[i] = eeprom->serial[i];
++	buf[i] = '\0';
++	if (sizeof(eeprom->serial) != strlen(buf))
++		return -1;
++
++	return 0;
++}
++
++int tqc_parse_eeprom_id(struct tqc_eeprom_data *eeprom, char *buf,
++			size_t len)
++{
++	unsigned i;
++
++	if (!buf || !eeprom)
++		return -1;
++	if (len < (sizeof(eeprom->id) + 1))
++		return -1;
++
++	for (i = 0; i < sizeof(eeprom->id) &&
++		isprint(eeprom->id[i]) && isascii(eeprom->id[i]); ++i)
++		buf[i] = eeprom->id[i];
++	buf[i] = '\0';
++
++	return 0;
++}
++
++/*
++ * show_eeprom - display the contents of the module EEPROM
++ */
++int tqc_show_eeprom(struct tqc_eeprom_data *eeprom, const char *id)
++{
++	/* must hold largest field of eeprom data */
++	char safe_string[0x41];
++
++	if (!eeprom)
++		return -1;
++
++	puts(id);
++	puts(" EEPROM:\n");
++	/* ID */
++	tqc_parse_eeprom_id(eeprom, safe_string,
++			      ARRAY_SIZE(safe_string));
++	if (0 == strncmp(safe_string, id, strlen(id)))
++		printf("  ID: %s\n", safe_string);
++	else
++		puts("  unknown hardware variant\n");
++
++	/* Serial number */
++	if (0 == tqc_parse_eeprom_serial(eeprom, safe_string,
++					   ARRAY_SIZE(safe_string)))
++		printf("  SN: %s\n", safe_string);
++	else
++		puts("  unknown serial number\n");
++	/* MAC address */
++	if (0 == tqc_parse_eeprom_mac(eeprom, safe_string,
++					ARRAY_SIZE(safe_string)))
++		printf("  MAC: %s\n", safe_string);
++	else
++		puts("  invalid MAC\n");
++
++	return 0;
++}
++
++/*
++ * read_eeprom - read the given EEPROM into memory
++ */
++int tqc_read_eeprom(unsigned int bus, unsigned int addr,
++		    struct tqc_eeprom_data *eeprom)
++{
++	int ret;
++	unsigned int oldbus;
++	if (!eeprom)
++		return -1;
++
++	oldbus = i2c_get_bus_num();
++	i2c_set_bus_num(bus);
++	ret = i2c_read(addr, 0, CONFIG_SYS_I2C_EEPROM_ADDR_LEN,
++		       (uchar *)eeprom, sizeof(*eeprom));
++	i2c_set_bus_num(oldbus);
++	return ret;
++}
++
+--- /dev/null
++++ b/board/tqc/common/tqc_eeprom.h
+@@ -0,0 +1,33 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2014 - 2016 TQ Systems GmbH
++ * Markus Niebel <Markus.Niebel@tq-group.com>
++ */
++
++#ifndef __TQC_EEPROM_H__
++#define __TQC_EEPROM_H__
++
++/*
++ * static EEPROM layout
++ */
++struct __attribute__ ((__packed__)) tqc_eeprom_data {
++	u8 hrcw_primary[0x20];
++	u8 mac[6];		/* 0x20 ... 0x25 */
++	u8 rsv1[10];
++	u8 serial[8];		/* 0x30 ... 0x37 */
++	u8 rsv2[8];
++	u8 id[0x40];		/* 0x40 ... 0x7f */
++};
++
++int tqc_parse_eeprom_mac(struct tqc_eeprom_data *eeprom, char *buf,
++			 size_t len);
++
++int tqc_parse_eeprom_serial(struct tqc_eeprom_data *eeprom, char *buf,
++			    size_t len);
++int tqc_parse_eeprom_id(struct tqc_eeprom_data *eeprom, char *buf,
++			size_t len);
++int tqc_show_eeprom(struct tqc_eeprom_data *eeprom, const char *id);
++int tqc_read_eeprom(unsigned int bus, unsigned int addr,
++		    struct tqc_eeprom_data *eeprom);
++
++#endif
+--- /dev/null
++++ b/board/tqc/common/tqc_mbls10xxa.c
+@@ -0,0 +1,576 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright 2018 TQ-Systems GmbH
++ */
++#include <common.h>
++#include <i2c.h>
++#include <netdev.h>
++#include <fm_eth.h>
++#include <fsl_dtsec.h>
++#include <fsl_mdio.h>
++#include <asm/io.h>
++#if defined(CONFIG_FSL_LSCH3)
++#include <asm/arch/immap_lsch3.h>
++#elif defined(CONFIG_FSL_LSCH2)
++#include <asm/arch/immap_lsch2.h>
++#endif
++#include "tqc_mbls10xxa.h"
++
++struct tqc_mbls10xxa_i2c_gpio {
++	char name[20];
++	uint8_t addr;
++	uint8_t nr;
++	uint8_t dir;
++	uint8_t dval;
++};
++
++struct tqc_mbls10xxa_i2c_gpio tqc_mbls10xxa_i2c_gpios[] =
++{
++	{"sd1_3_lane_a_mux",    0x20,  0, PCA953X_DIR_IN, -1},
++	{"sd1_2_lane_b_mux",    0x20,  1, PCA953X_DIR_IN, -1},
++	{"sd1_0_lane_d_mux",    0x20,  2, PCA953X_DIR_IN, -1},
++	{"sd2_1_lane_b_mux",    0x20,  3, PCA953X_DIR_IN, -1},
++	{"sd2_3_lane_d_mux1",   0x20,  4, PCA953X_DIR_IN, -1},
++	{"sd2_3_lane_d_mux2",   0x20,  5, PCA953X_DIR_IN, -1},
++	{"sd_mux_shdn",         0x20,  6, PCA953X_DIR_IN, -1},
++	{"sd1_ref_clk2_sel",    0x20,  7, PCA953X_DIR_IN, -1},
++	{"mpcie1_disable#",     0x20,  8, PCA953X_DIR_OUT, 0},
++	{"mpcie1_wake#",        0x20,  9, PCA953X_DIR_IN, -1},
++	{"mpcie2_disable#",     0x20, 10, PCA953X_DIR_OUT, 0},
++	{"mpcie2_wake#",        0x20, 11, PCA953X_DIR_IN, -1},
++	{"prsnt#",              0x20, 12, PCA953X_DIR_IN, -1},
++	{"pcie_pwr_en",         0x20, 13, PCA953X_DIR_OUT, 1},
++	{"dcdc_pwr_en",         0x20, 14, PCA953X_DIR_OUT, 1},
++	{"dcdc_pgood_1v8",      0x20, 15, PCA953X_DIR_IN, -1},
++	{"xfi1_tx_fault",       0x21,  0, PCA953X_DIR_IN, -1},
++	{"xfi1_tx_dis",         0x21,  1, PCA953X_DIR_OUT, 1},
++	{"xfi1_moddef_det",     0x21,  2, PCA953X_DIR_IN, -1},
++	{"xfi1_rx_loss",        0x21,  3, PCA953X_DIR_IN, -1},
++	{"retimer1_loss",       0x21,  4, PCA953X_DIR_IN, -1},
++	{"xfi1_ensmb" ,         0x21,  5, PCA953X_DIR_OUT, 1},
++	{"qsgmii1_clk_sel0",    0x21,  6, PCA953X_DIR_IN, -1},
++	{"qsgmii_phy1_config3", 0x21,  7, PCA953X_DIR_IN, -1},
++	{"xfi2_tx_fault",       0x21,  8, PCA953X_DIR_IN, -1},
++	{"xfi2_tx_dis",         0x21,  9, PCA953X_DIR_OUT, 1},
++	{"xfi2_moddef_det",     0x21, 10, PCA953X_DIR_IN, -1},
++	{"xfi2_rx_loss",        0x21, 11, PCA953X_DIR_IN, -1},
++	{"retimer2_loss",       0x21, 12, PCA953X_DIR_IN, -1},
++	{"xfi2_ensmb" ,         0x21, 13, PCA953X_DIR_OUT, 1},
++	{"qsgmii2_clk_sel0",    0x21, 14, PCA953X_DIR_IN, -1},
++	{"qsgmii_phy2_config3", 0x21, 15, PCA953X_DIR_IN, -1},
++	{"ec1_phy_pwdn",        0x22,  0, PCA953X_DIR_IN, -1},
++	{"ec2_phy_pwdn",        0x22,  1, PCA953X_DIR_IN, -1},
++	{"usb_c_pwron",         0x22,  2, PCA953X_DIR_OUT, 0},
++	{"usb_en_oc_3v3#",      0x22,  3, PCA953X_DIR_IN, -1},
++	{"usb_h_grst#",         0x22,  4, PCA953X_DIR_OUT, 1},
++	{"gpio_button0",        0x22,  5, PCA953X_DIR_IN, -1},
++	{"gpio_button1",        0x22,  6, PCA953X_DIR_IN, -1},
++	{"sda_pwr_en",          0x22,  7, PCA953X_DIR_OUT, 0},
++	{"qsgmii_phy1_int#",    0x22,  8, PCA953X_DIR_IN, -1},
++	{"qsgmii_phy2_int#",    0x22,  9, PCA953X_DIR_IN, -1},
++	{"spi_clko_sof",        0x22, 10, PCA953X_DIR_IN, -1},
++	{"spi_int#",            0x22, 11, PCA953X_DIR_IN, -1},
++	{"can_sel",             0x22, 12, PCA953X_DIR_OUT, 0},
++	{"led#",                0x22, 13, PCA953X_DIR_OUT, 1},
++	{"pcie_rst_3v3#",       0x22, 14, PCA953X_DIR_OUT, 0},
++	{"pcie_wake_3v3#",      0x22, 15, PCA953X_DIR_IN, -1},
++};
++
++static int __gpio_idx_by_name(const char *name)
++{
++	int i;
++
++	if((name == NULL) || (strlen(name) <= 0)) {
++		return -1;
++	}
++
++	for(i=0; i<sizeof(tqc_mbls10xxa_i2c_gpios)/sizeof(tqc_mbls10xxa_i2c_gpios[0]); i++) {
++		if((strlen(tqc_mbls10xxa_i2c_gpios[i].name) == strlen(name)) &&
++			(strncmp(tqc_mbls10xxa_i2c_gpios[i].name, name, strlen(name)) == 0)) {
++			return i;
++		}
++	}
++
++	return -1;
++}
++
++int tqc_mbls10xxa_i2c_gpios_init(void)
++{
++	int ret = 0;
++	unsigned int oldbus;
++	int i;
++
++	oldbus = i2c_get_bus_num();
++	i2c_set_bus_num(TQC_MBLS10XXA_I2C_GPIO_BUS_NUM);
++
++	for(i=0; i<sizeof(tqc_mbls10xxa_i2c_gpios)/sizeof(tqc_mbls10xxa_i2c_gpios[0]); i++) {
++		if(tqc_mbls10xxa_i2c_gpios[i].dir == PCA953X_DIR_OUT) {
++			pca953x_set_val(tqc_mbls10xxa_i2c_gpios[i].addr,
++				1 << tqc_mbls10xxa_i2c_gpios[i].nr,
++				tqc_mbls10xxa_i2c_gpios[i].dval << tqc_mbls10xxa_i2c_gpios[i].nr);
++		}
++		pca953x_set_dir(tqc_mbls10xxa_i2c_gpios[i].addr,
++			1 << tqc_mbls10xxa_i2c_gpios[i].nr,
++			tqc_mbls10xxa_i2c_gpios[i].dir << tqc_mbls10xxa_i2c_gpios[i].nr);
++	}
++
++	i2c_set_bus_num(oldbus);
++	return ret;
++}
++
++int tqc_mbls10xxa_i2c_gpio_get(const char *name)
++{
++	int ret = -1;
++	unsigned int oldbus;
++	int idx, val;
++
++	idx = __gpio_idx_by_name(name);
++	if(idx < 0)
++		return -1;
++
++	oldbus = i2c_get_bus_num();
++	i2c_set_bus_num(TQC_MBLS10XXA_I2C_GPIO_BUS_NUM);
++
++	if(tqc_mbls10xxa_i2c_gpios[idx].dir == PCA953X_DIR_IN) {
++		val = pca953x_get_val(tqc_mbls10xxa_i2c_gpios[idx].addr);
++		if(val >= 0) {
++			ret = (val & (1 << tqc_mbls10xxa_i2c_gpios[idx].nr))?(1):(0);
++		}
++	}
++
++	i2c_set_bus_num(oldbus);
++	return ret;
++}
++
++int tqc_mbls10xxa_i2c_gpio_set(const char *name, int val)
++{
++	int ret = -1;
++	unsigned int oldbus;
++	int idx;
++
++	idx = __gpio_idx_by_name(name);
++	if(idx < 0)
++		return -1;
++
++	oldbus = i2c_get_bus_num();
++	i2c_set_bus_num(TQC_MBLS10XXA_I2C_GPIO_BUS_NUM);
++
++	if(tqc_mbls10xxa_i2c_gpios[idx].dir != PCA953X_DIR_OUT)
++		return -1;
++
++	if(!val)
++		ret = pca953x_set_val(
++				tqc_mbls10xxa_i2c_gpios[idx].addr,
++				1 << tqc_mbls10xxa_i2c_gpios[idx].nr,
++				0);
++	else
++		ret = pca953x_set_val(
++				tqc_mbls10xxa_i2c_gpios[idx].addr,
++				1 << tqc_mbls10xxa_i2c_gpios[idx].nr,
++				1 <<  tqc_mbls10xxa_i2c_gpios[idx].nr);
++
++	i2c_set_bus_num(oldbus);
++	return ret;
++}
++
++int tqc_mbls10xxa_clk_cfg_init(void)
++{
++	int ret = 0;
++	unsigned int oldbus;
++	uint8_t buf[4];
++	int i;
++
++	oldbus = i2c_get_bus_num();
++	i2c_set_bus_num(TQC_MBLS10XXA_I2C_CLKBUF_BUS_NUM);
++
++	/* set LVDS output on channels 4 and 5 in all configurations */
++	for(i=0; i<4; i++)
++		buf[i] = 0xC0;
++	ret = i2c_write(TQC_MBLS10xxA_I2C_CLKBUF_ADDR, 12, 1, buf, 4);
++	if(ret != 0)
++		printf("unable to set clock buffer\n");
++
++	i2c_set_bus_num(oldbus);
++	return ret;
++}
++
++static void tqc_mbls10xxa_retimer_init_one(uint8_t addr)
++{
++	struct {
++		uint8_t reg;
++		uint8_t value;
++	} const cfg[] = {
++		/* Write all channels */
++		{ 0xff, 0x0c },
++		/* Assert CDR Reset */
++		{ 0x0a, 0x0c },
++		/* Write channel A */
++		{ 0xff, 0x04 },
++		/* Output Voltage 900mV */
++		{ 0x2d, 0x03 },
++		/* De-emphasis -4.5dB */
++		{ 0x15, 0x45 },
++		/* Write channel B B */
++		{ 0xff, 0x05 },
++		/* Output Voltage 1200mV */
++		{ 0x2d, 0x06 },
++		/* De-emphasis -2dB */
++		{ 0x15, 0x42 },
++		/* Write all channels */
++		{ 0xff, 0x0c },
++		/* CDR Reset Release */
++		{ 0x0a, 0x00 },
++	};
++	int ret, i;
++	uint8_t v;
++
++	for (i = 0; i < ARRAY_SIZE(cfg); i++) {
++		v = cfg[i].value;
++		ret = i2c_write(addr, cfg[i].reg, 1,
++				&v, sizeof(v));
++		if (ret != 0) {
++			printf("failed to configure XFI retimer %02x: %d\n",
++			       addr, ret);
++			break;
++		}
++	}
++}
++
++void tqc_mbls10xxa_retimer_init(void)
++{
++	const uint8_t addrs[] = TQC_MBLS10XXA_I2C_RETIMER_ADDRS;
++	unsigned int oldbus;
++	int i;
++
++	oldbus = i2c_get_bus_num();
++	i2c_set_bus_num(TQC_MBLS10XXA_I2C_RETIMER_BUS_NUM);
++
++	for (i = 0; i < ARRAY_SIZE(addrs); i++)
++		tqc_mbls10xxa_retimer_init_one(addrs[i]);
++
++	i2c_set_bus_num(oldbus);
++}
++
++void tqc_mbls10xxa_xfi_init(struct ccsr_serdes *serdes, int lane)
++{
++	u32 gcr0;
++
++	/* Put lane in reset */
++	gcr0 = serdes_in32(&serdes->lane[lane].gcr0);
++	gcr0 &= 0xFF9FFFFF;
++	serdes_out32(&serdes->lane[lane].gcr0, gcr0);
++
++	udelay(1);
++
++	/* Set up Transmit Equalization Control Register 0 for XFI */
++#if defined(CONFIG_FSL_LSCH3)
++	serdes_out32(&serdes->lane[lane].tec0,  0x00233827);
++#elif defined(CONFIG_FSL_LSCH2)
++	serdes_out32(&serdes->lane[lane].tecr0, 0x00233827);
++#endif
++
++	udelay(1);
++
++	/* Take lane out of reset */
++	gcr0 |= 0x00600000;
++	serdes_out32(&serdes->lane[lane].gcr0, gcr0);
++}
++
++#ifndef CONFIG_SPL_BUILD
++static char *_srds_proto_name(int proto)
++{
++	switch(proto) {
++	case TQC_MBLS10xxA_SRDS_PROTO_UNUSED:
++		return "Unused    ";
++	case TQC_MBLS10xxA_SRDS_PROTO_SGMII:
++		return "SGMII     ";
++	case TQC_MBLS10xxA_SRDS_PROTO_SGMII2G5:
++		return "2.5G SGMII";
++	case TQC_MBLS10xxA_SRDS_PROTO_QSGMII:
++		return "QSGMII    ";
++	case TQC_MBLS10xxA_SRDS_PROTO_XFI:
++		return "XFI       ";
++	case TQC_MBLS10xxA_SRDS_PROTO_PCIEx1:
++		return "PCIe x1   ";
++	case TQC_MBLS10xxA_SRDS_PROTO_PCIEx2:
++		return "PCIe x2   ";
++	case TQC_MBLS10xxA_SRDS_PROTO_PCIEx4:
++		return "PCIe x4   ";
++	case TQC_MBLS10xxA_SRDS_PROTO_SATA:
++		return "SATA      ";
++	default:
++		return "Unknown   ";
++	}
++}
++
++static int _srds_mux_check_and_print(int port, int lane, int mux, int proto)
++{
++	int stat = 0;
++
++	if((proto != TQC_MBLS10xxA_SRDS_PROTO_UNUSED) &&
++	   (proto != mux))
++		stat++;
++
++	printf("  SD%d-%d: MUX=%s | RCW=%s -> %s\n",
++	   port, lane, _srds_proto_name(mux), _srds_proto_name(proto),
++	   (stat)?("FAIL"):("OK"));
++
++	return stat;
++}
++
++int tqc_mbls10xxa_serdes_init(struct tqc_mbls10xxa_serdes lanes[8])
++{
++	int idx = 0;
++	int mux_val1, mux_val2;
++	int mux_proto;
++	int err_cnt = 0;
++
++	printf("Checking MBLS10xxA SerDes muxing:\n");
++
++	/* check state of SD_MUX_SHDN */
++	mux_val1 = tqc_mbls10xxa_i2c_gpio_get("sd_mux_shdn");
++	if(mux_val1) {
++		printf("!!! ATTENTION: SerDes MUXes disabled,\n");
++		printf("!!!  muxed SerDes interfaces won't work\n");
++	}
++
++	/* check config for SD1_0 */
++	mux_val1 = tqc_mbls10xxa_i2c_gpio_get("sd1_0_lane_d_mux");
++	if((mux_val1 >= 0) && (lanes[idx].port != 0)) {
++		mux_proto = (mux_val1)?(TQC_MBLS10xxA_SRDS_PROTO_XFI):(TQC_MBLS10xxA_SRDS_PROTO_SGMII);
++		err_cnt += _srds_mux_check_and_print(
++			          lanes[idx].port, lanes[idx].lane,
++			          mux_proto, lanes[idx].proto);
++	}
++	idx++;
++
++	/* check config for SD1_1 */
++	if(lanes[idx].port != 0) {
++		mux_proto = TQC_MBLS10xxA_SRDS_PROTO_XFI;
++		err_cnt += _srds_mux_check_and_print(
++			          lanes[idx].port, lanes[idx].lane,
++			          mux_proto, lanes[idx].proto);
++	}
++	idx++;
++
++	/* check config for SD1_2 */
++	mux_val1 = tqc_mbls10xxa_i2c_gpio_get("sd1_2_lane_b_mux");
++	if((mux_val1 >= 0) && (lanes[idx].port != 0)) {
++		mux_proto = (mux_val1)?(TQC_MBLS10xxA_SRDS_PROTO_QSGMII):(TQC_MBLS10xxA_SRDS_PROTO_SGMII);
++		err_cnt += _srds_mux_check_and_print(
++			          lanes[idx].port, lanes[idx].lane,
++			          mux_proto, lanes[idx].proto);
++	}
++	idx++;
++
++	/* check config for SD1_3 */
++	mux_val1 = tqc_mbls10xxa_i2c_gpio_get("sd1_3_lane_a_mux");
++	if((mux_val1 >= 0) && (lanes[idx].port != 0)) {
++		mux_proto = (mux_val1)?(TQC_MBLS10xxA_SRDS_PROTO_QSGMII):(TQC_MBLS10xxA_SRDS_PROTO_SGMII);
++		err_cnt += _srds_mux_check_and_print(
++			          lanes[idx].port, lanes[idx].lane,
++			          mux_proto, lanes[idx].proto);
++	}
++	idx++;
++
++	/* check config for SD2_0 */
++	if(lanes[idx].port != 0) {
++		mux_proto = TQC_MBLS10xxA_SRDS_PROTO_PCIEx1;
++		err_cnt += _srds_mux_check_and_print(
++			          lanes[idx].port, lanes[idx].lane,
++			          mux_proto, lanes[idx].proto);
++	}
++	idx++;
++
++	/* check config for SD2_1 */
++	mux_val1 = tqc_mbls10xxa_i2c_gpio_get("sd2_1_lane_b_mux");
++	if((mux_val1 >= 0) && (lanes[idx].port != 0)) {
++		mux_proto = (mux_val1)?(TQC_MBLS10xxA_SRDS_PROTO_SGMII):(TQC_MBLS10xxA_SRDS_PROTO_PCIEx1);
++		err_cnt += _srds_mux_check_and_print(
++			          lanes[idx].port, lanes[idx].lane,
++			          mux_proto, lanes[idx].proto);
++
++		/* enable miniPCIe-Slot when selected */
++		if((lanes[idx].proto == TQC_MBLS10xxA_SRDS_PROTO_PCIEx1) &&
++		   (mux_proto == lanes[idx].proto))
++			tqc_mbls10xxa_i2c_gpio_set("mpcie2_disable#", 1);
++		else
++			tqc_mbls10xxa_i2c_gpio_set("mpcie2_disable#", 0);
++	}
++	idx++;
++
++	/* check config for SD2_2 */
++	if(lanes[idx].port != 0) {
++		mux_proto = TQC_MBLS10xxA_SRDS_PROTO_PCIEx1;
++		if(lanes[idx].proto == TQC_MBLS10xxA_SRDS_PROTO_PCIEx2)
++			mux_proto = TQC_MBLS10xxA_SRDS_PROTO_PCIEx2;
++		err_cnt += _srds_mux_check_and_print(
++			          lanes[idx].port, lanes[idx].lane,
++			          mux_proto, lanes[idx].proto);
++
++		/* get M.2 slot out of reset when lane (SD2-2) is configured as PCIe */
++		if(((lanes[idx].proto == TQC_MBLS10xxA_SRDS_PROTO_PCIEx1) ||
++		    (lanes[idx].proto == TQC_MBLS10xxA_SRDS_PROTO_PCIEx2)) &&
++		   (mux_proto == lanes[idx].proto))
++			tqc_mbls10xxa_i2c_gpio_set("pcie_rst_3v3#", 1);
++		else
++			tqc_mbls10xxa_i2c_gpio_set("pcie_rst_3v3#", 0);
++
++	}
++	idx++;
++
++	/* check config for SD2 - LANE D */
++	mux_val1 = tqc_mbls10xxa_i2c_gpio_get("sd2_3_lane_d_mux1");
++	mux_val2 = tqc_mbls10xxa_i2c_gpio_get("sd2_3_lane_d_mux2");
++	if((mux_val1 >= 0) && (mux_val2 >= 0) && (lanes[idx].port != 0)) {
++		mux_proto = (mux_val1)?
++			           ((mux_val2)?(TQC_MBLS10xxA_SRDS_PROTO_PCIEx1):(TQC_MBLS10xxA_SRDS_PROTO_SATA)):
++					   (TQC_MBLS10xxA_SRDS_PROTO_PCIEx2);
++		err_cnt += _srds_mux_check_and_print(
++			          lanes[idx].port, lanes[idx].lane,
++			          mux_proto, lanes[idx].proto);
++
++		/* enable miniPCIe-Slot when selected */
++		if((lanes[idx].proto == TQC_MBLS10xxA_SRDS_PROTO_PCIEx1) &&
++		   (mux_proto == lanes[idx].proto))
++			tqc_mbls10xxa_i2c_gpio_set("mpcie1_disable#", 1);
++		else
++			tqc_mbls10xxa_i2c_gpio_set("mpcie1_disable#", 0);
++	}
++	idx++;
++
++	/* print error message when muxing is invalid */
++	if(err_cnt) {
++		printf("!!! ATTENTION: Some SerDes lanes are misconfigured,\n");
++		printf("!!!  this may cause some interfaces to be inoperable.\n");
++		printf("!!!  Check SerDes muxing DIP switch settings!\n");
++	}
++
++	return 0;
++}
++
++int tqc_mbls10xxa_serdes_clk_get(int clk)
++{
++	int freq = -1;
++	int mux_val;
++
++	switch(clk) {
++		case TQC_MBLS10xxA_SRDS_CLK_1_1:
++		case TQC_MBLS10xxA_SRDS_CLK_2_1:
++		case TQC_MBLS10xxA_SRDS_CLK_2_2:
++			/* fixed serdes clock (125MHz) */
++			freq = 125000000;
++			break;
++		case TQC_MBLS10xxA_SRDS_CLK_1_2:
++			/* get clock mux */
++			mux_val = tqc_mbls10xxa_i2c_gpio_get("sd1_ref_clk2_sel");
++			if(mux_val >= 0) {
++				if(mux_val)
++					freq = 125000000;
++				else
++					freq = 156250000;
++			}
++			break;
++		default:
++			break;
++	}
++
++	return freq;
++}
++
++static uint16_t _rgmii_phy_read_indirect(struct phy_device *phydev,
++					uint8_t addr)
++{
++	phy_write(phydev, MDIO_DEVAD_NONE, 0x0d, 0x001f);
++	phy_write(phydev, MDIO_DEVAD_NONE, 0x0e, addr);
++	phy_write(phydev, MDIO_DEVAD_NONE, 0x0d, 0x401f);
++	return phy_read(phydev, MDIO_DEVAD_NONE, 0x0e);
++}
++
++static void _rgmii_phy_write_indirect(struct phy_device *phydev,
++					uint8_t addr, uint16_t value)
++{
++	phy_write(phydev, MDIO_DEVAD_NONE, 0x0d, 0x001f);
++	phy_write(phydev, MDIO_DEVAD_NONE, 0x0e, addr);
++	phy_write(phydev, MDIO_DEVAD_NONE, 0x0d, 0x401f);
++	phy_write(phydev, MDIO_DEVAD_NONE, 0x0e, value);
++}
++
++int tqc_mbls10xxa_board_phy_config(struct phy_device *phydev)
++{
++	uint16_t val;
++	int ret = 0;
++	static bool qsgmii1_initdone = false;
++	static bool qsgmii2_initdone = false;
++
++	if (phydev->drv->config)
++		ret = phydev->drv->config(phydev);
++
++
++	if(!ret) {
++		if((phydev->addr == RGMII_PHY1_ADDR) ||
++		   (phydev->addr == RGMII_PHY2_ADDR)) {
++			/* enable RGMII delay in both directions */
++			val = _rgmii_phy_read_indirect(phydev, 0x32);
++			val |= 0x0003;
++			_rgmii_phy_write_indirect(phydev, 0x32, val);
++
++			/* set RGMII delay in both directions to 1,5ns */
++			val = _rgmii_phy_read_indirect(phydev, 0x86);
++			val = (val & 0xFF00) | 0x0055;
++			_rgmii_phy_write_indirect(phydev, 0x86, val);
++		} else if(((phydev->addr & 0x1C) == QSGMII_PHY1_ADDR_BASE) ||
++		          ((phydev->addr & 0x1C) == QSGMII_PHY2_ADDR_BASE)) {
++			/* check if initialization has already been done */
++			if((((phydev->addr & 0x1C) == QSGMII_PHY1_ADDR_BASE) &&
++			    qsgmii1_initdone) ||
++			   (((phydev->addr & 0x1C) == QSGMII_PHY2_ADDR_BASE) &&
++			    qsgmii2_initdone)) {
++				/* initialization already done, skip */
++				return ret;
++			}
++
++			/* reset PHY because clock input may have changed */
++			phy_write(phydev, MDIO_DEVAD_NONE, 0x16, 0x0004);
++			phy_write(phydev, MDIO_DEVAD_NONE, 0x1B, 0x8000);
++			/* wait for 50ms for reset to complete */
++			mdelay(50);
++
++			/* execute marvell specified initialization */
++			/* see MV-S301615 release note */
++			/* PHY initialization #1 */
++			phy_write(phydev, MDIO_DEVAD_NONE, 0x16, 0x00ff);
++			phy_write(phydev, MDIO_DEVAD_NONE, 0x18, 0x2800);
++			phy_write(phydev, MDIO_DEVAD_NONE, 0x17, 0x2001);
++			phy_write(phydev, MDIO_DEVAD_NONE, 0x16, 0x0000);
++			/* PHY initialization #2 */
++			phy_write(phydev, MDIO_DEVAD_NONE, 0x16, 0x0000);
++			phy_write(phydev, MDIO_DEVAD_NONE, 0x1D, 0x0003);
++			phy_write(phydev, MDIO_DEVAD_NONE, 0x1E, 0x0002);
++			phy_write(phydev, MDIO_DEVAD_NONE, 0x16, 0x0000);
++
++			/* check configuration of PHY device */
++			printf("QSGMII ethernet PHY 0x%02x configuration: ", phydev->addr);
++			phy_write(phydev, MDIO_DEVAD_NONE, 0x16, 0x0006);
++			val = phy_read(phydev, MDIO_DEVAD_NONE, 0x14);
++			phy_write(phydev, MDIO_DEVAD_NONE, 0x16, 0x0000);
++			if((val & 0x7) == 0) {
++				printf("QSGMII to Copper\n");
++			} else if((val & 0x7) == 1) {
++				printf("SGMII to Copper\n");
++			} else {
++				printf("unsupported\n");
++			}
++
++			/* mark PHY as initialized */
++			if((phydev->addr & 0x1C) == QSGMII_PHY1_ADDR_BASE)
++				qsgmii1_initdone = true;
++			if((phydev->addr & 0x1C) == QSGMII_PHY2_ADDR_BASE)
++				qsgmii2_initdone = true;
++		}
++	}
++
++	return ret;
++}
++#endif
++
+--- /dev/null
++++ b/board/tqc/common/tqc_mbls10xxa.h
+@@ -0,0 +1,58 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright 2018 TQ-Systems GmbH
++ */
++#ifndef __TQC_MBLS10xxA_H__
++#define __TQC_MBLS10xxA_H__
++
++#include <pca953x.h>
++
++#if defined(CONFIG_FSL_LSCH3)
++#define serdes_in32(a)       in_le32(a)
++#define serdes_out32(a, v)   out_le32(a, v)
++#elif defined(CONFIG_FSL_LSCH2)
++#define serdes_in32(a)       in_be32(a)
++#define serdes_out32(a, v)   out_be32(a, v)
++#endif
++
++int tqc_mbls10xxa_i2c_gpios_init(void);
++
++int tqc_mbls10xxa_i2c_gpio_get(const char *name);
++int tqc_mbls10xxa_i2c_gpio_set(const char *name, int val);
++
++void tqc_mbls10xxa_retimer_init(void);
++void tqc_mbls10xxa_xfi_init(struct ccsr_serdes *serdes, int lane);
++
++int tqc_mbls10xxa_clk_cfg_init(void);
++
++enum {
++	TQC_MBLS10xxA_SRDS_PROTO_UNUSED,
++	TQC_MBLS10xxA_SRDS_PROTO_SGMII,
++	TQC_MBLS10xxA_SRDS_PROTO_SGMII2G5,
++	TQC_MBLS10xxA_SRDS_PROTO_QSGMII,
++	TQC_MBLS10xxA_SRDS_PROTO_XFI,
++	TQC_MBLS10xxA_SRDS_PROTO_PCIEx1,
++	TQC_MBLS10xxA_SRDS_PROTO_PCIEx2,
++	TQC_MBLS10xxA_SRDS_PROTO_PCIEx4,
++	TQC_MBLS10xxA_SRDS_PROTO_SATA
++};
++
++enum {
++	TQC_MBLS10xxA_SRDS_CLK_1_1,
++	TQC_MBLS10xxA_SRDS_CLK_1_2,
++	TQC_MBLS10xxA_SRDS_CLK_2_1,
++	TQC_MBLS10xxA_SRDS_CLK_2_2
++};
++
++struct tqc_mbls10xxa_serdes {
++	int port;
++	int lane;
++	int proto;
++};
++
++int tqc_mbls10xxa_serdes_init(struct tqc_mbls10xxa_serdes lanes[8]);
++int tqc_mbls10xxa_serdes_clk_get(int clk);
++
++int tqc_mbls10xxa_board_phy_config(struct phy_device *phydev);
++
++#endif /* __TQC_MBLS10xxA_H__ */
+--- /dev/null
++++ b/board/tqc/common/tqc_moment_connect.c
+@@ -0,0 +1,479 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright 2022 Quetzal Lab
++ */
++#include <common.h>
++#include <i2c.h>
++#include <netdev.h>
++#include <fm_eth.h>
++#include <fsl_dtsec.h>
++#include <fsl_mdio.h>
++#include <fsl_ddr.h>
++#include <linux/delay.h>
++#include <asm/io.h>
++#if defined(CONFIG_FSL_LSCH3)
++#include <asm/arch/immap_lsch3.h>
++#elif defined(CONFIG_FSL_LSCH2)
++#include <asm/arch/immap_lsch2.h>
++#endif
++#include <asm/mach-imx/mxc_i2c.h>
++#include "tqc_moment_connect.h"
++#include "Si5341-RevA-Registers.h"
++#include "Si5341-RevD-Registers.h"
++
++
++static uint8_t clkgen_addr = 0;
++static uint8_t clkgen_current_page = 255;
++
++struct tqc_moment_connect_i2c_gpio {
++	char name[20];
++	uint8_t addr;
++	uint8_t nr;
++	uint8_t dir;
++	uint8_t dval;
++};
++
++struct tqc_moment_connect_i2c_gpio tqc_moment_connect_i2c_gpios[] =
++{
++	{ "mdint1",       0x020,  0, PCA953X_DIR_IN,  -1 },
++	{ "mdint2",       0x020,  1, PCA953X_DIR_IN,  -1 },
++	{ "mrst1",        0x020,  2, PCA953X_DIR_OUT,  0 },
++	{ "mrst2",        0x020,  3, PCA953X_DIR_OUT,  0 },
++	{ "bp",           0x020,  4, PCA953X_DIR_IN,  -1 },
++	{ "led_bp",       0x020,  5, PCA953X_DIR_IN,  -1 }, // Set firstly as an input for board detection
++	{ "led_1",        0x020,  6, PCA953X_DIR_OUT,  0 },
++	{ "led_2",        0x020,  7, PCA953X_DIR_OUT,  0 },
++	{ "wake_s1",      0x020,  8, PCA953X_DIR_IN,  -1 },
++	{ "wake_s2",      0x020,  9, PCA953X_DIR_IN,  -1 },
++	{ "w_disable_s1", 0x020, 10, PCA953X_DIR_OUT,  0 },
++	{ "w_disable_s2", 0x020, 11, PCA953X_DIR_OUT,  0 },
++	{ "wifi_en",      0x020, 12, PCA953X_DIR_IN,  -1 },
++	{ "wifi_ctl",     0x020, 13, PCA953X_DIR_IN,  -1 },
++	{ "en_rf_mesh_ip", 0x020, 14, PCA953X_DIR_OUT, 0 },
++	{ "rst_iot",      0x020, 15, PCA953X_DIR_OUT,  0 },
++};
++
++
++
++#if 0
++int debug_return_request(void) {
++	printf("Press s to quit current function\n");
++	if (getc() == 's')
++		return 1;
++
++	return 0;
++}
++#endif
++
++
++
++static int __gpio_idx_by_name(const char *name)
++{
++	int i;
++
++	if((name == NULL) || (strlen(name) <= 0)) {
++		return -1;
++	}
++
++	for(i=0; i<sizeof(tqc_moment_connect_i2c_gpios)/sizeof(tqc_moment_connect_i2c_gpios[0]); i++) {
++		if((strlen(tqc_moment_connect_i2c_gpios[i].name) == strlen(name)) &&
++			(strncmp(tqc_moment_connect_i2c_gpios[i].name, name, strlen(name)) == 0)) {
++			return i;
++		}
++	}
++
++	return -1;
++}
++
++
++
++int tqc_moment_connect_i2c_gpios_init(void)
++{
++	int ret = 0;
++	unsigned int oldbus;
++	int i;
++	char *env;
++	uint8_t val;
++
++	oldbus = i2c_get_bus_num();
++	i2c_set_bus_num(PCA953X_I2C_GPIO_BUS_NUM);
++
++	for(i=0; i<sizeof(tqc_moment_connect_i2c_gpios)/sizeof(tqc_moment_connect_i2c_gpios[0]); i++) {
++		if(tqc_moment_connect_i2c_gpios[i].dir == PCA953X_DIR_OUT) {
++			pca953x_set_val(tqc_moment_connect_i2c_gpios[i].addr,
++				1 << tqc_moment_connect_i2c_gpios[i].nr,
++				tqc_moment_connect_i2c_gpios[i].dval << tqc_moment_connect_i2c_gpios[i].nr);
++		}
++		pca953x_set_dir(tqc_moment_connect_i2c_gpios[i].addr,
++			1 << tqc_moment_connect_i2c_gpios[i].nr,
++			tqc_moment_connect_i2c_gpios[i].dir << tqc_moment_connect_i2c_gpios[i].nr);
++	}
++
++	// Reset PHY after power-up
++	printf("### Reset PHYs\n");
++	tqc_moment_connect_i2c_gpio_set("mrst1", 0);
++	tqc_moment_connect_i2c_gpio_set("mrst2", 0);
++	mdelay(10);
++
++	env = env_get("mrst1");
++	if (env && (strcmp(env, "0")==0))
++		val = 0;
++	else
++		val = 1;
++	tqc_moment_connect_i2c_gpio_set("mrst1", val);
++	
++	env = env_get("mrst2");
++	if (env && (strcmp(env, "0")==0))
++		val = 0;
++	else
++		val = 1;
++	tqc_moment_connect_i2c_gpio_set("mrst2", val);
++	
++	mdelay(200);
++
++	i2c_set_bus_num(oldbus);
++
++	return ret;
++}
++
++int tqc_moment_connect_i2c_gpio_get(const char *name)
++{
++	int ret = -1;
++	unsigned int oldbus;
++	int idx, val;
++
++	idx = __gpio_idx_by_name(name);
++	if(idx < 0)
++		return -1;
++
++	oldbus = i2c_get_bus_num();
++	i2c_set_bus_num(PCA953X_I2C_GPIO_BUS_NUM);
++
++	if(tqc_moment_connect_i2c_gpios[idx].dir == PCA953X_DIR_IN) {
++		val = pca953x_get_val(tqc_moment_connect_i2c_gpios[idx].addr);
++		if(val >= 0) {
++			ret = (val & (1 << tqc_moment_connect_i2c_gpios[idx].nr))?(1):(0);
++		}
++	}
++
++	i2c_set_bus_num(oldbus);
++	return ret;
++}
++
++int tqc_moment_connect_i2c_gpio_set(const char *name, int val)
++{
++	int ret = -1;
++	unsigned int oldbus;
++	int idx;
++
++	idx = __gpio_idx_by_name(name);
++	if(idx < 0)
++		return -1;
++
++	oldbus = i2c_get_bus_num();
++	i2c_set_bus_num(PCA953X_I2C_GPIO_BUS_NUM);
++
++	if(tqc_moment_connect_i2c_gpios[idx].dir != PCA953X_DIR_OUT)
++		return -1;
++
++	if(!val)
++		ret = pca953x_set_val(
++				tqc_moment_connect_i2c_gpios[idx].addr,
++				1 << tqc_moment_connect_i2c_gpios[idx].nr,
++				0);
++	else
++		ret = pca953x_set_val(
++				tqc_moment_connect_i2c_gpios[idx].addr,
++				1 << tqc_moment_connect_i2c_gpios[idx].nr,
++				1 <<  tqc_moment_connect_i2c_gpios[idx].nr);
++
++	i2c_set_bus_num(oldbus);
++	return ret;
++}
++
++
++static int clkgen_reg_write(uint16_t reg, uint8_t val) {
++	int ret = 0;
++	uint8_t page = reg >> 8;
++
++	if (page != clkgen_current_page) {
++		clkgen_current_page = page;
++		ret = i2c_write(clkgen_addr, 0x0001, 1, &page, 1);
++		if (ret) return ret;
++	}
++
++	ret = i2c_write(clkgen_addr, reg & 0xFF, 1, &val, 1);
++	return ret;
++}
++
++static int clkgen_reg_read(uint16_t reg, uint8_t * val) {
++	int ret = 0;
++	uint8_t page = reg >> 8;
++
++	if (page != clkgen_current_page) {
++		clkgen_current_page = page;
++		ret = i2c_write(clkgen_addr, 0x0001, 1, &page, 1);
++		if (ret) return ret;
++	}
++
++	ret = i2c_read(clkgen_addr, reg & 0xFF, 1, val, 1);
++
++	return ret;
++}
++
++int tqc_moment_connect_clk_cfg_init(void)
++{
++	int ret = 0;
++	unsigned int oldbus;
++	//uint8_t buf[4];
++	//int i;
++	si5341_revd_register_t * si5341_registers;
++	int si5341_registers_nb;
++	uint8_t preamble_size;
++	uint8_t val;
++
++	oldbus = i2c_get_bus_num();
++	
++	// Scan I2CV busses to detect clock generator
++	printf("Scan I2C busses :\n");
++	//i2c_disable_log();
++	for (unsigned int bus=0; bus<4; bus++) {
++		uint8_t found = 0;
++		i2c_set_bus_num(bus);
++
++		for (unsigned int chip=1; chip<128; chip++) {
++			if (i2c_probe(chip) == 0) {
++				printf("\tfound %d:%.02x\n", bus, chip);
++				found = 1;
++				if ((chip == SI5341B_REVA_CLKBUF_ADDR) || (chip == SI5341B_REVD_CLKBUF_ADDR))
++					clkgen_addr = chip;
++			}
++		}
++
++		if (found == 0)
++			printf("\tfound nothing on bus %d\n", bus);
++	}
++	printf("clkgen_addr=%.02x\n", clkgen_addr);
++	//i2c_enable_log();
++
++	if (clkgen_addr == SI5341B_REVA_CLKBUF_ADDR) {
++		si5341_registers = (si5341_revd_register_t*)&si5341_reva_registers;
++		si5341_registers_nb = SI5341_REVA_REG_CONFIG_NUM_REGS;
++		preamble_size = 2;
++		
++	} else if (clkgen_addr == SI5341B_REVD_CLKBUF_ADDR) {
++		si5341_registers = (si5341_revd_register_t*)&si5341_revd_registers;
++		si5341_registers_nb = SI5341_REVD_REG_CONFIG_NUM_REGS;
++		preamble_size = 6;
++	} else {
++		goto ERROR;
++	}
++
++	i2c_set_bus_num(SI5341B_CLKBUF_BUS_NUM);
++
++#if 0
++	ret = i2c_read(TQC_MOMENT_CONNECT_I2C_CLKBUF_ADDR, 0x02, 1, buf, 2);
++	if(ret != 0)
++		printf("Clock buffer unreachable\n");
++	else
++		printf("Clock whoami : %.02x%.02x\n", buf[1], buf[0]); // 7f92 !
++	
++	ret = i2c_read(TQC_MOMENT_CONNECT_I2C_CLKBUF_ADDR, 0x0b, 1, buf, 1);
++	if(ret != 0)
++		printf("Clock buffer unreachable\n");
++	else
++		printf("I2C address : %.02x\n", buf[0]);
++	
++	ret = i2c_read(TQC_MOMENT_CONNECT_I2C_CLKBUF_ADDR, 0xe2, 1, buf, 1);
++	if(ret != 0)
++		printf("Clock buffer unreachable\n");
++	else
++		printf("Active NVM bank : %.02x\n", buf[0]);
++#endif
++
++	// Check if clocks already reconfigured
++	// read IN_SEL (IN_SEL_REGCTRL)
++	// Must be 0x07
++	ret = clkgen_reg_read(0x0021, &val);
++	if (ret) goto ERROR;
++	
++	if ((val & 0x7) == 0x7) {
++		// Already configured
++		goto SUCCESS;
++	}
++
++	// Dynamic PLL change (needed preamble)
++	if (clkgen_addr == SI5341B_REVA_CLKBUF_ADDR) {
++		ret = clkgen_reg_write(0x0B24, 0xD8);
++		if (ret) goto ERROR;
++		ret = clkgen_reg_write(0x0B25, 0x00);
++		if (ret) goto ERROR;
++	} else {
++		ret = clkgen_reg_write(0x0B24, 0xC0);
++		if (ret) goto ERROR;
++		ret = clkgen_reg_write(0x0B25, 0x00);
++		if (ret) goto ERROR;
++	}
++	ret = clkgen_reg_write(0x0502, 0x01);
++	if (ret) goto ERROR;
++	ret = clkgen_reg_write(0x0505, 0x03);
++	if (ret) goto ERROR;
++	ret = clkgen_reg_write(0x0957, 0x17);
++	if (ret) goto ERROR;
++	ret = clkgen_reg_write(0x0B4E, 0x1A);
++	if (ret) goto ERROR;
++	mdelay(300);
++
++	// Set registers (on revision A, pre and post-ambles are different from revision D)
++	for (int i=preamble_size; i<si5341_registers_nb; i++) {
++		// Do not change I2C address
++		if (si5341_registers[i].address == 0x000B)
++			continue;
++
++		ret = clkgen_reg_write(si5341_registers[i].address, si5341_registers[i].value);
++		if (ret)
++			goto ERROR;
++	}
++	
++	// mPCIe Wifi detection workaround
++	//if (ret == 0) goto SUCCESS;
++	do_reset(NULL, 0, 0, NULL);
++
++ERROR:
++	printf("Communication failure with clock generator\n");
++
++SUCCESS:
++	i2c_set_bus_num(oldbus);
++	return ret;
++}
++
++void tqc_moment_connect_xfi_init(struct ccsr_serdes *serdes, int lane)
++{
++	u32 gcr0, rec0;;
++
++	//printf("## Press 's' to skip XFI reconfiguration\n");
++	//if (getc() == 's')
++	//	return;
++
++	/* Put lane in reset */
++	gcr0 = serdes_in32(&serdes->lane[lane].gcr0);
++	gcr0 &= 0xFF9FFFFF;
++	serdes_out32(&serdes->lane[lane].gcr0, gcr0);
++
++	udelay(1);
++
++	/* Set up Transmit Equalization Control Register 0 for XFI */
++	printf("  Enabled\n");
++	serdes_out32(&serdes->lane[lane].tec0,  0x24ec2000);
++
++	/* Disable Rx Equalization Boost */
++	/*
++	rec0 = serdes_in32(&serdes->lane[lane].rec0);
++	rec0 &= ~(1<<28);
++	serdes_out32(&serdes->lane[lane].rec0, rec0);
++	*/
++
++	udelay(1);
++
++	/* Take lane out of reset */
++	gcr0 |= 0x00600000;
++	serdes_out32(&serdes->lane[lane].gcr0, gcr0);
++}
++
++void tqc_moment_connect_lane_disable(struct ccsr_serdes *serdes, int lane)
++{
++	u32 gcr0;
++
++	/* Put lane in reset */
++	gcr0 = serdes_in32(&serdes->lane[lane].gcr0);
++	gcr0 &= 0xFF9FFFFF;
++	gcr0 |= 0x00180000;
++	serdes_out32(&serdes->lane[lane].gcr0, gcr0);
++
++	udelay(1);
++}
++
++
++#ifndef CONFIG_SPL_BUILD
++static char *_srds_proto_name(int proto)
++{
++	switch(proto) {
++	case TQC_MOMENT_CONNECT_SRDS_PROTO_UNUSED:
++		return "Unused    ";
++	case TQC_MOMENT_CONNECT_SRDS_PROTO_SGMII:
++		return "SGMII     ";
++	case TQC_MOMENT_CONNECT_SRDS_PROTO_SGMII2G5:
++		return "2.5G SGMII";
++	case TQC_MOMENT_CONNECT_SRDS_PROTO_QSGMII:
++		return "QSGMII    ";
++	case TQC_MOMENT_CONNECT_SRDS_PROTO_XFI:
++		return "XFI       ";
++	case TQC_MOMENT_CONNECT_SRDS_PROTO_PCIEx1:
++		return "PCIe x1   ";
++	case TQC_MOMENT_CONNECT_SRDS_PROTO_PCIEx2:
++		return "PCIe x2   ";
++	case TQC_MOMENT_CONNECT_SRDS_PROTO_PCIEx4:
++		return "PCIe x4   ";
++	case TQC_MOMENT_CONNECT_SRDS_PROTO_SATA:
++		return "SATA      ";
++	default:
++		return "Unknown   ";
++	}
++}
++#endif
++
++static int _srds_mux_check_and_print(int port, int lane, int mux, int proto)
++{
++	int stat = 0;
++
++	if((proto != TQC_MOMENT_CONNECT_SRDS_PROTO_UNUSED) &&
++	   (proto != mux))
++		stat++;
++
++	printf("  SD%d-%d: MUX=%s | RCW=%s -> %s\n",
++	   port, lane, _srds_proto_name(mux), _srds_proto_name(proto),
++	   (stat)?("FAIL"):("OK"));
++
++	return stat;
++}
++
++int tqc_moment_connect_serdes_init(struct tqc_moment_connect_serdes lanes[8])
++{
++	int err_cnt = 0;
++
++	printf("Checking MOMENT_CONNECT SerDes muxing:\n");
++
++	/* check config for SD1_0 */
++	err_cnt += _srds_mux_check_and_print( lanes[0].port, lanes[0].lane, TQC_MOMENT_CONNECT_SRDS_PROTO_XFI, lanes[0].proto);
++
++	/* check config for SD1_1 */
++	err_cnt += _srds_mux_check_and_print( lanes[1].port, lanes[1].lane, TQC_MOMENT_CONNECT_SRDS_PROTO_SGMII, lanes[1].proto);
++
++	/* check config for SD1_2 */
++	err_cnt += _srds_mux_check_and_print( lanes[2].port, lanes[2].lane, TQC_MOMENT_CONNECT_SRDS_PROTO_QSGMII, lanes[2].proto);
++
++	/* check config for SD1_3 */
++	err_cnt += _srds_mux_check_and_print( lanes[3].port, lanes[3].lane, TQC_MOMENT_CONNECT_SRDS_PROTO_QSGMII, lanes[3].proto);
++
++	/* check config for SD2_0 */
++	err_cnt += _srds_mux_check_and_print( lanes[4].port, lanes[4].lane, TQC_MOMENT_CONNECT_SRDS_PROTO_PCIEx1, lanes[4].proto);
++
++	/* check config for SD2_1 */
++	err_cnt += _srds_mux_check_and_print( lanes[5].port, lanes[5].lane, TQC_MOMENT_CONNECT_SRDS_PROTO_PCIEx1, lanes[5].proto);
++
++	/* check config for SD2_2 */
++	err_cnt += _srds_mux_check_and_print( lanes[6].port, lanes[6].lane, TQC_MOMENT_CONNECT_SRDS_PROTO_PCIEx1, lanes[6].proto);
++
++	/* check config for SD2_3 */
++	err_cnt += _srds_mux_check_and_print( lanes[7].port, lanes[7].lane, TQC_MOMENT_CONNECT_SRDS_PROTO_SATA, lanes[7].proto);
++
++	/* print error message when muxing is invalid */
++	if(err_cnt) {
++		printf("!!! ATTENTION: Some SerDes lanes are misconfigured,\n");
++		printf("!!!  this may cause some interfaces to be inoperable.\n");
++		printf("!!!  Check SerDes muxing DIP switch settings!\n");
++	}
++
++	return 0;
++}
++
+--- /dev/null
++++ b/board/tqc/common/tqc_moment_connect.h
+@@ -0,0 +1,53 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright 2022 Quetzal Lab
++ */
++#ifndef __TQC_MOMENT_CONNECT_H__
++#define __TQC_MOMENT_CONNECT_H__
++
++#include <pca953x.h>
++
++#if defined(CONFIG_FSL_LSCH3)
++#define serdes_in32(a)       in_le32(a)
++#define serdes_out32(a, v)   out_le32(a, v)
++#elif defined(CONFIG_FSL_LSCH2)
++#define serdes_in32(a)       in_be32(a)
++#define serdes_out32(a, v)   out_be32(a, v)
++#endif
++
++int tqc_moment_connect_i2c_gpios_init(void);
++
++int tqc_moment_connect_i2c_gpio_get(const char *name);
++int tqc_moment_connect_i2c_gpio_set(const char *name, int val);
++
++
++void tqc_moment_connect_xfi_init(struct ccsr_serdes *serdes, int lane);
++void tqc_moment_connect_lane_disable(struct ccsr_serdes *serdes, int lane);
++
++int eqc_moment_connect_clk_cfg_init(void);
++
++enum {
++	TQC_MOMENT_CONNECT_SRDS_PROTO_UNUSED,
++	TQC_MOMENT_CONNECT_SRDS_PROTO_SGMII,
++	TQC_MOMENT_CONNECT_SRDS_PROTO_SGMII2G5,
++	TQC_MOMENT_CONNECT_SRDS_PROTO_QSGMII,
++	TQC_MOMENT_CONNECT_SRDS_PROTO_XFI,
++	TQC_MOMENT_CONNECT_SRDS_PROTO_PCIEx1,
++	TQC_MOMENT_CONNECT_SRDS_PROTO_PCIEx2,
++	TQC_MOMENT_CONNECT_SRDS_PROTO_PCIEx4,
++	TQC_MOMENT_CONNECT_SRDS_PROTO_SATA
++};
++
++struct tqc_moment_connect_serdes {
++	int port;
++	int lane;
++	int proto;
++};
++
++int tqc_moment_connect_serdes_init(struct tqc_moment_connect_serdes lanes[8]);
++
++int debug_return_request(void);
++
++#define DEBUG_RETURN_REQUEST()  if (debug_return_request()) return 0;
++
++#endif /* __TQC_MOMENT_CONNECT_H__ */
+--- /dev/null
++++ b/board/tqc/tqmls1088a/Kconfig
+@@ -0,0 +1,52 @@
++if TARGET_TQMLS1088A
++
++config SYS_BOARD
++	default "tqmls1088a"
++
++config SYS_VENDOR
++	default "tqc"
++
++config SYS_SOC
++	default "fsl-layerscape"
++
++config SYS_CONFIG_NAME
++	default "tqmls1088a"
++
++choice
++	prompt "TQMLS1088A base board variant"
++	default TQMLS1088A_BB_MOMENT_CONNECT
++	help
++	  Select base board for TQMLS1088A
++
++config TQMLS1088A_BB_MBLS10XXA
++	bool "TQMLS1088A on MBLS10xxA Starterkit"
++	select TQC_MBLS10XXA
++	help
++	  Select the MBLS10XXA starterkit.
++
++config TQMLS1088A_BB_MOMENT_CONNECT
++	bool "TQMLS1088A on Moment Connect board"
++	select TQC_MOMENT_CONNECT
++	help
++	  Select the Moment Connect board.
++
++endchoice
++
++if FSL_LS_PPA
++config SYS_LS_PPA_FW_ADDR
++	hex "PPA Firmware Addr"
++	default 0x20400000 if SYS_LS_PPA_FW_IN_XIP && QSPI_BOOT
++	default 0x400000 if SYS_LS_PPA_FW_IN_MMC
++
++if CHAIN_OF_TRUST
++config SYS_LS_PPA_ESBC_ADDR
++	hex "PPA Firmware HDR Addr"
++	default 0x20680000 if SYS_LS_PPA_FW_IN_XIP && QSPI_BOOT
++	default 0x680000 if SYS_LS_PPA_FW_IN_MMC
++endif
++endif
++
++source "board/tqc/common/Kconfig"
++
++
++endif
+--- /dev/null
++++ b/board/tqc/tqmls1088a/MAINTAINERS
+@@ -0,0 +1,10 @@
++TQMLS1088A BOARD
++M:	Timo Herbrecher <t.herbrecher@gateware.de>
++S:	Maintained
++F:	board/tqc/tqmls1088a/
++F:	include/configs/tqmls1088a.h
++F:	include/configs/tqmls1088a_baseboard.h
++F:	include/configs/tqmls1088a_bb_mbls10xxa.h
++F:	configs/tqmls1088a_esdhc_defconfig
++F:	configs/tqmls1088a_qspi_defconfig
++
+--- /dev/null
++++ b/board/tqc/tqmls1088a/Makefile
+@@ -0,0 +1,11 @@
++# SPDX-License-Identifier: GPL-2.0+
++#
++# Copyright 2019 TQ-Systems GmbH
++
++obj-y += ddr.o
++obj-y += tqmls1088a.o
++ifndef CONFIG_SPL_BUILD
++obj-$(CONFIG_NET) += eth.o
++endif
++obj-$(CONFIG_TQMLS1088A_BB_MBLS10XXA) += tqmls1088a_bb_mbls10xxa.o
++obj-$(CONFIG_TQMLS1088A_BB_MOMENT_CONNECT) += tqmls1088a_bb_moment_connect.o
+--- /dev/null
++++ b/board/tqc/tqmls1088a/README
+@@ -0,0 +1,65 @@
++Overview
++--------
++The TQMLS1088A SOM is a high-performance computing platform that supports the
++QorIQ LS1088A LayerScape Architecture processor.
++
++LS1088A SoC Overview
++--------------------
++Please refer arch/arm/cpu/armv8/fsl-layerscape/doc/README.soc for LS1088A
++SoC overview.
++
++TQMLS1088A board Overview
++------------------------
++ - SERDES Connections, 8 lanes supporting:
++      - PCI Express - 3.0
++      - SGMII, SGMII 2.5
++      - QSGMII
++      - SATA 3.0
++      - XFI
++ - DDR Controller:
++     - 2GB 64bits DDR4 SDRAM. Support rates of up to 2133MT/s
++ - USB 3.0:
++    - Two high speed USB 3.0 ports
++ - SDHC:
++    - eMMC memory devices
++    - alternative SD slot for SD, SDHC (1x, 4x) on baseboard
++ - DSPI:
++    - Onboard support for two SPI flash memory devices
++ - 4 I2C controllers
++ - ARM JTAG support
++
++Note: XFI function depends on correct initialization by U-Boot. It will
++not work as expected when booting into an OS kernel directly from SPL
++("Falcon Mode").
++
++Memory map from core's view
++----------------------------
++Start Address    End Address     Description        Size
++0x00_0000_0000 - 0x00_000F_FFFF  Secure Boot ROM    1MB
++0x00_0100_0000 - 0x00_0FFF_FFFF  CCSRBAR            240MB
++0x00_1800_0000 - 0x00_181F_FFFF  OCRAM              2MB
++0x00_8000_0000 - 0x00_FFFF_FFFF  DRAM               2GB
++0x07_0000_0000 - 0x07_3FFF_FFFF  DCSR               1GB
++0x08_0C00_0000 - 0x08_0FFF_FFFF  MC S/W Portals     64MB
++0x08_1800_0000 - 0x08_1FFF_FFFF  QBMAN S/W Portal   128MB
++0x20_0000_0000 - 0x27_FFFF_FFFF  PCI Express1       32G
++0x28_0000_0000 - 0x2F_FFFF_FFFF  PCI Express2       32G
++0x30_0000_0000 - 0x37_FFFF_FFFF  PCI Express3       32G
++
++QSPI flash map:
++Start Address    End Address     Description	    Size
++0x00_4000_0000 - 0x00_4000_FFFF  RCW,PBI            64KB
++0x00_4001_0000 - 0x00_400C_FFFF  U-Boot             768KB
++0x00_400D_0000 - 0x00_400D_FFFF  U-Boot Env         64KB
++0x00_400E_0000 - 0x00_400E_FFFF  DPAA2 MC DPL       64KB
++0x00_400F_0000 - 0x00_400F_FFFF  DPAA2 MC DPC       64KB
++0x00_4010_0000 - 0x00_402E_FFFF  DPAA2 MC Microcode 1984KB
++0x00_402F_0000 - 0x00_402F_FFFF  Linux device-tree  64KB
++0x00_4030_0000 - 0x00_417F_FFFF  Linux Image        21MB
++0x00_4180_0000 - 0x00_43FF_FFFF  Linux UBI rootfs   40MB
++
++Booting Options
++---------------
++a) QSPI boot
++b) SD boot
++c) eMMC boot
+--- /dev/null
++++ b/board/tqc/tqmls1088a/ddr.c
+@@ -0,0 +1,180 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright 2019 TQ-Systems GmbH
++ */
++
++#include <common.h>
++#include <fsl_ddr_sdram.h>
++#include <fsl_ddr_dimm_params.h>
++#include <asm/global_data.h>
++#include <asm/arch/soc.h>
++#include <asm/arch/clock.h>
++#ifdef CONFIG_FSL_DEEP_SLEEP
++#include <fsl_sleep.h>
++#endif
++#include "ddr.h"
++
++DECLARE_GLOBAL_DATA_PTR;
++
++#if defined(CONFIG_VID) && (!defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD))
++static void fsl_ddr_setup_0v9_volt(memctl_options_t *popts)
++{
++	int vdd;
++
++	vdd = get_core_volt_from_fuse();
++	/* Nothing to do for silicons doesn't support VID */
++	if (vdd < 0)
++		return;
++
++	if (vdd == 900) {
++		popts->ddr_cdr1 |= DDR_CDR1_V0PT9_EN;
++		debug("VID: configure DDR to support 900 mV\n");
++	}
++}
++#endif
++
++void fsl_ddr_board_options(memctl_options_t *popts,
++			   dimm_params_t *pdimm,
++			   unsigned int ctrl_num)
++{
++	const struct board_specific_parameters *pbsp, *pbsp_highest = NULL;
++	ulong ddr_freq;
++
++	if (ctrl_num > 1) {
++		printf("Not supported controller number %d\n", ctrl_num);
++		return;
++	}
++	if (!pdimm->n_ranks)
++		return;
++
++	pbsp = udimms[0];
++
++	/* Get clk_adjust, wrlvl_start, wrlvl_ctl, according to the board ddr
++	 * freqency and n_banks specified in board_specific_parameters table.
++	 */
++	ddr_freq = get_ddr_freq(0) / 1000000;
++	while (pbsp->datarate_mhz_high) {
++		if (pbsp->n_ranks == pdimm->n_ranks) {
++			if (ddr_freq <= pbsp->datarate_mhz_high) {
++				popts->clk_adjust = pbsp->clk_adjust;
++				popts->wrlvl_start = pbsp->wrlvl_start;
++				popts->wrlvl_ctl_2 = pbsp->wrlvl_ctl_2;
++				popts->wrlvl_ctl_3 = pbsp->wrlvl_ctl_3;
++				goto found;
++			}
++			pbsp_highest = pbsp;
++		}
++		pbsp++;
++	}
++
++	if (pbsp_highest) {
++		printf("Error: board specific timing not found for %lu MT/s\n",
++		       ddr_freq);
++		printf("Trying to use the highest speed (%u) parameters\n",
++		       pbsp_highest->datarate_mhz_high);
++		popts->clk_adjust = pbsp_highest->clk_adjust;
++		popts->wrlvl_start = pbsp_highest->wrlvl_start;
++		popts->wrlvl_ctl_2 = pbsp->wrlvl_ctl_2;
++		popts->wrlvl_ctl_3 = pbsp->wrlvl_ctl_3;
++	} else {
++		panic("DIMM is not supported by this board");
++	}
++found:
++	debug("Found timing match: n_ranks %d, data rate %d, rank_gb %d\n",
++	      pbsp->n_ranks, pbsp->datarate_mhz_high, pbsp->rank_gb);
++
++	popts->data_bus_width = 0;	/* 64-bit data bus */
++	popts->bstopre = 0;		/* enable auto precharge */
++
++	/*
++	 * Factors to consider for half-strength driver enable:
++	 *	- number of DIMMs installed
++	 */
++	popts->half_strength_driver_enable = 0;
++	/*
++	 * Write leveling override
++	 */
++	popts->wrlvl_override = 1;
++	popts->wrlvl_sample = 0xf;
++
++	/*
++	 * Rtt and Rtt_WR override
++	 */
++	popts->rtt_override = 0;
++
++	/* Enable ZQ calibration */
++	popts->zq_en = 1;
++
++	/* TODO: DDR hashing bei LS1088A, aktivieren? */
++	/* Enable DDR hashing */
++	/*
++	popts->addr_hash = 1;
++	*/
++
++	popts->ddr_cdr1 = DDR_CDR1_DHC_EN | DDR_CDR1_ODT(DDR_CDR_ODT_60ohm);
++#if defined(CONFIG_VID) && (!defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD))
++	fsl_ddr_setup_0v9_volt(popts);
++#endif
++
++	popts->ddr_cdr2 = DDR_CDR2_ODT(DDR_CDR_ODT_60ohm) |
++			  DDR_CDR2_VREF_TRAIN_EN | DDR_CDR2_VREF_RANGE_2;
++
++	/* optimize cpo for erratum A-009942 */
++	popts->cpo_sample = 0x61;
++}
++
++phys_size_t fixed_sdram(void)
++{
++	int i;
++	char buf[32];
++	fsl_ddr_cfg_regs_t ddr_cfg_regs;
++	phys_size_t ddr_size;
++	ulong ddr_freq, ddr_freq_mhz;
++
++	ddr_freq = get_ddr_freq(0);
++	ddr_freq_mhz = ddr_freq / 1000000;
++
++	printf("Configuring DDR for %s MT/s data rate\n",
++	       strmhz(buf, ddr_freq));
++
++	for (i = 0; fixed_ddr_parm_0[i].max_freq > 0; i++) {
++		if ((ddr_freq_mhz > fixed_ddr_parm_0[i].min_freq) &&
++		    (ddr_freq_mhz <= fixed_ddr_parm_0[i].max_freq)) {
++			memcpy(&ddr_cfg_regs,
++			       fixed_ddr_parm_0[i].ddr_settings,
++			       sizeof(ddr_cfg_regs));
++			break;
++		}
++	}
++
++	if (fixed_ddr_parm_0[i].max_freq == 0)
++		panic("Unsupported DDR data rate %s MT/s data rate\n",
++		      strmhz(buf, ddr_freq));
++
++	ddr_size = (phys_size_t)2048 * 1024 * 1024;
++	fsl_ddr_set_memctl_regs(&ddr_cfg_regs, 0, 0);
++
++	return ddr_size;
++}
++
++int fsl_initdram(void)
++{
++	phys_size_t dram_size;
++
++#if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_SPL)
++	puts("Initialzing DDR using fixed setting\n");
++	dram_size = fixed_sdram();
++#else
++	gd->ram_size = 0x80000000;
++
++	return 0;
++#endif
++
++#ifdef CONFIG_FSL_DEEP_SLEEP
++	fsl_dp_ddr_restore();
++#endif
++
++	gd->ram_size = dram_size;
++
++	return 0;
++}
+--- /dev/null
++++ b/board/tqc/tqmls1088a/ddr.h
+@@ -0,0 +1,112 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Copyright 2019 TQ-Systems GmbH
++ */
++
++#ifndef __DDR_H__
++#define __DDR_H__
++
++struct board_specific_parameters {
++	u32 n_ranks;
++	u32 datarate_mhz_high;
++	u32 rank_gb;
++	u32 clk_adjust;
++	u32 wrlvl_start;
++	u32 wrlvl_ctl_2;
++	u32 wrlvl_ctl_3;
++	u32 cpo_override;
++	u32 write_data_delay;
++	u32 force_2t;
++};
++
++/*
++ * These tables contain all valid speeds we want to override with board
++ * specific parameters. datarate_mhz_high values need to be in ascending order
++ * for each n_ranks group.
++ */
++static const struct board_specific_parameters udimm0[] = {
++	/*
++	 * memory controller 0
++	 *   num|  hi| rank|  clk| wrlvl |   wrlvl   |  wrlvl | cpo  |wrdata|2T
++	 * ranks| mhz| GB  |adjst| start |   ctl2    |  ctl3  |      |delay |
++	 */
++#ifdef CONFIG_SYS_FSL_DDR4
++	{1,  2100, 0, 8,     9, 0x09080806, 0x07060606,},
++#endif
++	{}
++};
++
++static const struct board_specific_parameters *udimms[] = {
++	udimm0,
++};
++
++fsl_ddr_cfg_regs_t ddr_cfg_regs_2000 = {
++	.cs[0].bnds         = 0x0000007F,
++	.cs[0].config       = 0x80010312,
++	.cs[0].config_2     = 0x00000000,
++	.cs[1].bnds         = 0x00000000,
++	.cs[1].config       = 0x00000000,
++	.cs[1].config_2     = 0x00000000,
++	.cs[2].bnds         = 0x00000000,
++	.cs[2].config       = 0x00000000,
++	.cs[2].config_2     = 0x00000000,
++	.cs[3].bnds         = 0x00000000,
++	.cs[3].config       = 0x00000000,
++	.cs[3].config_2     = 0x00000000,
++	.timing_cfg_3       = 0x020F1100,
++	.timing_cfg_0       = 0x77660008,
++	.timing_cfg_1       = 0xF1FCC265,
++	.timing_cfg_2       = 0x0059415E,
++	.ddr_sdram_cfg      = 0x65000000,
++	.ddr_sdram_cfg_2    = 0x00401150,
++	.ddr_sdram_cfg_3    = 0x00000000,
++	.ddr_sdram_mode     = 0x03010625,
++	.ddr_sdram_mode_2   = 0x00100200,
++	.ddr_sdram_mode_3   = 0x00010625,
++	.ddr_sdram_mode_4   = 0x00100200,
++	.ddr_sdram_mode_5   = 0x00010625,
++	.ddr_sdram_mode_6   = 0x00100200,
++	.ddr_sdram_mode_7   = 0x00010625,
++	.ddr_sdram_mode_8   = 0x00100200,
++	.ddr_sdram_mode_9   = 0x00000500,
++	.ddr_sdram_mode_10  = 0x04400000,
++	.ddr_sdram_mode_11  = 0x00000400,
++	.ddr_sdram_mode_12  = 0x04400000,
++	.ddr_sdram_mode_13  = 0x00000400,
++	.ddr_sdram_mode_14  = 0x04400000,
++	.ddr_sdram_mode_15  = 0x00000400,
++	.ddr_sdram_mode_16  = 0x04400000,
++	.ddr_sdram_interval = 0x0F3C0000,
++	.ddr_data_init      = 0xDEADBEEF,
++	.ddr_sdram_clk_cntl = 0x02000000,
++	.ddr_init_addr      = 0x00000000,
++	.ddr_init_ext_addr  = 0x00000000,
++	.timing_cfg_4       = 0x00224002,
++	.timing_cfg_5       = 0x04401400,
++	.timing_cfg_6       = 0x00000000,
++	.timing_cfg_7       = 0x25500000,
++	.timing_cfg_8       = 0x03335A00,
++	.timing_cfg_9       = 0x00000000,
++	.ddr_zq_cntl        = 0x8A090705,
++	.ddr_wrlvl_cntl     = 0x86550609,
++	.ddr_wrlvl_cntl_2   = 0x09080806,
++	.ddr_wrlvl_cntl_3   = 0x06040409,
++	.ddr_sr_cntr        = 0x00000000,
++	.ddr_sdram_rcw_1    = 0x00000000,
++	.ddr_sdram_rcw_2    = 0x00000000,
++	.ddr_sdram_rcw_3    = 0x00000000,
++	.ddr_cdr1           = 0x80080000,
++	.ddr_cdr2           = 0x000000C0,
++	.dq_map_0           = 0x00000000,
++	.dq_map_1           = 0x00000000,
++	.dq_map_2           = 0x00000000,
++	.dq_map_3           = 0x00000000,
++	.debug[28]          = 0x00700046,
++};
++
++fixed_ddr_parm_t fixed_ddr_parm_0[] = {
++	{1750, 2050, &ddr_cfg_regs_2000},
++	{0, 0, NULL}
++};
++
++#endif
+--- /dev/null
++++ b/board/tqc/tqmls1088a/eth.c
+@@ -0,0 +1,61 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright 2018 TQ-Systems GmbH
++ */
++#include <common.h>
++#include <asm/io.h>
++#include <netdev.h>
++#include <fm_eth.h>
++#include <fsl_dtsec.h>
++#include <fsl_mdio.h>
++#include <malloc.h>
++#include <fsl-mc/fsl_mc.h>
++#include <fsl-mc/ldpaa_wriop.h>
++#include "../common/tqc_bb.h"
++#include "../common/tqc_eeprom.h"
++
++#ifndef CONFIG_SPL_BUILD
++int board_eth_init(struct bd_info *bis)
++{
++	struct tqc_eeprom_data eedat;
++	int ret, iface, j;
++
++	/* set MAC addresses based on EEPROM content */
++	ret = tqc_read_eeprom(CONFIG_SYS_EEPROM_BUS_NUM,
++			CONFIG_SYS_I2C_EEPROM_ADDR, &eedat);
++
++	if(!ret) {
++		for(iface = WRIOP1_DPMAC1; iface <= WRIOP1_DPMAC10; iface++) {
++			eth_env_set_enetaddr_by_index("eth", (iface-WRIOP1_DPMAC1), eedat.mac);
++
++			/* increment MAC with overflow */
++			j = sizeof(eedat.mac);
++			do {
++				j--;
++				eedat.mac[j]++;
++			} while(eedat.mac[j] == 0 && j > 0);
++
++		}
++	} else {
++		printf("Could not read EEPROM! err: %d\n", ret);
++	}
++
++	ret = tqc_bb_board_eth_init(bis);
++	if(ret != 0) {
++		return ret;
++	}
++
++#ifdef CONFIG_FSL_MC_ENET
++	cpu_eth_init(bis);
++#endif
++
++	return pci_eth_init(bis);
++}
++#endif
++
++#if defined(CONFIG_RESET_PHY_R)
++void reset_phy(void)
++{
++    mc_env_boot();
++}
++#endif /* CONFIG_RESET_PHY_R */
+--- /dev/null
++++ b/board/tqc/tqmls1088a/tqmls1088a.c
+@@ -0,0 +1,348 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright 2019 TQ-Systems GmbH
++ */
++
++#include <common.h>
++#include <i2c.h>
++#include <fdt_support.h>
++#include <asm/io.h>
++#include <asm/arch/clock.h>
++#include <asm/arch/fsl_serdes.h>
++#include <asm/arch/ppa.h>
++#include <asm/arch/soc.h>
++#include <hwconfig.h>
++#include <ahci.h>
++#include <mmc.h>
++#include <scsi.h>
++#include <env.h>
++#include <fm_eth.h>
++#include <fsl_csu.h>
++#include <fsl_esdhc.h>
++#include <fsl_sec.h>
++#include <fsl-mc/fsl_mc.h>
++#include <fsl-mc/ldpaa_wriop.h>
++#include "../common/tqc_bb.h"
++#include "../common/tqc_eeprom.h"
++
++
++#define TQMLS1088A_SYSC_BUS_NUM     0
++#define TQMLS1088A_SYSC_ADDR        0x11
++
++#define SYSC_REG_SYSC_FW_VERS       0x02
++#define SYSC_REG_BOOT_SRC           0x03
++#define SYSC_REG_BOOT_SRC_SDSEL_MSK 0x80
++#define SYSC_REG_VID                0x10
++#define SYSC_REG_CPLD_FW_VERS       0xE1
++
++DECLARE_GLOBAL_DATA_PTR;
++
++int board_early_init_f(void)
++{
++	fsl_lsch3_early_init_f();
++
++	return tqc_bb_board_early_init_f();
++}
++
++#if defined(CONFIG_VID) && (!defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD))
++int init_func_vid(void)
++{
++	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
++	u32 fusesr;
++	unsigned int oldbus;
++	uint8_t gur_vid;
++	uint8_t sysc_vid;
++	
++	/* get the voltage ID from fuse status register */
++	fusesr = in_le32(&gur->dcfg_fusesr);
++	gur_vid = (fusesr >> FSL_CHASSIS3_DCFG_FUSESR_ALTVID_SHIFT) &
++		FSL_CHASSIS3_DCFG_FUSESR_ALTVID_MASK;
++	if ((gur_vid == 0) || (gur_vid == FSL_CHASSIS3_DCFG_FUSESR_ALTVID_MASK)) {
++		gur_vid = (fusesr >> FSL_CHASSIS3_DCFG_FUSESR_VID_SHIFT) &
++			FSL_CHASSIS3_DCFG_FUSESR_VID_MASK;
++	}
++
++	/* select I2C bus of SysC */
++	oldbus = i2c_get_bus_num();
++	i2c_set_bus_num(TQMLS1088A_SYSC_BUS_NUM);
++
++	/* get core voltage setting from SysC */
++	sysc_vid = i2c_reg_read(TQMLS1088A_SYSC_ADDR, SYSC_REG_VID);
++
++	/* check if core voltage adjustment has to be done */
++	if(gur_vid != sysc_vid) {
++		/* core volatage has to be adjusted by SysC */
++		printf("Core voltage adjust required (req = 0x%02x, set = 0x%02x)\n",
++			gur_vid, sysc_vid);
++		printf("New core voltage is applied after reset\n");
++		i2c_reg_write(TQMLS1088A_SYSC_ADDR, SYSC_REG_VID, gur_vid);
++	}
++
++	/* switch back to previous selected I2C bus */
++	i2c_set_bus_num(oldbus);
++
++    return 0;
++}
++#endif
++
++#ifndef CONFIG_SPL_BUILD
++int checkboard(void)
++{
++	unsigned int oldbus;
++	uint8_t bootsrc, syscrev, cpldrev;
++
++	/* get further information from SysC */
++	oldbus = i2c_get_bus_num();
++	i2c_set_bus_num(TQMLS1088A_SYSC_BUS_NUM);
++	bootsrc = i2c_reg_read(TQMLS1088A_SYSC_ADDR, SYSC_REG_BOOT_SRC);
++	syscrev = i2c_reg_read(TQMLS1088A_SYSC_ADDR, SYSC_REG_SYSC_FW_VERS);
++	cpldrev = i2c_reg_read(TQMLS1088A_SYSC_ADDR, SYSC_REG_CPLD_FW_VERS);
++	i2c_set_bus_num(oldbus);
++
++	/* print SoM and baseboard name */
++	printf("Board: TQMLS1088A on a %s ", tqc_bb_get_boardname());
++	switch(bootsrc & 0x0F) {
++		case 0x0:
++			printf("(Boot from QSPI)\n");
++			break;
++		case 0x2:
++			printf("(Boot from SD)\n");
++			break;
++		case 0x3:
++			printf("(Boot from eMMC)\n");
++			break;
++		case 0xe:
++			printf("(Boot from Hard Coded RCW)\n");
++			break;
++		default:
++			printf("(Bootsource unknown)\n");
++			break;
++	}
++	printf("         SysC FW Rev: %2d.%02d\n",
++		(syscrev >> 4) & 0xF, syscrev & 0xF);
++	printf("         CPLD FW Rev: %2d.%02d\n", 
++		(cpldrev >> 4) & 0xF, cpldrev & 0xF);
++ 
++	return tqc_bb_checkboard();
++}
++
++int board_init(void)
++{
++#ifdef CONFIG_FSL_CAAM
++	//sec_init();
++#endif
++
++#ifdef CONFIG_FSL_LS_PPA
++	ppa_init();
++#endif
++
++	return tqc_bb_board_init();
++}
++
++#ifdef CONFIG_MISC_INIT_R
++int misc_init_r(void)
++{
++	struct tqc_eeprom_data eedat;
++	char safe_string[0x41]; /* must hold largest field of eeprom data */
++	int ret;
++
++	ret = tqc_read_eeprom(CONFIG_SYS_EEPROM_BUS_NUM,
++			CONFIG_SYS_I2C_EEPROM_ADDR, &eedat);
++
++	if(!ret) {
++		/* ID */
++		tqc_parse_eeprom_id(&eedat, safe_string, ARRAY_SIZE(safe_string));
++		if (0 == strncmp(safe_string, "TQMLS1088A", strlen("TQMLS1088A")))
++			env_set("boardtype", safe_string);
++		if (0 == tqc_parse_eeprom_serial(&eedat, safe_string,
++					ARRAY_SIZE(safe_string)))
++			env_set("serial#", safe_string);
++		else
++			env_set("serial#", "???");
++		tqc_show_eeprom(&eedat, "TQMLS1088A");
++	} else {
++		printf("EEPROM: err %d\n", ret);
++	}
++
++	return tqc_bb_misc_init_r();
++}
++#endif
++#endif /* !CONFIG_SPL_BUILD */
++
++int board_mmc_getcd(struct mmc *mmc)
++{
++	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
++	u32 rcw_iic2_base;
++	unsigned int oldbus;
++	uint8_t bootsrc;
++	int ret;
++
++	/* get sdhc mux information from SysC */
++	oldbus = i2c_get_bus_num();
++	i2c_set_bus_num(TQMLS1088A_SYSC_BUS_NUM);
++	bootsrc = i2c_reg_read(TQMLS1088A_SYSC_ADDR, SYSC_REG_BOOT_SRC);
++	i2c_set_bus_num(oldbus);
++
++	/* check if eMMC or sd-card selected */
++	if(!(bootsrc & SYSC_REG_BOOT_SRC_SDSEL_MSK)) {
++		/* card alway present when eMMC selected */
++		ret = 1;
++	} else {
++		/* read IIC2_BASE configuration from RCW */
++		rcw_iic2_base = (in_le32(&gur->rcwsr[12]) & 0x0000000C) >> 2;
++
++		/* check if hardware card detection should be used (RCW) */
++		if(rcw_iic2_base == 0x2) {
++			/* CD mapped to hardware function */
++			ret = -1;
++		} else {
++			/* sd-card selected without hardware card detection pin,
++			 * check baseboard specific function
++			 */
++			ret = tqc_bb_board_mmc_getcd(mmc);
++		}
++	}
++
++	return ret;
++}
++
++int board_mmc_getwp(struct mmc *mmc)
++{
++	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
++	u32 rcw_iic2_base;
++	unsigned int oldbus;
++	uint8_t bootsrc;
++	int ret;
++
++	/* get sdhc mux information from SysC */
++	oldbus = i2c_get_bus_num();
++	i2c_set_bus_num(TQMLS1088A_SYSC_BUS_NUM);
++	bootsrc = i2c_reg_read(TQMLS1088A_SYSC_ADDR, SYSC_REG_BOOT_SRC);
++	i2c_set_bus_num(oldbus);
++
++	/* check if eMMC or sd-card selected */
++	if(!(bootsrc & SYSC_REG_BOOT_SRC_SDSEL_MSK)) {
++		/* card always writeable when eMMC selected */
++		ret = 0;
++	} else {
++		/* read IIC2_BASE configuration from RCW */
++		rcw_iic2_base = (in_le32(&gur->rcwsr[12]) & 0x0000000C) >> 2;
++
++		/* check if hardware write protect detection should be used (RCW) */
++		if(rcw_iic2_base == 0x2) {
++			/* WP mapped to hardware function */
++			ret = -1;
++		} else {
++			/* sd-card selected without hardware write protection pin,
++			 * check baseboard specific function
++			 */
++			ret = tqc_bb_board_mmc_getwp(mmc);
++		}
++	}
++
++	return ret;
++}
++
++#ifndef CONFIG_SPL_BUILD
++#ifdef CONFIG_FSL_MC_ENET
++void fdt_fixup_board_enet(void *fdt)
++{
++    int offset;
++
++	offset = fdt_path_offset(fdt, "/soc/fsl-mc");
++	if (offset < 0)
++		offset = fdt_path_offset(fdt, "/fsl-mc");
++    if (offset < 0)
++        offset = fdt_path_offset(fdt, "/fsl,dprc@0");
++    if (offset < 0) {
++        printf("%s: ERROR: fsl-mc node not found in device tree (error %d)\n",
++               __func__, offset);
++        return;
++    }
++
++    if ((get_mc_boot_status() == 0) && (get_dpl_apply_status() == 0))
++        fdt_status_okay(fdt, offset);
++    else
++        fdt_status_fail(fdt, offset);
++}
++#endif
++
++int ft_board_setup(void *blob, struct bd_info *bd)
++{
++	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
++	int offset;
++	unsigned int oldbus;
++	uint8_t bootsrc;
++	int err;
++	int i;
++	u64 base[CONFIG_NR_DRAM_BANKS];
++	u64 size[CONFIG_NR_DRAM_BANKS];
++	u32 rcw_iic2_base;
++
++	ft_cpu_setup(blob, bd);
++
++	/* fixup DT for the two GPP DDR banks */
++	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
++		base[i] = gd->bd->bi_dram[i].start;
++		size[i] = gd->bd->bi_dram[i].size;
++	}
++
++#ifdef CONFIG_RESV_RAM
++	/* reduce size if reserved memory is within this bank */
++	if (gd->arch.resv_ram >= base[0] &&
++	    gd->arch.resv_ram < base[0] + size[0])
++		size[0] = gd->arch.resv_ram - base[0];
++#if (CONFIG_NR_DRAM_BANKS > 1)
++	else if (gd->arch.resv_ram >= base[1] &&
++		 gd->arch.resv_ram < base[1] + size[1])
++		size[1] = gd->arch.resv_ram - base[1];
++#endif
++#endif
++
++	fdt_fixup_memory_banks(blob, base, size, CONFIG_NR_DRAM_BANKS);
++
++#ifdef CONFIG_FSL_MC_ENET
++	fdt_fsl_mc_fixup_iommu_map_entry(blob);
++#endif
++
++#ifdef CONFIG_FSL_MC_ENET 
++	fdt_fixup_board_enet(blob);
++	err = fsl_mc_ldpaa_exit(bd);
++	if (err)
++		return err;
++#endif
++
++	/* get sdhc mux information from SysC */
++	oldbus = i2c_get_bus_num();
++	i2c_set_bus_num(TQMLS1088A_SYSC_BUS_NUM);
++	bootsrc = i2c_reg_read(TQMLS1088A_SYSC_ADDR, SYSC_REG_BOOT_SRC);
++	i2c_set_bus_num(oldbus);
++
++	/* get offset of sdhc node */
++	offset = fdt_path_offset(blob, "/soc/esdhc@2140000");
++	if (offset < 0)
++		return offset;
++
++	/* delete eMMC specific properties if sd-card selected */
++	if(bootsrc & SYSC_REG_BOOT_SRC_SDSEL_MSK) {
++		/* SDHC_EXT_SEL = 1 => sd-card */
++		fdt_delprop(blob, offset, "non-removable");
++		fdt_delprop(blob, offset, "disable-wp");
++		fdt_delprop(blob, offset, "mmc-hs200-1_8v");
++		fdt_setprop_empty(blob, offset, "no-1-8-v");
++	}
++
++	/* read IIC2_BASE configuration from RCW */
++	rcw_iic2_base = (in_le32(&gur->rcwsr[12]) & 0x0000000C) >> 2;
++
++	/* delete cd and wp gpio handle if hardware card detection should be used
++	 * (RCW) or eMMC is selected
++	 */
++	if(!(bootsrc & SYSC_REG_BOOT_SRC_SDSEL_MSK) || (rcw_iic2_base == 0x2)) {
++		fdt_delprop(blob, offset, "cd-gpios");
++		fdt_delprop(blob, offset, "wp-gpios");
++	}
++
++	return tqc_bb_ft_board_setup(blob, bd);
++}
++#endif
+--- /dev/null
++++ b/board/tqc/tqmls1088a/tqmls1088a_bb_mbls10xxa.c
+@@ -0,0 +1,526 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright 2019 TQ-Systems GmbH
++ */
++
++#include <common.h>
++#include <asm/io.h>
++#include <netdev.h>
++#include <fm_eth.h>
++#include <fsl_dtsec.h>
++#include <fsl_mdio.h>
++#include <malloc.h>
++#include <fsl-mc/fsl_mc.h>
++#include <fsl-mc/ldpaa_wriop.h>
++#include "../common/tqc_bb.h"
++#include "../common/tqc_mbls10xxa.h"
++
++
++#ifndef CONFIG_SPL_BUILD
++#define TQMLS1088A_SRDS1_PROTO(cfg, lane)	((cfg >> 4*lane) & 0xF)
++#define TQMLS1088A_SRDS2_PROTO(cfg, lane)	((cfg >> 4*lane) & 0xF)
++
++static int _tqmls1088a_bb_set_lane(struct tqc_mbls10xxa_serdes *serdes, int port, int lane, int proto)
++{
++	serdes->port = port;
++	serdes->lane = lane;
++	switch(proto) {
++		case 0x0: /* Unused */
++			serdes->proto = TQC_MBLS10xxA_SRDS_PROTO_UNUSED;
++			break;
++		case 0x1: /* XFI */
++			serdes->proto = TQC_MBLS10xxA_SRDS_PROTO_XFI;
++			break;
++		case 0x2: /* 2.5G SGMII */
++			serdes->proto = TQC_MBLS10xxA_SRDS_PROTO_SGMII2G5;
++			break;
++		case 0x3: /* SGMII */
++			serdes->proto = TQC_MBLS10xxA_SRDS_PROTO_SGMII;
++			break;
++		case 0x4: /* QSGMII */
++			serdes->proto = TQC_MBLS10xxA_SRDS_PROTO_QSGMII;
++			break;
++		case 0x5: /* PCIe x1 */
++		case 0x6: /* PCIe x1 (alternate) */
++			serdes->proto = TQC_MBLS10xxA_SRDS_PROTO_PCIEx1;
++			break;
++		case 0x7: /* PCIe x2 */
++			serdes->proto = TQC_MBLS10xxA_SRDS_PROTO_PCIEx2;
++			break;
++		case 0x8: /* PCIe x4 */
++			serdes->proto = TQC_MBLS10xxA_SRDS_PROTO_PCIEx4;
++			break;
++		case 0x9: /* SATA */
++			serdes->proto = TQC_MBLS10xxA_SRDS_PROTO_SATA;
++			break;
++		default: /* Undefined */
++			serdes->proto = -1;
++			break;
++	}
++
++	return 0;
++}
++
++static int _tqmls1088a_bb_check_serdes_mux(void)
++{
++	u32 srds_s1, srds_s2;
++	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
++	struct ccsr_serdes *serdes1_base = (void *)CONFIG_SYS_FSL_LSCH3_SERDES_ADDR;
++	struct tqc_mbls10xxa_serdes lanes[8];
++	int clk_freq;
++
++	/* read SerDes configuration from RCW */
++	srds_s1 = in_le32(&gur->rcwsr[FSL_CHASSIS3_SRDS1_REGSR - 1]) &
++	                  FSL_CHASSIS3_SRDS1_PRTCL_MASK;
++	srds_s1 >>= FSL_CHASSIS3_SRDS1_PRTCL_SHIFT;
++	srds_s2 = in_le32(&gur->rcwsr[FSL_CHASSIS3_SRDS2_REGSR - 1]) &
++	                  FSL_CHASSIS3_SRDS2_PRTCL_MASK;
++	srds_s2 >>= FSL_CHASSIS3_SRDS2_PRTCL_SHIFT;
++
++	/* fill lane usage table */
++	_tqmls1088a_bb_set_lane(&(lanes[0]), 1, 0, TQMLS1088A_SRDS1_PROTO(srds_s1, 0));
++	_tqmls1088a_bb_set_lane(&(lanes[1]), 1, 1, TQMLS1088A_SRDS1_PROTO(srds_s1, 1));
++	_tqmls1088a_bb_set_lane(&(lanes[2]), 1, 2, TQMLS1088A_SRDS1_PROTO(srds_s1, 2));
++	_tqmls1088a_bb_set_lane(&(lanes[3]), 1, 3, TQMLS1088A_SRDS1_PROTO(srds_s1, 3));
++	_tqmls1088a_bb_set_lane(&(lanes[4]), 2, 0, TQMLS1088A_SRDS2_PROTO(srds_s2, 0));
++	_tqmls1088a_bb_set_lane(&(lanes[5]), 2, 1, TQMLS1088A_SRDS2_PROTO(srds_s2, 1));
++	_tqmls1088a_bb_set_lane(&(lanes[6]), 2, 2, TQMLS1088A_SRDS2_PROTO(srds_s2, 2));
++	_tqmls1088a_bb_set_lane(&(lanes[7]), 2, 3, TQMLS1088A_SRDS2_PROTO(srds_s2, 3));
++
++	/* check and init lane usage */
++	tqc_mbls10xxa_serdes_init(lanes);
++
++	/* check serdes clock muxing */
++	clk_freq = tqc_mbls10xxa_serdes_clk_get(TQC_MBLS10xxA_SRDS_CLK_1_2);
++	if((clk_freq == 125000000) &&
++	   ((TQMLS1088A_SRDS1_PROTO(srds_s1, 0) == 0x1) ||
++	    (TQMLS1088A_SRDS1_PROTO(srds_s1, 1) == 0x1))) {
++	   printf("!!! ATTENTON: SerDes1 RefClk2 is not 156.25MHz,\n");
++	   printf("!!!  but this is needed for XFI operation!\n");
++	} else if((clk_freq == 156250000) && 
++	   ((TQMLS1088A_SRDS1_PROTO(srds_s1, 0) != 0x1) &&
++	    (TQMLS1088A_SRDS1_PROTO(srds_s1, 1) != 0x1))) {
++	   printf("!!! ATTENTON: SerDes1 RefClk2 is 156.25MHz,\n");
++	   printf("!!!  but this is only valid for XFI operation!\n");
++	}
++	if (TQMLS1088A_SRDS1_PROTO(srds_s1, 0) == 0x1)
++		tqc_mbls10xxa_xfi_init(serdes1_base, 3);
++	if (TQMLS1088A_SRDS1_PROTO(srds_s1, 1) == 0x1)
++		tqc_mbls10xxa_xfi_init(serdes1_base, 2);
++
++	tqc_mbls10xxa_retimer_init();
++
++	return 0;
++}
++#endif /* !CONFIG_SPL_BUILD */
++
++int tqc_bb_board_early_init_f(void)
++{
++	struct ccsr_gpio *ccsr;
++	uint32_t reg;
++	int ret = 0;
++
++	/* configure sd card detect and write protect GPIOs as input */
++	/* CD = GPIO3_12, WP = GPIO3_13 */
++	ccsr = (void *)(GPIO3_BASE_ADDR);
++	reg = in_le32(&ccsr->gpdir);
++	reg &= ~(0x000C0000);
++	out_le32(&ccsr->gpdir, reg);
++	reg = in_le32(&ccsr->gpibe);
++	reg |= 0x000C0000;
++	out_le32(&ccsr->gpibe, reg);
++
++
++	/* TODO: check if hw USB power control could be used */
++	/* configure USB DRVVBUS GPIOs as output, default low */
++	/* USB_DRVVBUS = GPIO4_2, USB2_DRVVBUS = GPIO4_28 */
++	ccsr = (void *)(GPIO4_BASE_ADDR);
++	reg = in_le32(&ccsr->gpdir);
++	reg |= 0x20000008;
++	out_le32(&ccsr->gpdir, reg);
++	reg = in_le32(&ccsr->gpdat);
++	reg &= ~(0x20000008);
++	out_le32(&ccsr->gpdat, reg);
++	reg = in_le32(&ccsr->gpibe);
++	reg |= 0x20000008;
++	out_le32(&ccsr->gpibe, reg);
++
++	/* nothing to do */
++	return ret;
++}
++
++#ifndef CONFIG_SPL_BUILD
++int tqc_bb_board_init(void)
++{
++	int ret = 0;
++
++	/* nothing to do */
++	return ret;
++}
++
++int tqc_bb_misc_init_r(void)
++{
++	int ret = 0;
++	struct ccsr_gpio *ccsr = (void *)(GPIO4_BASE_ADDR);
++	uint32_t reg;
++
++	/* TODO: check if hw USB power control could be used */
++	/* enable power of USB ports by setting GPIOs high */
++	/* USB_DRVVBUS = GPIO4_2, USB2_DRVVBUS = GPIO4_28 */
++	reg = in_le32(&ccsr->gpdat);
++	reg |= 0x20000008;
++	out_le32(&ccsr->gpdat, reg);
++
++	/* configure baseboard clock buffer */
++	tqc_mbls10xxa_clk_cfg_init();
++
++	/* initialize baseboard io's */
++	ret = tqc_mbls10xxa_i2c_gpios_init();
++
++	/* check if SerDes mux settings match RCW */
++	if(!ret)
++		ret = _tqmls1088a_bb_check_serdes_mux();
++
++	/* reset usb-hub */
++	tqc_mbls10xxa_i2c_gpio_set("usb_h_grst#", 0);
++	mdelay(10);
++	tqc_mbls10xxa_i2c_gpio_set("usb_h_grst#", 1);
++
++	return 0;
++}
++
++int tqc_bb_checkboard(void)
++{
++	/* nothing to do */
++	return 0;
++}
++
++const char *tqc_bb_get_boardname(void)
++{
++	return "MBLS10xxA";
++}
++
++#ifdef CONFIG_NET
++int tqc_bb_board_eth_init(struct bd_info *bis)
++{
++#ifdef CONFIG_FSL_MC_ENET
++	struct memac_mdio_info mdio_info;
++	struct mii_dev *dev_mdio;
++	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
++	struct memac_mdio_controller *reg;
++	u32 srds_s1;
++	int moddef_det;
++
++	/* read SerDes configuration from RCW */
++	srds_s1 = in_le32(&gur->rcwsr[FSL_CHASSIS3_SRDS1_REGSR - 1]) &
++	                  FSL_CHASSIS3_SRDS1_PRTCL_MASK;
++	srds_s1 >>= FSL_CHASSIS3_SRDS1_PRTCL_SHIFT;
++
++    /* Register the EMI 1 */
++    reg = (struct memac_mdio_controller *)CONFIG_SYS_FSL_WRIOP1_MDIO1;
++    mdio_info.regs = reg;
++    mdio_info.name = DEFAULT_WRIOP_MDIO1_NAME;
++    fm_memac_mdio_init(bis, &mdio_info);
++
++    /* Register the EMI 2 */
++    reg = (struct memac_mdio_controller *)CONFIG_SYS_FSL_WRIOP1_MDIO2;
++    mdio_info.regs = reg;
++    mdio_info.name = DEFAULT_WRIOP_MDIO2_NAME;
++    fm_memac_mdio_init(bis, &mdio_info);
++
++	/* get MDIO bus devices */
++	dev_mdio = miiphy_get_dev_by_name(DEFAULT_WRIOP_MDIO1_NAME);
++
++	/* set xGMII PHY addresses based on RCW */
++	if(TQMLS1088A_SRDS1_PROTO(srds_s1, 3) != 0x4) {
++		/* set the two on-board RGMII PHY address */
++		wriop_set_phy_address(WRIOP1_DPMAC4, 0, RGMII_PHY1_ADDR);
++		wriop_set_mdio(WRIOP1_DPMAC4, dev_mdio);
++		wriop_set_phy_address(WRIOP1_DPMAC5, 0, RGMII_PHY2_ADDR);
++		wriop_set_mdio(WRIOP1_DPMAC5, dev_mdio);
++	}
++	if(TQMLS1088A_SRDS1_PROTO(srds_s1, 3) == 0x3) {
++		/* SD1 - LANE A in SGMII.3 mode */
++		wriop_set_phy_address(WRIOP1_DPMAC3, 0, QSGMII_PHY1_ADDR_BASE+0);
++		wriop_set_mdio(WRIOP1_DPMAC3, dev_mdio);
++	} else if(TQMLS1088A_SRDS1_PROTO(srds_s1, 3) == 0x4) {
++		/* SD1 - LANE A in QSGMII.3,4,5,6 mode */
++		wriop_set_phy_address(WRIOP1_DPMAC3, 0, QSGMII_PHY1_ADDR_BASE+0);
++		wriop_set_mdio(WRIOP1_DPMAC3, dev_mdio);
++		wriop_set_phy_address(WRIOP1_DPMAC4, 0, QSGMII_PHY1_ADDR_BASE+1);
++		wriop_set_mdio(WRIOP1_DPMAC4, dev_mdio);
++		wriop_set_phy_address(WRIOP1_DPMAC5, 0, QSGMII_PHY1_ADDR_BASE+2);
++		wriop_set_mdio(WRIOP1_DPMAC5, dev_mdio);
++		wriop_set_phy_address(WRIOP1_DPMAC6, 0, QSGMII_PHY1_ADDR_BASE+3);
++		wriop_set_mdio(WRIOP1_DPMAC6, dev_mdio);
++	}
++	if(TQMLS1088A_SRDS1_PROTO(srds_s1, 2) == 0x3) {
++		/* SD1 - LANE B in SGMII.7 mode */
++		wriop_set_phy_address(WRIOP1_DPMAC7, 0, QSGMII_PHY2_ADDR_BASE+0);
++		wriop_set_mdio(WRIOP1_DPMAC7, dev_mdio);
++	} else if(TQMLS1088A_SRDS1_PROTO(srds_s1, 2) == 0x4) {
++		/* SD1 - LANE B in QSGMII.7,8,9,10 mode */
++		wriop_set_phy_address(WRIOP1_DPMAC7, 0, QSGMII_PHY2_ADDR_BASE+0);
++		wriop_set_mdio(WRIOP1_DPMAC7, dev_mdio);
++		wriop_set_phy_address(WRIOP1_DPMAC8, 0, QSGMII_PHY2_ADDR_BASE+1);
++		wriop_set_mdio(WRIOP1_DPMAC8, dev_mdio);
++		wriop_set_phy_address(WRIOP1_DPMAC9, 0, QSGMII_PHY2_ADDR_BASE+2);
++		wriop_set_mdio(WRIOP1_DPMAC9, dev_mdio);
++		wriop_set_phy_address(WRIOP1_DPMAC10, 0, QSGMII_PHY2_ADDR_BASE+3);
++		wriop_set_mdio(WRIOP1_DPMAC10, dev_mdio);
++	}
++	if(TQMLS1088A_SRDS1_PROTO(srds_s1, 1) == 0x1) {
++		/* SD1 - LANE C in XFI.1 mode */
++
++		/* Add dummy PHY address when XFI used */
++		wriop_set_phy_address(WRIOP1_DPMAC1, 0, 0x0a);
++
++		/* enable XFI transmitter when XFI selected and SFP is available
++		 * (MOD-DEF[0] (SFP pin 6) is grounded)
++		 */
++		moddef_det = tqc_mbls10xxa_i2c_gpio_get("xfi1_moddef_det");
++		if(!moddef_det)
++			tqc_mbls10xxa_i2c_gpio_set("xfi1_tx_dis", 0);
++		else
++			tqc_mbls10xxa_i2c_gpio_set("xfi1_tx_dis", 1);
++	}
++	if(TQMLS1088A_SRDS1_PROTO(srds_s1, 0) == 0x3) {
++		/* SD1 - LANE D in SGMII.2 mode */
++		wriop_set_phy_address(WRIOP1_DPMAC2, 0, QSGMII_PHY2_ADDR_BASE+1);
++		wriop_set_mdio(WRIOP1_DPMAC2, dev_mdio);
++	} else if(TQMLS1088A_SRDS1_PROTO(srds_s1, 0) == 0x1) {
++		/* SD1 - LANE D in XFI.2 mode */
++
++		/* Add dummy PHY address when XFI used */
++		wriop_set_phy_address(WRIOP1_DPMAC2, 0, 0x0b);
++
++		/* enable XFI transmitter when XFI selected and SFP is available
++		 * (MOD-DEF[0] (SFP pin 6) is grounded)
++		 */
++		moddef_det = tqc_mbls10xxa_i2c_gpio_get("xfi2_moddef_det");
++		if(!moddef_det)
++			tqc_mbls10xxa_i2c_gpio_set("xfi2_tx_dis", 0);
++		else
++			tqc_mbls10xxa_i2c_gpio_set("xfi2_tx_dis", 1);
++	}
++#endif
++
++	return 0;
++}
++#endif
++#endif
++
++int tqc_bb_board_mmc_getcd(struct mmc *mmc)
++{
++	struct ccsr_gpio *ccsr = (void *)(GPIO3_BASE_ADDR);
++
++	return !(in_le32(&ccsr->gpdat) & (1 << (31-12)));
++}
++
++int tqc_bb_board_mmc_getwp(struct mmc *mmc)
++{
++	struct ccsr_gpio *ccsr = (void *)(GPIO3_BASE_ADDR);
++
++	return !!(in_le32(&ccsr->gpdat) & (1 << (31-13)));
++}
++
++#ifndef CONFIG_SPL_BUILD
++int board_phy_config(struct phy_device *phydev)
++{
++	/* call baseboard common function */
++	return tqc_mbls10xxa_board_phy_config(phydev);
++}
++
++#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
++static int fdt_set_phy_handle(void *fdt, int mac, const char *alias)
++{
++	int offset;
++	unsigned int ph;
++	const char *path;
++	char name[8];
++	int lenp;
++	int found = 0;
++
++	/* Get a path to the node that 'alias' points to */
++	path = fdt_get_alias(fdt, alias);
++	if (!path)
++		return -FDT_ERR_BADPATH;
++
++	/* Get the offset of that node */
++	offset = fdt_path_offset(fdt, path);
++	if (offset < 0)
++		return offset;
++
++	ph = fdt_create_phandle(fdt, offset);
++	if (!ph)
++		return -FDT_ERR_BADPHANDLE;
++
++	ph = cpu_to_fdt32(ph);
++
++	/* Get path to dpmacs node */
++	offset = fdt_path_offset(fdt, "/soc/fsl-mc/dpmacs");
++	if (offset < 0)
++		return offset;
++	
++	/* Get relevant dpmac node */
++	sprintf(name, "dpmac@%x", mac);
++	fdt_for_each_subnode(offset, fdt, offset) {
++		path = fdt_get_name(fdt, offset, &lenp);
++		if(!strncmp(name, path, strlen(name))) {
++			found++;
++			break;
++		}
++	}
++	if(!found)
++		return -FDT_ERR_BADPATH;
++
++	/* Cretate handle to phy */
++	return fdt_setprop(fdt, offset, "phy-handle", &ph, sizeof(ph));
++}
++
++static int fdt_set_phy_mode(void *fdt, int mac, int phy_mode)
++{
++	int offset;
++	const char *path;
++	char name[8];
++	int lenp;
++	int found = 0;
++	struct fixed_link f_link;
++
++	/* Get path to dpmacs node */
++	offset = fdt_path_offset(fdt, "/soc/fsl-mc/dpmacs");
++	if (offset < 0)
++		return offset;
++	
++	/* Get relevant dpmac node */
++	sprintf(name, "dpmac@%x", mac);
++	fdt_for_each_subnode(offset, fdt, offset) {
++		path = fdt_get_name(fdt, offset, &lenp);
++		if(!strncmp(name, path, strlen(name))) {
++			found++;
++			break;
++		}
++	}
++	if(!found)
++		return -FDT_ERR_BADPATH;
++
++	/* fixup phy connection type */
++	fdt_delprop(fdt, offset, "phy-connection-type");
++	if((phy_mode >= PHY_INTERFACE_MODE_RGMII) &&
++	   (phy_mode <= PHY_INTERFACE_MODE_RGMII_TXID)) {
++	   fdt_setprop_string(fdt, offset, "phy-connection-type",
++	      phy_interface_strings[PHY_INTERFACE_MODE_RGMII]);
++	   fdt_setprop_string(fdt, offset, "phy-mode",
++	      phy_interface_strings[phy_mode]);
++	} else if(phy_mode == PHY_INTERFACE_MODE_XGMII) {
++		f_link.phy_id = cpu_to_fdt32(mac);
++		f_link.duplex = cpu_to_fdt32(1);
++		f_link.link_speed = cpu_to_fdt32(1000);
++		f_link.pause = 0;
++		f_link.asym_pause = 0;
++		fdt_delprop(fdt, offset, "phy-handle");
++		fdt_setprop(fdt, offset, "fixed-link", &f_link, sizeof(f_link));
++		fdt_setprop_string(fdt, offset, "phy-connection-type",
++		   phy_interface_strings[PHY_INTERFACE_MODE_XGMII]);
++	} else {
++	   fdt_setprop_string(fdt, offset, "phy-connection-type",
++	      phy_interface_strings[phy_mode]);
++	}
++
++	return 0;
++}
++
++int tqc_bb_ft_board_setup(void *blob, struct bd_info *bis)
++{
++	u32 srds_s1;
++	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
++
++	/* read SerDes configuration from RCW */
++	srds_s1 = in_le32(&gur->rcwsr[FSL_CHASSIS3_SRDS1_REGSR - 1]) &
++	                  FSL_CHASSIS3_SRDS1_PRTCL_MASK;
++	srds_s1 >>= FSL_CHASSIS3_SRDS1_PRTCL_SHIFT;
++
++
++	/* fixup ethernet mapping */
++	/* ethernet mapping SerDes 1 - Lane D */
++	switch(TQMLS1088A_SRDS1_PROTO(srds_s1, 0)) {
++		case 1:
++			/* XFI.2 */
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC2, PHY_INTERFACE_MODE_XGMII);
++			break;
++		case 3:
++			/* SGMII.2 */
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC2, "qsgmii_s2_p2");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC2, PHY_INTERFACE_MODE_SGMII);
++			break;
++		default:
++			/* not supported, nothing to do */
++			break;
++	}
++
++	/* ethernet mapping SerDes 1 - Lane C */
++	switch(TQMLS1088A_SRDS1_PROTO(srds_s1, 1)) {
++		case 1:
++			/* XFI.1 */
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC1, PHY_INTERFACE_MODE_XGMII);
++			break;
++		default:
++			/* not supported, nothing to do */
++			break;
++	}
++
++	/* ethernet mapping SerDes 1 - Lane B */
++	switch(TQMLS1088A_SRDS1_PROTO(srds_s1, 2)) {
++		case 3:
++			/* SGMII.7 */
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC7, "qsgmii_s2_p1");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC7, PHY_INTERFACE_MODE_SGMII);
++			break;
++		case 4:
++			/* QSGMII.7,8,9,10 */
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC7, "qsgmii_s2_p1");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC7, PHY_INTERFACE_MODE_QSGMII);
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC8, "qsgmii_s2_p2");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC8, PHY_INTERFACE_MODE_QSGMII);
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC9, "qsgmii_s2_p3");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC9, PHY_INTERFACE_MODE_QSGMII);
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC10, "qsgmii_s2_p4");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC10, PHY_INTERFACE_MODE_QSGMII);
++			break;
++		default:
++			/* not supported, nothing to do */
++			break;
++	}
++
++	/* ethernet mapping SerDes 1 - Lane A */
++	switch(TQMLS1088A_SRDS1_PROTO(srds_s1, 3)) {
++		case 3:
++			/* SGMII.3 */
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC3, "qsgmii_s1_p1");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC3, PHY_INTERFACE_MODE_SGMII);
++			/* MAC 4/5 routed to RGMII PHYs */
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC4, "rgmii_s1");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC4, PHY_INTERFACE_MODE_RGMII_ID);
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC5, "rgmii_s2");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC5, PHY_INTERFACE_MODE_RGMII_ID);
++			break;
++		case 4:
++			/* QSGMII.3,4,5,6 */
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC3, "qsgmii_s1_p1");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC3, PHY_INTERFACE_MODE_QSGMII);
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC4, "qsgmii_s1_p2");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC4, PHY_INTERFACE_MODE_QSGMII);
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC5, "qsgmii_s1_p3");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC5, PHY_INTERFACE_MODE_QSGMII);
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC6, "qsgmii_s1_p4");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC6, PHY_INTERFACE_MODE_QSGMII);
++			break;
++		default:
++			/* not supported, nothing to do */
++			break;
++	}
++
++	return 0;
++}
++#endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */
++#endif /* !CONFIG_SPL_BUILD */
+--- /dev/null
++++ b/board/tqc/tqmls1088a/tqmls1088a_bb_moment_connect.c
+@@ -0,0 +1,437 @@
++// SPDX-License-Identifier: TBD
++/*
++ * Copyright 2023 Quetzal Lab
++ */
++
++#include <common.h>
++#include <asm/io.h>
++#include <netdev.h>
++#include <fm_eth.h>
++#include <fsl_dtsec.h>
++#include <fsl_mdio.h>
++#include <malloc.h>
++#include <fsl-mc/fsl_mc.h>
++#include <fsl-mc/ldpaa_wriop.h>
++#include "../common/tqc_bb.h"
++#include "../common/tqc_moment_connect.h"
++
++
++#ifndef CONFIG_SPL_BUILD
++#define TQMLS1088A_SRDS1_PROTO(cfg, lane)	((cfg >> 4*lane) & 0xF)
++#define TQMLS1088A_SRDS2_PROTO(cfg, lane)	((cfg >> 4*lane) & 0xF)
++
++
++
++
++
++static int _tqmls1088a_bb_set_lane(struct tqc_moment_connect_serdes *serdes, int port, int lane, int proto)
++{
++	serdes->port = port;
++	serdes->lane = lane;
++	switch(proto) {
++		case 0x0: /* Unused */
++			serdes->proto = TQC_MOMENT_CONNECT_SRDS_PROTO_UNUSED;
++			printf("%d:%d TQC_MOMENT_CONNECT_SRDS_PROTO_UNUSED\n", port, lane);
++			break;
++		case 0x1: /* XFI */
++			serdes->proto = TQC_MOMENT_CONNECT_SRDS_PROTO_XFI;
++			printf("%d:%d TQC_MOMENT_CONNECT_SRDS_PROTO_XFI\n", port, lane);
++			break;
++		case 0x2: /* 2.5G SGMII */
++			serdes->proto = TQC_MOMENT_CONNECT_SRDS_PROTO_SGMII2G5;
++			printf("%d:%d TQC_MOMENT_CONNECT_SRDS_PROTO_SGMII2G5\n", port, lane);
++			break;
++		case 0x3: /* SGMII */
++			serdes->proto = TQC_MOMENT_CONNECT_SRDS_PROTO_SGMII;
++			printf("%d:%d TQC_MOMENT_CONNECT_SRDS_PROTO_SGMII\n", port, lane);
++			break;
++		case 0x4: /* QSGMII */
++			serdes->proto = TQC_MOMENT_CONNECT_SRDS_PROTO_QSGMII;
++			printf("%d:%d TQC_MOMENT_CONNECT_SRDS_PROTO_QSGMII\n", port, lane);
++			break;
++		case 0x5: /* PCIe x1 */
++		case 0x6: /* PCIe x1 (alternate) */
++			serdes->proto = TQC_MOMENT_CONNECT_SRDS_PROTO_PCIEx1;
++			printf("%d:%d TQC_MOMENT_CONNECT_SRDS_PROTO_PCIEx1\n", port, lane);
++			break;
++		case 0x7: /* PCIe x2 */
++			serdes->proto = TQC_MOMENT_CONNECT_SRDS_PROTO_PCIEx2;
++			printf("%d:%d TQC_MOMENT_CONNECT_SRDS_PROTO_PCIEx2\n", port, lane);
++			break;
++		case 0x8: /* PCIe x4 */
++			serdes->proto = TQC_MOMENT_CONNECT_SRDS_PROTO_PCIEx4;
++			printf("%d:%d TQC_MOMENT_CONNECT_SRDS_PROTO_PCIEx4\n", port, lane);
++			break;
++		case 0x9: /* SATA */
++			serdes->proto = TQC_MOMENT_CONNECT_SRDS_PROTO_SATA;
++			printf("%d:%d TQC_MOMENT_CONNECT_SRDS_PROTO_SATA\n", port, lane);
++			break;
++		default: /* Undefined */
++			serdes->proto = -1;
++			printf("%d:%d Undefined\n", port, lane);
++			break;
++	}
++
++	return 0;
++}
++
++static int _tqmls1088a_bb_check_serdes_mux(void)
++{
++	u32 srds_s1, srds_s2;
++	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
++	struct ccsr_serdes *serdes1_base = (void *)CONFIG_SYS_FSL_LSCH3_SERDES_ADDR;
++	struct tqc_moment_connect_serdes lanes[8];
++
++	/* read SerDes configuration from RCW */
++	srds_s1 = in_le32(&gur->rcwsr[FSL_CHASSIS3_SRDS1_REGSR - 1]) &
++		FSL_CHASSIS3_SRDS1_PRTCL_MASK;
++	srds_s1 >>= FSL_CHASSIS3_SRDS1_PRTCL_SHIFT;
++	srds_s2 = in_le32(&gur->rcwsr[FSL_CHASSIS3_SRDS2_REGSR - 1]) &
++		FSL_CHASSIS3_SRDS2_PRTCL_MASK;
++	srds_s2 >>= FSL_CHASSIS3_SRDS2_PRTCL_SHIFT;
++
++	/* fill lane usage table */
++	_tqmls1088a_bb_set_lane(&(lanes[0]), 1, 0, TQMLS1088A_SRDS1_PROTO(srds_s1, 0));
++	_tqmls1088a_bb_set_lane(&(lanes[1]), 1, 1, TQMLS1088A_SRDS1_PROTO(srds_s1, 1));
++	_tqmls1088a_bb_set_lane(&(lanes[2]), 1, 2, TQMLS1088A_SRDS1_PROTO(srds_s1, 2));
++	_tqmls1088a_bb_set_lane(&(lanes[3]), 1, 3, TQMLS1088A_SRDS1_PROTO(srds_s1, 3));
++	_tqmls1088a_bb_set_lane(&(lanes[4]), 2, 0, TQMLS1088A_SRDS2_PROTO(srds_s2, 0));
++	_tqmls1088a_bb_set_lane(&(lanes[5]), 2, 1, TQMLS1088A_SRDS2_PROTO(srds_s2, 1));
++	_tqmls1088a_bb_set_lane(&(lanes[6]), 2, 2, TQMLS1088A_SRDS2_PROTO(srds_s2, 2));
++	_tqmls1088a_bb_set_lane(&(lanes[7]), 2, 3, TQMLS1088A_SRDS2_PROTO(srds_s2, 3));
++
++	/* check and init lane usage */
++	tqc_moment_connect_serdes_init(lanes);
++
++	/* Configure 10G_KR lane */
++	if (TQMLS1088A_SRDS1_PROTO(srds_s1, 0) == 0x1)
++		tqc_moment_connect_xfi_init(serdes1_base, 3);
++
++	/* Disable unused lane */
++	tqc_moment_connect_lane_disable(serdes1_base, 2);
++
++	return 0;
++}
++#endif /* !CONFIG_SPL_BUILD */
++
++int tqc_bb_board_early_init_f(void)
++{
++	return 0;
++}
++
++#ifndef CONFIG_SPL_BUILD
++int tqc_bb_board_init(void)
++{
++	int ret = 0;
++
++	/* nothing to do */
++	return ret;
++}
++
++int tqc_bb_misc_init_r(void)
++{
++	int ret = 0;
++
++	/* configure baseboard clock buffer */
++	// Already done in arch_early_init_r to relock Serdes PLLs
++	//tqc_moment_connect_clk_cfg_init();
++
++	/* initialize baseboard io's */
++	ret = tqc_moment_connect_i2c_gpios_init();
++
++	/* check if SerDes mux settings match RCW */
++	if(!ret)
++		ret = _tqmls1088a_bb_check_serdes_mux();
++
++	return 0;
++}
++
++int tqc_bb_checkboard(void)
++{
++	/* nothing to do */
++	return 0;
++}
++
++const char *tqc_bb_get_boardname(void)
++{
++	return "MOMENT_CONNECT";
++}
++
++#ifdef CONFIG_NET
++int tqc_bb_board_eth_init(struct bd_info *bis)
++{
++#ifdef CONFIG_FSL_MC_ENET
++	struct memac_mdio_info mdio_info;
++	struct mii_dev *dev_mdio;
++	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
++	struct memac_mdio_controller *reg;
++	u32 srds_s1;
++
++	/* read SerDes configuration from RCW */
++	srds_s1 = in_le32(&gur->rcwsr[FSL_CHASSIS3_SRDS1_REGSR - 1]) &
++		FSL_CHASSIS3_SRDS1_PRTCL_MASK;
++	srds_s1 >>= FSL_CHASSIS3_SRDS1_PRTCL_SHIFT;
++
++	/* Register the EMI 1 */
++	reg = (struct memac_mdio_controller *)CONFIG_SYS_FSL_WRIOP1_MDIO1;
++	mdio_info.regs = reg;
++	mdio_info.name = DEFAULT_WRIOP_MDIO1_NAME;
++	fm_memac_mdio_init(bis, &mdio_info);
++
++	/* get MDIO bus devices */
++	dev_mdio = miiphy_get_dev_by_name(DEFAULT_WRIOP_MDIO1_NAME);
++
++	/* set xGMII PHY addresses based on RCW */
++	switch(TQMLS1088A_SRDS1_PROTO(srds_s1, 3)) {
++		case 0x3: // SGMII
++			wriop_set_phy_address(WRIOP1_DPMAC3, 0, QSGMII_PHY2_ADDR_BASE+0);
++			wriop_set_mdio(WRIOP1_DPMAC3, dev_mdio);
++			break;
++		case 0x4: // QSGMII
++			wriop_set_phy_address(WRIOP1_DPMAC3, 0, QSGMII_PHY2_ADDR_BASE+0);
++			wriop_set_mdio(WRIOP1_DPMAC3, dev_mdio);
++			wriop_set_phy_address(WRIOP1_DPMAC4, 0, QSGMII_PHY2_ADDR_BASE+1);
++			wriop_set_mdio(WRIOP1_DPMAC4, dev_mdio);
++			wriop_set_phy_address(WRIOP1_DPMAC5, 0, QSGMII_PHY2_ADDR_BASE+2);
++			wriop_set_mdio(WRIOP1_DPMAC5, dev_mdio);
++			wriop_set_phy_address(WRIOP1_DPMAC6, 0, QSGMII_PHY2_ADDR_BASE+3);
++			wriop_set_mdio(WRIOP1_DPMAC6, dev_mdio);
++			break;
++	}
++	
++	switch(TQMLS1088A_SRDS1_PROTO(srds_s1, 2)) {
++		case 0x3: // SGMII
++			wriop_set_phy_address(WRIOP1_DPMAC7, 0, QSGMII_PHY1_ADDR_BASE+0);
++			wriop_set_mdio(WRIOP1_DPMAC7, dev_mdio);
++			break;
++		case 0x4: // QSGMII
++			wriop_set_phy_address(WRIOP1_DPMAC7, 0, QSGMII_PHY1_ADDR_BASE+0);
++			wriop_set_mdio(WRIOP1_DPMAC7, dev_mdio);
++			wriop_set_phy_address(WRIOP1_DPMAC8, 0, QSGMII_PHY1_ADDR_BASE+1);
++			wriop_set_mdio(WRIOP1_DPMAC8, dev_mdio);
++			wriop_set_phy_address(WRIOP1_DPMAC9, 0, QSGMII_PHY1_ADDR_BASE+2);
++			wriop_set_mdio(WRIOP1_DPMAC9, dev_mdio);
++			wriop_set_phy_address(WRIOP1_DPMAC10, 0, QSGMII_PHY1_ADDR_BASE+3);
++			wriop_set_mdio(WRIOP1_DPMAC10, dev_mdio);
++			break;
++	}
++	
++	switch(TQMLS1088A_SRDS1_PROTO(srds_s1, 0)) {
++		case 0x1: // XFI
++			wriop_set_phy_address(WRIOP1_DPMAC2, 0, 0x0b);
++			break;
++	}
++#endif
++
++	return 0;
++}
++#endif
++#endif
++
++
++int tqc_bb_board_mmc_getcd(struct mmc *mmc)
++{
++	return 1;
++}
++
++int tqc_bb_board_mmc_getwp(struct mmc *mmc)
++{
++	return 0;
++}
++
++
++#ifndef CONFIG_SPL_BUILD
++
++#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
++static int fdt_set_phy_handle(void *fdt, int mac, const char *alias)
++{
++	int offset;
++	unsigned int ph;
++	const char *path;
++	char name[8];
++	int lenp;
++	int found = 0;
++
++	/* Get a path to the node that 'alias' points to */
++	path = fdt_get_alias(fdt, alias);
++	if (!path)
++		return -FDT_ERR_BADPATH;
++
++	/* Get the offset of that node */
++	offset = fdt_path_offset(fdt, path);
++	if (offset < 0)
++		return offset;
++
++	ph = fdt_create_phandle(fdt, offset);
++	if (!ph)
++		return -FDT_ERR_BADPHANDLE;
++
++	ph = cpu_to_fdt32(ph);
++
++	/* Get path to dpmacs node */
++	offset = fdt_path_offset(fdt, "/soc/fsl-mc/dpmacs");
++	if (offset < 0)
++		return offset;
++
++	/* Get relevant dpmac node */
++	sprintf(name, "dpmac@%x", mac);
++	fdt_for_each_subnode(offset, fdt, offset) {
++		path = fdt_get_name(fdt, offset, &lenp);
++		if(!strncmp(name, path, strlen(name))) {
++			found++;
++			break;
++		}
++	}
++	if(!found)
++		return -FDT_ERR_BADPATH;
++
++	/* Cretate handle to phy */
++	return fdt_setprop(fdt, offset, "phy-handle", &ph, sizeof(ph));
++}
++
++static int fdt_set_phy_mode(void *fdt, int mac, int phy_mode)
++{
++	int offset;
++	const char *path;
++	char name[8];
++	int lenp;
++	int found = 0;
++	struct fixed_link f_link;
++
++	/* Get path to dpmacs node */
++	offset = fdt_path_offset(fdt, "/soc/fsl-mc/dpmacs");
++	if (offset < 0)
++		return offset;
++
++	/* Get relevant dpmac node */
++	sprintf(name, "dpmac@%x", mac);
++	fdt_for_each_subnode(offset, fdt, offset) {
++		path = fdt_get_name(fdt, offset, &lenp);
++		if(!strncmp(name, path, strlen(name))) {
++			found++;
++			break;
++		}
++	}
++	if(!found)
++		return -FDT_ERR_BADPATH;
++
++	/* fixup phy connection type */
++	fdt_delprop(fdt, offset, "phy-connection-type");
++	if((phy_mode >= PHY_INTERFACE_MODE_RGMII) &&
++			(phy_mode <= PHY_INTERFACE_MODE_RGMII_TXID)) {
++		fdt_setprop_string(fdt, offset, "phy-connection-type",
++				phy_interface_strings[PHY_INTERFACE_MODE_RGMII]);
++		fdt_setprop_string(fdt, offset, "phy-mode",
++				phy_interface_strings[phy_mode]);
++	} else if(phy_mode == PHY_INTERFACE_MODE_XGMII) {
++		f_link.phy_id = cpu_to_fdt32(mac);
++		f_link.duplex = cpu_to_fdt32(1);
++		f_link.link_speed = cpu_to_fdt32(1000);
++		f_link.pause = 0;
++		f_link.asym_pause = 0;
++		fdt_delprop(fdt, offset, "phy-handle");
++		fdt_setprop(fdt, offset, "fixed-link", &f_link, sizeof(f_link));
++		fdt_setprop_string(fdt, offset, "phy-connection-type",
++				phy_interface_strings[PHY_INTERFACE_MODE_XGMII]);
++	} else {
++		fdt_setprop_string(fdt, offset, "phy-connection-type",
++				phy_interface_strings[phy_mode]);
++	}
++
++	return 0;
++}
++
++int tqc_bb_ft_board_setup(void *blob, struct bd_info *bis)
++{
++	u32 srds_s1;
++	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
++
++	/* read SerDes configuration from RCW */
++	srds_s1 = in_le32(&gur->rcwsr[FSL_CHASSIS3_SRDS1_REGSR - 1]) &
++		FSL_CHASSIS3_SRDS1_PRTCL_MASK;
++	srds_s1 >>= FSL_CHASSIS3_SRDS1_PRTCL_SHIFT;
++
++
++	/* fixup ethernet mapping */
++	/* ethernet mapping SerDes 1 - Lane D */
++	switch(TQMLS1088A_SRDS1_PROTO(srds_s1, 0)) {
++		case 1:
++			/* XFI.2 */
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC2, PHY_INTERFACE_MODE_XGMII);
++			break;
++		case 3:
++			/* SGMII.2 */
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC2, "qsgmii_s2_p2");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC2, PHY_INTERFACE_MODE_SGMII);
++			break;
++		default:
++			/* not supported, nothing to do */
++			break;
++	}
++
++	/* ethernet mapping SerDes 1 - Lane C */
++	switch(TQMLS1088A_SRDS1_PROTO(srds_s1, 1)) {
++		case 1:
++			/* XFI.1 */
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC1, PHY_INTERFACE_MODE_XGMII);
++			break;
++		default:
++			/* not supported, nothing to do */
++			break;
++	}
++
++	/* ethernet mapping SerDes 1 - Lane B */
++	switch(TQMLS1088A_SRDS1_PROTO(srds_s1, 2)) {
++		case 3:
++			/* SGMII.7 */
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC7, "qsgmii_s2_p1");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC7, PHY_INTERFACE_MODE_SGMII);
++			break;
++		case 4:
++			/* QSGMII.7,8,9,10 */
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC7, "qsgmii_s2_p1");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC7, PHY_INTERFACE_MODE_QSGMII);
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC8, "qsgmii_s2_p2");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC8, PHY_INTERFACE_MODE_QSGMII);
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC9, "qsgmii_s2_p3");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC9, PHY_INTERFACE_MODE_QSGMII);
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC10, "qsgmii_s2_p4");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC10, PHY_INTERFACE_MODE_QSGMII);
++			break;
++		default:
++			/* not supported, nothing to do */
++			break;
++	}
++
++	/* ethernet mapping SerDes 1 - Lane A */
++	switch(TQMLS1088A_SRDS1_PROTO(srds_s1, 3)) {
++		case 3:
++			/* SGMII.3 */
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC3, "qsgmii_s1_p1");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC3, PHY_INTERFACE_MODE_SGMII);
++			/* MAC 4/5 routed to RGMII PHYs */
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC4, "rgmii_s1");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC4, PHY_INTERFACE_MODE_RGMII_ID);
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC5, "rgmii_s2");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC5, PHY_INTERFACE_MODE_RGMII_ID);
++			break;
++		case 4:
++			/* QSGMII.3,4,5,6 */
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC3, "qsgmii_s1_p1");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC3, PHY_INTERFACE_MODE_QSGMII);
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC4, "qsgmii_s1_p2");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC4, PHY_INTERFACE_MODE_QSGMII);
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC5, "qsgmii_s1_p3");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC5, PHY_INTERFACE_MODE_QSGMII);
++			fdt_set_phy_handle(blob, WRIOP1_DPMAC6, "qsgmii_s1_p4");
++			fdt_set_phy_mode(blob, WRIOP1_DPMAC6, PHY_INTERFACE_MODE_QSGMII);
++			break;
++		default:
++			/* not supported, nothing to do */
++			break;
++	}
++
++	return 0;
++}
++#endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */
++#endif /* !CONFIG_SPL_BUILD */
+--- /dev/null
++++ b/configs/moment_tqmls1088a_connect_emmc_defconfig
+@@ -0,0 +1,87 @@
++CONFIG_ARM=y
++CONFIG_GIC_V3_ITS=y
++CONFIG_TARGET_TQMLS1088A=y
++CONFIG_SYS_TEXT_BASE=0x80400000
++CONFIG_SPL_LIBCOMMON_SUPPORT=y
++CONFIG_SPL_LIBGENERIC_SUPPORT=y
++CONFIG_NR_DRAM_BANKS=2
++CONFIG_SYS_MEMTEST_START=0x80000000
++CONFIG_SYS_MEMTEST_END=0x9fffffff
++CONFIG_ENV_SIZE=0x4000
++CONFIG_ENV_OFFSET=0x300000
++CONFIG_DM_GPIO=y
++CONFIG_SPL_TEXT_BASE=0x1800a000
++CONFIG_FSL_LS_PPA=y
++CONFIG_QSPI_AHB_INIT=y
++CONFIG_SYS_FSL_I2C_CLK_DIV=2
++CONFIG_SYS_FSL_IFC_CLK_DIV=2
++CONFIG_SPL_MMC_SUPPORT=y
++CONFIG_SPL_SERIAL_SUPPORT=y
++CONFIG_SPL_DRIVERS_MISC_SUPPORT=y
++CONFIG_SPL=y
++CONFIG_DEFAULT_DEVICE_TREE="moment-tqmls1088a-connect"
++CONFIG_DISTRO_DEFAULTS=y
++CONFIG_FIT_VERBOSE=y
++CONFIG_OF_BOARD_SETUP=y
++CONFIG_OF_STDOUT_VIA_ALIAS=y
++CONFIG_SYS_EXTRA_OPTIONS="SYS_FSL_DDR4"
++CONFIG_SD_BOOT=y
++CONFIG_BOOTDELAY=10
++CONFIG_USE_BOOTARGS=y
++CONFIG_BOOTARGS="console=ttyS0,115200 root=/dev/ram0 earlycon=uart8250,mmio,0x21c0500 ramdisk_size=0x3000000 default_hugepagesz=2m hugepagesz=2m hugepages=256"
++# CONFIG_USE_BOOTCOMMAND is not set
++CONFIG_DEFAULT_FDT_FILE="moment-tqmls1088a-connect.dtb"
++# CONFIG_DISPLAY_BOARDINFO is not set
++CONFIG_DISPLAY_BOARDINFO_LATE=y
++CONFIG_MISC_INIT_R=y
++CONFIG_SPL_BOARD_INIT=y
++CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR=y
++CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR=0x8b0
++CONFIG_SPL_ENV_SUPPORT=y
++CONFIG_SPL_I2C_SUPPORT=y
++CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT=y
++CONFIG_CMD_GREPENV=y
++CONFIG_CMD_MEMINFO=y
++CONFIG_CMD_MEMTEST=y
++CONFIG_SYS_ALT_MEMTEST=y
++CONFIG_CMD_DM=y
++CONFIG_CMD_GPT=y
++CONFIG_CMD_I2C=y
++CONFIG_CMD_MMC=y
++CONFIG_CMD_PCI=y
++CONFIG_CMD_USB=y
++CONFIG_CMD_CACHE=y
++CONFIG_MP=y
++CONFIG_MTDIDS_DEFAULT="nor0=1550000.quadspi-0"
++CONFIG_MTDPARTS_DEFAULT="mtdparts=1550000.quadspi-0:64k(rcwpbi),768k(uboot),64k(env),64k(dpaadpl),64k(dpaadpc),1984k(mcfw),64k(dtb),21M(kernel),40M(rootfs)"
++CONFIG_OF_CONTROL=y
++CONFIG_ENV_OVERWRITE=y
++CONFIG_ENV_IS_IN_MMC=y
++CONFIG_SYS_RELOC_GD_ENV_ADDR=y
++CONFIG_DM=y
++CONFIG_SCSI_AHCI=y
++CONFIG_FSL_ESDHC=y
++# CONFIG_SPI_FLASH_BAR is not set
++CONFIG_SPI_FLASH_SPANSION=y
++# CONFIG_SPI_FLASH_USE_4K_SECTORS is not set
++CONFIG_PHYLIB=y
++CONFIG_PHY_VITESSE=y
++CONFIG_PHY_GIGE=y
++CONFIG_E1000=y
++CONFIG_MII=y
++CONFIG_PCI=y
++CONFIG_DM_PCI=y
++CONFIG_DM_PCI_COMPAT=y
++CONFIG_PCIE_LAYERSCAPE_RC=y
++CONFIG_CONS_INDEX=2
++CONFIG_SYS_NS16550=y
++CONFIG_SPI=y
++CONFIG_DM_SPI=y
++CONFIG_FSL_DSPI=y
++CONFIG_FSL_QSPI=y
++CONFIG_USB=y
++CONFIG_DM_USB=y
++CONFIG_USB_XHCI_HCD=y
++CONFIG_USB_XHCI_DWC3=y
++# CONFIG_SPL_USE_TINY_PRINTF is not set
++CONFIG_EFI_LOADER_BOUNCE_BUFFER=y
+--- /dev/null
++++ b/include/configs/tqc_bb_moment_connect.h
+@@ -0,0 +1,32 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++
++/*
++ * Copyright 2022 Quetzal Lab
++ */
++
++#ifndef __TQC_BB_MOMENT_CONNECT_H__
++#define __TQC_BB_MOMENT_CONNECT_H__
++
++/* Fman ethernet settings */
++#if defined(CONFIG_FMAN_ENET) || defined(CONFIG_FSL_MC_ENET)
++#define CONFIG_PHYLIB_10G
++
++#define RGMII_PHY1_ADDR			0x0E
++#define RGMII_PHY2_ADDR			0x0C
++#define QSGMII_PHY1_ADDR_BASE	0x04
++#define QSGMII_PHY2_ADDR_BASE	0x08
++#endif
++
++
++/* I2C IO expanders on baseboard (PCA9555) */
++#define PCA953X_I2C_GPIO_BUS_NUM    0
++#define CONFIG_PCA953X
++#define CONFIG_SYS_I2C_PCA953X_WIDTH    { {0x20, 18} }
++
++/* I2C clock buffer on baseboard (Si5341) */
++#define SI5341B_CLKBUF_BUS_NUM  0
++#define SI5341B_REVA_CLKBUF_ADDR     0x7c
++#define SI5341B_REVD_CLKBUF_ADDR     0x74
++
++#endif /* __TQC_BB_MOMENT_CONNECT_H__ */
++
+--- /dev/null
++++ b/include/configs/tqmls1088a.h
+@@ -0,0 +1,316 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Copyright 2019 TQ-Systems GmbH
++ */
++
++#ifndef __TQMLS1088A_H__
++#define __TQMLS1088A_H__
++
++#include "ls1088a_common.h"
++
++/*
++#define DEBUG
++*/
++
++#define CONFIG_SYS_CLK_FREQ		100000000
++#define CONFIG_DDR_CLK_FREQ		100000000
++#define COUNTER_FREQUENCY_REAL  25000000
++#define COUNTER_FREQUENCY       25000000
++
++#define CONFIG_MISC_INIT_R      1
++
++#define CONFIG_SYS_MEMTEST_START	0x80000000
++#define CONFIG_SYS_MEMTEST_END		0x9fffffff
++
++#define CONFIG_DIMM_SLOTS_PER_CTLR		1
++/* Physical Memory Map */
++#define CONFIG_CHIP_SELECTS_PER_CTRL	4
++#define CONFIG_NR_DRAM_BANKS			2
++
++#define CONFIG_DDR_ECC
++#define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
++#define CONFIG_MEM_INIT_VALUE           0xdeadbeef
++#define CONFIG_FSL_DDR_BIST	/* enable built-in memory test */
++
++#if defined(CONFIG_QSPI_BOOT)
++#define CONFIG_SPL_PAD_TO       0x10000
++#endif
++
++#ifndef SPL_NO_IFC
++/* IFC */
++#define CONFIG_FSL_IFC
++#endif
++
++#define CONFIG_SYS_LS_MC_BOOT_TIMEOUT_MS        5000
++
++/* VID */
++#define CONFIG_VID_FLS_ENV      "tqmls1088a_vdd_mv"
++#define CONFIG_VID
++#define VDD_MV_MIN              819
++#define VDD_MV_MAX              1212
++
++/*  MMC  */
++#ifdef CONFIG_MMC
++#define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
++#endif
++
++/* EEPROM */
++#define CONFIG_SYS_EEPROM_BUS_NUM				0
++#define CONFIG_SYS_I2C_EEPROM_ADDR				0x50
++#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN			1
++#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS		3
++#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
++
++/* PMIC */
++#define CONFIG_POWER
++#ifdef CONFIG_POWER
++#define CONFIG_POWER_I2C
++#endif
++
++#define CONFIG_FSL_MEMAC
++
++/* QSPI device */
++#ifndef SPL_NO_QSPI
++#ifdef CONFIG_FSL_QSPI
++#define CONFIG_SPI_FLASH_MACRONIX
++#define FSL_QSPI_FLASH_SIZE			(1 << 26)
++#define FSL_QSPI_FLASH_NUM			2
++#define CONFIG_SPI_FLASH_BAR
++#endif
++#endif
++
++#if defined(CONFIG_SD_BOOT)
++#define CONFIG_SYS_MMC_ENV_DEV      0
++#define CONFIG_ENV_OFFSET           0x300000
++#define CONFIG_ENV_SIZE             0x4000
++#else
++#define CONFIG_ENV_SIZE             0x4000  /* 16KB */
++#define CONFIG_ENV_OFFSET           0xd0000 /* 832KB */
++#define CONFIG_ENV_SECT_SIZE        0x10000 /* 64KB */
++#endif
++
++/*
++ * Environment
++ */
++#ifndef SPL_NO_ENV
++#define CONFIG_ENV_OVERWRITE        1
++#if defined(CONFIG_QSPI_BOOT)
++#define MC_INIT_CMD				\
++	"mcinitcmd=sf probe 0:0; "	\
++	"sf read 0x80000000 0x100000 0x1f0000;"	\
++	"sf read 0x80100000 0x0f0000 0x10000;"				\
++	"fsl_mc start mc 0x80000000 0x80100000\0"	\
++	"mcmemsize=0x20000000\0"
++#elif defined(CONFIG_SD_BOOT)
++#define MC_INIT_CMD				\
++	"mcinitcmd=mmc rescan; "	\
++	"mmc read 0x80000000 0x5000 0x1800;"		\
++	"mmc read 0x80100000 0x7000 0x800;"				\
++	"fsl_mc start mc 0x80000000 0x80100000\0"	\
++	"mcmemsize=0x20000000\0"
++#endif
++
++#ifndef SPL_NO_MISC
++#undef CONFIG_BOOTCOMMAND
++#if defined (CONFIG_SYSTEM_SD_BOOT)
++#define CONFIG_BOOTCOMMAND "run mmcboot; "
++#elif defined(CONFIG_QSPI_BOOT)
++#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run spiboot; run netboot; "	\
++							"run panicboot"
++#elif defined(CONFIG_SD_BOOT)
++#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run mmcboot; run netboot; "	\
++							"run panicboot"
++#endif
++
++/* eMMC/SD partitioning */
++#define TQMLS1088A_UBOOT_MMC_SECT_START		0x800
++#define TQMLS1088A_UBOOT_MMC_SECT_SIZE		0x1000
++
++#ifndef CONFIG_SPL_BUILD
++#undef BOOT_TARGET_DEVICES
++#define BOOT_TARGET_DEVICES(func) \
++	func(SCSI, scsi, 0) \
++	func(USB, usb, 0)
++#include <config_distro_bootcmd.h>
++#endif
++
++#undef CONFIG_EXTRA_ENV_SETTINGS
++/* Initial environment variables */
++#define CONFIG_EXTRA_ENV_SETTINGS		\
++	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
++	"addmisc=setenv bootargs ${bootargs}\0"	\
++	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"	\
++	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"	\
++	"consdev=ttyS1\0"	\
++	"addtty=setenv bootargs ${bootargs} earlycon=uart8250,mmio,0x21c0600 "	\
++		"console=${consdev},${baudrate}\0"	\
++	"mmcblkdev=0\0"	\
++	"mmcpart=2\0"	\
++	"addmmc=setenv bootargs ${bootargs} "	\
++		"root=/dev/mmcblk${mmcblkdev}p${mmcpart} rw rootwait\0"	\
++	"mmcargs=run addmmc addtty addmisc\0"	\
++	"mmcdev=0\0"	\
++	"firmwarepart=1\0"	\
++	"loadaddr=0x81000000\0"	\
++	"kernel=linuximage\0"	\
++	"fdt_addr=0x90000000\0"	\
++	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0"	\
++	"loadimage=load mmc ${mmcdev}:${firmwarepart} ${loadaddr} ${kernel} \0"	\
++	"loadfdt=load mmc ${mmcdev}:${firmwarepart} ${fdt_addr} ${fdt_file} \0" \
++	"mcdplapply=mmc read 0x80200000 0x6800 0x800 && fsl_mc lazyapply dpl 0x80200000 \0"	\
++	MC_INIT_CMD \
++	BOOTENV	\
++	"mmcboot=echo Booting from mmc ...; "	\
++		"setenv bootargs; "	\
++		"run mmcargs; "	\
++		"run loadimage; "	\
++		"run loadfdt; "	\
++		"run mcdplapply; "	\
++		"booti ${loadaddr} - ${fdt_addr};\0"	\
++	"addspi=setenv bootargs ${bootargs} "   \
++		"root=ubi0:root rw rootfstype=ubifs ubi.mtd=8\0"	\
++	"spiargs=run addspi addtty addmisc\0"	\
++	"loadspiimage=sf probe 0; sf read ${loadaddr} kernel\0"	\
++	"loadspifdt=sf probe 0; sf read ${fdt_addr} dtb\0"	\
++	"mcdplspiapply=sf probe 0; sf read 0x80200000 dpaadpl && fsl_mc lazyapply dpl 0x80200000 \0"	\
++	"spiboot=echo Booting from SPI NOR flash ...;"	\
++		"setenv bootargs; "	\
++		"run spiargs; "	\
++		"run loadspiimage; "	\
++		"run loadspifdt; "	\
++		"run mcdplspiapply; "	\
++		"booti ${loadaddr} - ${fdt_addr};\0"	\
++	"rootpath=/srv/nfs/tqmls1088a\0"	\
++	"addnfs=setenv bootargs ${bootargs} "	\
++		"root=/dev/nfs rw "	\
++		"nfsroot=${serverip}:${rootpath},v3,tcp;\0"	\
++	"netdev=eth0\0"	\
++	"addip_static=setenv bootargs ${bootargs} "	\
++		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:"	\
++		"${hostname}:${netdev}:off\0"	\
++	"addip_dynamic=setenv bootargs ${bootargs} ip=dhcp\0"	\
++	"ipmode=static\0"	\
++	"addip=if test \"${ipmode}\" != static; then "	\
++		"run addip_dynamic; else run addip_static; fi\0"	\
++	"set_getcmd=if test \"${ipmode}\" != static; then "	\
++		"setenv getcmd dhcp; setenv autoload yes; "	\
++		"else setenv getcmd tftp; setenv autoload no; fi\0"	\
++	"netargs=run addnfs addip addtty addmisc\0"	\
++	"netboot=echo Booting from net ...; "	\
++		"run set_getcmd; "	\
++		"setenv bootargs; "	\
++		"run netargs; "	\
++		"${getcmd} 0x80200000 mc-dpl.dtb && fsl_mc lazyapply dpl 0x80200000; "	\
++		"if ${getcmd} ${kernel}; then "	\
++			"if ${getcmd} ${fdt_addr} ${fdt_file}; then "	\
++				"booti ${loadaddr} - ${fdt_addr}; "    \
++			"fi; "	\
++		"fi; "	\
++		"echo ... failed\0"	\
++	"panicboot=echo No boot device !!! reset\0"	\
++	"uboot_mmc=u-boot-with-spl.bin\0"	\
++	"uboot_mmc_start="__stringify(TQMLS1088A_UBOOT_MMC_SECT_START)"\0"	\
++	"uboot_mmc_size="__stringify(TQMLS1088A_UBOOT_MMC_SECT_SIZE)"\0"	\
++	"uboot_qspi=u-boot-dtb.bin\0"	\
++	"update_uboot_mmc=run set_getcmd; "	\
++		"if ${getcmd} ${uboot_mmc}; then "	\
++			"if itest ${filesize} > 0; then "	\
++				"mmc dev ${mmcdev}; mmc rescan; "	\
++				"setexpr blkc ${filesize} + 0x1ff; "	\
++				"setexpr blkc ${blkc} / 0x200; "	\
++				"if itest ${blkc} <= ${uboot_mmc_size}; then "	\
++					"mmc write ${loadaddr} ${uboot_mmc_start} ${blkc}; "	\
++				"fi; "	\
++			"fi; "	\
++		"fi;\0"	\
++	"update_uboot_qspi=run set_getcmd; "	\
++		"if ${getcmd} ${uboot_qspi}; then "	\
++			"if itest ${filesize} > 0; then "	\
++				"sf probe 0; "	\
++				"sf update ${loadaddr} uboot ${filesize}; "	\
++			"fi; "	\
++		"fi; "	\
++		"setenv filesize;\0"	\
++	"rcw_mmc=rcw-emmcboot.bin\0"	\
++	"rcw_mmc_start=0x8\0"	\
++	"rcw_mmc_size=0x7f8\0"	\
++	"update_rcw_mmc=run set_getcmd; "	\
++		"if ${getcmd} ${rcw_mmc}; then "	\
++			"if itest ${filesize} > 0; then "	\
++				"mmc dev ${mmcdev}; mmc rescan; "	\
++				"setexpr blkc ${filesize} + 0x1ff; "	\
++				"setexpr blkc ${blkc} / 0x200; "	\
++				"if itest ${blkc} <= ${rcw_mmc_size}; then "	\
++					"mmc write ${loadaddr} ${rcw_mmc_start} ${blkc}; "	\
++				"fi; "	\
++			"fi; "	\
++		"fi;\0"	\
++	"rcw_qspi=rcw-qspiboot.bin\0"	\
++	"update_rcw_qspi=run set_getcmd; "	\
++		"if ${getcmd} ${rcw_qspi}; then "	\
++			"if itest ${filesize} > 0; then "	\
++				"sf probe 0; "	\
++				"sf update ${loadaddr} rcwpbi ${filesize}; "	\
++			"fi; "	\
++		"fi; "	\
++		"setenv filesize;\0"	\
++	"update_kernel_mmc=run set_getcmd; "   \
++		"if ${getcmd} ${kernel}; then " \
++			"if itest ${filesize} > 0; then "   \
++				"mmc dev ${mmcdev}; mmc rescan; "   \
++				"echo Write kernel image to mmc ${mmcdev}:${firmwarepart}...; "	\
++				"save mmc ${mmcdev}:${firmwarepart} ${loadaddr} ${kernel} ${filesize}; "	\
++			"fi; "  \
++		"fi;\0" \
++	"update_kernel_qspi=run set_getcmd; "	\
++		"if ${getcmd} ${kernel}; then "	\
++			"if itest ${filesize} > 0; then "	\
++				"sf probe 0; "	\
++				"sf update ${loadaddr} kernel ${filesize}; "	\
++			"fi; "	\
++		"fi; "	\
++		"setenv filesize;\0"	\
++	"update_fdt_mmc=run set_getcmd; "	\
++		"if ${getcmd} ${fdt_file}; then " \
++			"if itest ${filesize} > 0; then "   \
++				"mmc dev ${mmcdev}; mmc rescan; "   \
++				"echo Write fdt image to mmc ${mmcdev}:${firmwarepart}...; "	\
++				"save mmc ${mmcdev}:${firmwarepart} ${loadaddr} ${fdt_file} ${filesize}; "	\
++			"fi; "  \
++		"fi;\0" \
++	"update_fdt_qspi=run set_getcmd; "	\
++		"if ${getcmd} ${fdt_file}; then "	\
++			"if itest ${filesize} > 0; then "	\
++				"sf probe 0; "	\
++				"sf update ${loadaddr} dtb ${filesize}; "	\
++			"fi; "	\
++		"fi; "	\
++		"setenv filesize;\0"	\
++	"update_uboot=usb reset; " \
++		"env set filesize 0; " \
++		"if usb storage; then " \
++			"load usb 0 a0000000 u-boot.bin; " \
++			"if itest ${filesize} > 0; then " \
++				"sf update 0xa0000000 uboot ${filesize}; " \
++				"reset; " \
++			"fi; " \
++		"fi;\0" \
++	"rootfs-qspi=root.ubi\0"	\
++	"init_rootfs_qspi=run set_getcmd; "	\
++		"if ${getcmd} ${rootfs-qspi}; then "	\
++			"if itest ${filesize} > 0; then "	\
++				"sf probe 0; "	\
++				"sf erase rootfs 2800000; "	\
++				"sf write ${loadaddr} rootfs ${filesize}; "	\
++			"fi; "	\
++		"fi; "	\
++		"setenv filesize;\0"	\
++	""
++#endif /* !SPL_NO_MISC */
++#endif /* !SPL_NO_ENV */
++
++#include <asm/fsl_secure_boot.h>
++
++#include "tqmls1088a_baseboard.h"
++
++#endif /* __TQMLS1088A_H__ */
+--- /dev/null
++++ b/include/configs/tqmls1088a_baseboard.h
+@@ -0,0 +1,17 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Copyright 2019 TQ-Systems GmbH
++ */
++
++#ifndef __TQMLS1088A_BASEBOARD_H__
++#define __TQMLS1088A_BASEBOARD_H__
++
++#if defined(CONFIG_TQMLS1088A_BB_MBLS10XXA)
++	#include "tqc_bb_mbls10xxa.h"
++#elif defined(CONFIG_TQMLS1088A_BB_MOMENT_CONNECT)
++	#include "tqc_bb_moment_connect.h"
++#else
++	#error "No baseboard selected for TQMLS1088A SoC module!"
++#endif
++
++#endif /* __TQMLS1088A_BASEBOARD_H__ */

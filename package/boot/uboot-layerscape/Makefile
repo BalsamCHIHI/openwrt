@@ -125,7 +125,7 @@ endef
 
 define U-Boot/moment_ls1088a-connect
   NAME:=Moment LS1088A Connect
-  UBOOT_CONFIG:=ls1088a_connect_tfa
+  UBOOT_CONFIG:=moment_tqmls1088a_connect_emmc
 endef
 
 
