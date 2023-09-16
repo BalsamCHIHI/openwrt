@@ -1,0 +1,24 @@
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -1246,6 +1246,21 @@ config TARGET_LS1088AQDS
+ 	  development platform that supports the QorIQ LS1088A
+ 	  Layerscape Architecture processor.
+ 
++config TARGET_TQMLS1088A
++	bool "Support tqmls1088a"
++	select ARCH_LS1088A
++	select ARM64
++	select ARMV8_MULTIENTRY
++	select BOARD_LATE_INIT
++	select SUPPORT_SPL
++	select DM_SPI_FLASH if DM_SPI
++	select BOARD_EARLY_INIT_F
++	select TQC_EEPROM
++	imply SCSI
++	help
++	  Support for TQ-Systems GmbH TQMLS1088A SOM based on the
++	  QorIQ LS1088A Layerscape Architecture processor.
++
+ config TARGET_LS2080AQDS
+ 	bool "Support ls2080aqds"
+ 	select ARCH_LS2080A
