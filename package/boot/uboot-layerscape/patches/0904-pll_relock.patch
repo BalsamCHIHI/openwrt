@@ -1,0 +1,178 @@
+--- a/arch/arm/cpu/armv8/fsl-layerscape/fsl_lsch3_serdes.c
++++ b/arch/arm/cpu/armv8/fsl-layerscape/fsl_lsch3_serdes.c
+@@ -547,8 +547,117 @@ int setup_serdes_volt(u32 svdd)
+ 	return ret;
+ }
+ 
++#ifdef CONFIG_TQMLS1088A_BB_MOMENT_CONNECT
++static void restart_clocks_and_reloc(void) {
++	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
++	struct ccsr_serdes __iomem *serdes1_base =
++		(void *)CONFIG_SYS_FSL_LSCH3_SERDES_ADDR;
++	u32 cfg_rcwsrds1 = gur_in32(&gur->rcwsr[FSL_CHASSIS3_SRDS1_REGSR - 1]);
++#ifdef CONFIG_SYS_FSL_SRDS_2
++	struct ccsr_serdes __iomem *serdes2_base =
++		(void *)(CONFIG_SYS_FSL_LSCH3_SERDES_ADDR + 0x10000);
++	u32 cfg_rcwsrds2 = gur_in32(&gur->rcwsr[FSL_CHASSIS3_SRDS2_REGSR - 1]);
++#endif  
++	u32 cfg_tmp;
++
++	/* Configure and enable clocks */
++	tqc_moment_connect_clk_cfg_init();
++	mdelay(500);
++
++	/* Reset Serdes & PLLs */
++	/* Put the all enabled lanes in reset */
++#ifdef CONFIG_SYS_FSL_SRDS_1
++	do_enabled_lanes_reset(1, cfg_rcwsrds1, serdes1_base, false);
++#endif
++
++#ifdef CONFIG_SYS_FSL_SRDS_2
++	do_enabled_lanes_reset(2, cfg_rcwsrds2, serdes2_base, false);
++#endif      
++
++	/* Put the all enabled PLL in reset */
++#ifdef CONFIG_SYS_FSL_SRDS_1
++	cfg_tmp = cfg_rcwsrds1 & 0x3;
++	do_pll_reset(cfg_tmp, serdes1_base);
++#endif
++
++#ifdef CONFIG_SYS_FSL_SRDS_2
++	cfg_tmp = cfg_rcwsrds1 & 0xC;
++	cfg_tmp >>= 2;
++	do_pll_reset(cfg_tmp, serdes2_base);
++#endif
++
++	/* Put the Rx/Tx calibration into reset */
++#ifdef CONFIG_SYS_FSL_SRDS_1
++	do_rx_tx_cal_reset(serdes1_base);
++#endif
++
++#ifdef CONFIG_SYS_FSL_SRDS_2
++	do_rx_tx_cal_reset(serdes2_base);
++#endif
++
++	/* For each PLL that’s not disabled via RCW enable the SERDES */
++#ifdef CONFIG_SYS_FSL_SRDS_1
++	cfg_tmp = cfg_rcwsrds1 & 0x3;
++	do_serdes_enable(cfg_tmp, serdes1_base);
++#endif
++#ifdef CONFIG_SYS_FSL_SRDS_2
++	cfg_tmp = cfg_rcwsrds1 & 0xC;
++	cfg_tmp >>= 2;
++	do_serdes_enable(cfg_tmp, serdes2_base);
++#endif
++
++	/* Wait for at at least 625us, ensure the PLLs being reset are locked */
++	udelay(800);
++
++#ifdef CONFIG_SYS_FSL_SRDS_1
++	cfg_tmp = cfg_rcwsrds1 & 0x3;
++	do_pll_lock(cfg_tmp, serdes1_base);
++#endif
++
++#ifdef CONFIG_SYS_FSL_SRDS_2
++	cfg_tmp = cfg_rcwsrds1 & 0xC;
++	cfg_tmp >>= 2;
++	do_pll_lock(cfg_tmp, serdes2_base);
++#endif
++	/* Take the all enabled lanes out of reset */
++#ifdef CONFIG_SYS_FSL_SRDS_1
++	do_enabled_lanes_reset(1, cfg_rcwsrds1, serdes1_base, true);
++#endif
++#ifdef CONFIG_SYS_FSL_SRDS_2
++	do_enabled_lanes_reset(2, cfg_rcwsrds2, serdes2_base, true);
++#endif
++
++	/* For each PLL being reset, and achieved PLL lock set RST_DONE */
++#ifdef CONFIG_SYS_FSL_SRDS_1
++	cfg_tmp = cfg_rcwsrds1 & 0x3;
++	do_pll_reset_done(cfg_tmp, serdes1_base);
++#endif
++#ifdef CONFIG_SYS_FSL_SRDS_2
++	cfg_tmp = cfg_rcwsrds1 & 0xC;
++	cfg_tmp >>= 2;
++	do_pll_reset_done(cfg_tmp, serdes2_base);
++#endif
++
++	/* Check PLL lock status */
++	for(int serdes=0; serdes < 2; serdes++) {
++		struct ccsr_serdes __iomem *serdes_base = (serdes==0) ? serdes1_base : serdes2_base;
++		for(int pll=0; pll<2; pll++) {
++			uint32_t status = serdes_base->bank[pll].rstctl;
++			if (status&(1<<29))
++				printf("WARNING : Serdes %d PLL %d did not lock\n", serdes+1, pll+1);
++			else
++				printf("Serdes %d PLL %d locked\n", serdes+1, pll+1);
++		}
++	}
++}
++#endif
++
+ void fsl_serdes_init(void)
+ {
++#ifdef CONFIG_TQMLS1088A_BB_MOMENT_CONNECT
++    restart_clocks_and_reloc();
++#endif
++
+ #if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
+ 	int i , j;
+ 
+--- a/board/tqc/common/tqc_moment_connect.c
++++ b/board/tqc/common/tqc_moment_connect.c
+@@ -225,8 +225,8 @@ int tqc_moment_connect_clk_cfg_init(void
+ {
+ 	int ret = 0;
+ 	unsigned int oldbus;
+-	//uint8_t buf[4];
+-	//int i;
++	unsigned int bus=0;
++	uint8_t found = 0;
+ 	si5341_revd_register_t * si5341_registers;
+ 	int si5341_registers_nb;
+ 	uint8_t preamble_size;
+@@ -236,23 +236,22 @@ int tqc_moment_connect_clk_cfg_init(void
+ 	
+ 	// Scan I2CV busses to detect clock generator
+ 	printf("Scan I2C busses :\n");
++	
+ 	//i2c_disable_log();
+-	for (unsigned int bus=0; bus<4; bus++) {
+-		uint8_t found = 0;
+-		i2c_set_bus_num(bus);
+-
+-		for (unsigned int chip=1; chip<128; chip++) {
+-			if (i2c_probe(chip) == 0) {
+-				printf("\tfound %d:%.02x\n", bus, chip);
+-				found = 1;
+-				if ((chip == SI5341B_REVA_CLKBUF_ADDR) || (chip == SI5341B_REVD_CLKBUF_ADDR))
+-					clkgen_addr = chip;
+-			}
+-		}
++	i2c_set_bus_num(bus);
+ 
+-		if (found == 0)
+-			printf("\tfound nothing on bus %d\n", bus);
++	for (unsigned int chip=1; chip<128; chip++) {
++		if (i2c_probe(chip) == 0) {
++			printf("\tfound %d:%.02x\n", bus, chip);
++			found = 1;
++			if ((chip == SI5341B_REVA_CLKBUF_ADDR) || (chip == SI5341B_REVD_CLKBUF_ADDR))
++				clkgen_addr = chip;
++		}
+ 	}
++
++	if (found == 0)
++		printf("\tfound nothing on bus %d\n", bus);
++	
+ 	printf("clkgen_addr=%.02x\n", clkgen_addr);
+ 	//i2c_enable_log();
+ 
+@@ -338,6 +337,7 @@ int tqc_moment_connect_clk_cfg_init(void
+ 	// mPCIe Wifi detection workaround
+ 	//if (ret == 0) goto SUCCESS;
+ 	do_reset(NULL, 0, 0, NULL);
++	goto SUCCESS;
+ 
+ ERROR:
+ 	printf("Communication failure with clock generator\n");

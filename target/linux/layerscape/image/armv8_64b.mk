@@ -424,7 +424,8 @@ define Device/moment_ls1088a-connect
     ls-clean | \
     ls-append-sdhead $(1) | pad-to 4K | \
     ls-append $(1)-rcw.bin | pad-to 1M | \
-    ls-append $(1)-uboot.bin | pad-to 10M
+    ls-append $(1)-uboot.bin | pad-to 10M | \
+    gzip
 #    ls-append $(1)-uboot.bin | pad-to 3M
 #    ls-append $(1)-uboot-env.bin | pad-to 10M | \
 #    ls-append $(1)-mc.itb | pad-to 13M | \
