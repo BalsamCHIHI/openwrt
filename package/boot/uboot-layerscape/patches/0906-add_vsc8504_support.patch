@@ -1,0 +1,249 @@
+--- a/configs/moment_tqmls1088a_connect_emmc_defconfig
++++ b/configs/moment_tqmls1088a_connect_emmc_defconfig
+@@ -28,6 +28,7 @@ CONFIG_SYS_EXTRA_OPTIONS="SYS_FSL_DDR4"
+ CONFIG_SD_BOOT=y
+ CONFIG_BOOTDELAY=10
+ CONFIG_AUTOBOOT_KEYED=y
++CONFIG_AUTOBOOT_PROMPT="Autoboot in %d seconds. Hit 'fgh' sequence to stop\n"
+ CONFIG_AUTOBOOT_STOP_STR="fgh"
+ CONFIG_USE_BOOTARGS=y
+ CONFIG_BOOTARGS="console=ttyS0,115200 root=/dev/ram0 earlycon=uart8250,mmio,0x21c0500 ramdisk_size=0x3000000 default_hugepagesz=2m hugepagesz=2m hugepages=256"
+--- a/drivers/net/phy/vitesse.c
++++ b/drivers/net/phy/vitesse.c
+@@ -8,6 +8,8 @@
+  */
+ #include <common.h>
+ #include <miiphy.h>
++#include <linux/delay.h>
++#include <vsc8504.h>
+ 
+ /* Cicada Auxiliary Control/Status Register */
+ #define MIIM_CIS82xx_AUX_CONSTAT	0x1c
+@@ -211,6 +213,134 @@ static int vsc8574_config(struct phy_dev
+ 	return 0;
+ }
+ 
++
++static uint8_t vsc8504_current_page = 0;
++
++static void vsc8504_write(struct phy_device *phydev, u16 u16_reg, u16 val) {
++	uint8_t page = u16_reg >> 8;
++	uint8_t reg = u16_reg & 0xff;
++
++	if (page != vsc8504_current_page) {
++		phy_write(phydev, MDIO_DEVAD_NONE, PHY_EXT_PAGE_ACCESS, page);
++		vsc8504_current_page = page;
++	}
++
++	phy_write(phydev, MDIO_DEVAD_NONE, reg, val);
++}
++
++static uint16_t vsc8504_read(struct phy_device *phydev, u16 u16_reg) {
++	uint8_t page = u16_reg >> 8;
++	uint8_t reg = u16_reg & 0xff;
++
++	if (page != vsc8504_current_page) {
++		phy_write(phydev, MDIO_DEVAD_NONE, PHY_EXT_PAGE_ACCESS, page);
++		vsc8504_current_page = page;
++	}
++
++	return phy_read(phydev, MDIO_DEVAD_NONE, reg);
++}
++
++static void vsc8504_reset_page(struct phy_device *phydev) {
++	phy_write(phydev, MDIO_DEVAD_NONE, PHY_EXT_PAGE_ACCESS, 0);
++	vsc8504_current_page = 0;
++}
++
++static void sigdet_set(struct phy_device *phydev, uint8_t pol) {
++	u16 val;
++
++	val = vsc8504_read(phydev, MIIM_VSC8504_EXTENDED_MODE_CONTROL);
++	if (pol)
++		val |= 1;
++	else
++		val &= ~1;
++
++	vsc8504_write(phydev, MIIM_VSC8504_EXTENDED_MODE_CONTROL, val);
++}   
++
++static int vsc8504_config(struct phy_device *phydev)
++{
++	u16 val;
++
++	// Configure IOs
++	vsc8504_write(phydev, MIIM_VSC8504_GPIO_CONTROL_2, 0xe6fc);
++	val = vsc8504_read(phydev, MIIM_VSC8504_GPIO_PIN_CONFIGURATION);
++	val &= 3<<14;
++	val |= 0xf<<10;
++	vsc8504_write(phydev, MIIM_VSC8504_GPIO_PIN_CONFIGURATION, val);
++	vsc8504_write(phydev, MIIM_VSC8504_GPIO_OUTPUT, 0x00);
++	sigdet_set(phydev, 0);
++
++	/* configure register 19G for MAC */
++	if (phydev->interface == PHY_INTERFACE_MODE_QSGMII) {
++		//u32 val2 = vsc8504_read(phydev, MIIM_VSC8504_MICROPROCESSOR_COMMAND);
++		//printf("18g=%.04x\n", val2);
++		//printf("  cmdstat=%.04x\n", val2 & (1<<15));
++		//printf("  error=%.04x\n", val2 & (1<<14));
++
++		printf("### QSGMII\n");
++
++		/* set bit 15:14 to '01' for QSGMII mode */
++		val = vsc8504_read(phydev, MIIM_VSC8504_MAC_CONF_FAST_LINK);
++		val &= ~(3<<14);
++		//val |= (1 << 14);
++		vsc8504_write(phydev, MIIM_VSC8504_MAC_CONF_FAST_LINK, val);
++
++		// Set register 23 (main register) bit 12 = 0
++		val = vsc8504_read(phydev, MIIM_VSC8504_EXTENDED_PHY_CONTROL_1);
++		val &= ~(1<<12);
++		vsc8504_write(phydev, MIIM_VSC8504_EXTENDED_PHY_CONTROL_1, val);
++
++		/* Enable 4 ports MAC QSGMII */
++		vsc8504_write(phydev, MIIM_VSC8504_MICROPROCESSOR_COMMAND, MIIM_VSC8504_18G_QSGMII);
++	} else {
++		printf("### SGMII\n");
++		/* set bit 15:14 to '00' for SGMII mode */
++		val = vsc8504_read(phydev, MIIM_VSC8504_MAC_CONF_FAST_LINK);
++		val &= ~(3<<14);
++		vsc8504_write(phydev, MIIM_VSC8504_MAC_CONF_FAST_LINK, val);
++
++		// Set register 23 (main register) bit 12 = 0
++		val = vsc8504_read(phydev, MIIM_VSC8504_EXTENDED_PHY_CONTROL_1);
++		val &= ~(1<<12);
++		vsc8504_write(phydev, MIIM_VSC8504_EXTENDED_PHY_CONTROL_1, val);
++
++		/* Enable 4 ports MAC SGMII */
++		vsc8504_write(phydev, MIIM_VSC8504_MICROPROCESSOR_COMMAND, MIIM_VSC8504_18G_SGMII);
++	}
++	val = vsc8504_read(phydev, MIIM_VSC8504_MICROPROCESSOR_COMMAND);
++	//printf("  18g=%.08x\n", val);
++	//printf("  cmdstat=%.08x\n", val & (1<<15));
++	//printf("  error=  %.08x\n", val & (1<<14));
++
++	/* When bit 15 is cleared the command has completed */
++	int countdown = 2;
++	while (val & MIIM_VSC8504_18G_CMDSTAT) {
++
++		mdelay(500);
++		val = vsc8504_read(phydev, MIIM_VSC8504_MICROPROCESSOR_COMMAND);
++		//printf("  18g=%.08x\n", val);
++		//printf("  cmdstat=%.08x\n", val & (1<<15));
++		//printf("  error=  %.08x\n", val & (1<<14));
++
++		if (--countdown == 0) {
++			vsc8504_reset_page(phydev);
++			printf("[ERROR] 18G command timeout on bus %s driver %s device %s\n",phydev->bus->name, phydev->drv->name, phydev->dev->name);
++			return -1;
++		}
++	}
++
++	/* Enable Serdes Auto-negotiation */
++	val = vsc8504_read(phydev, MIIM_VSC8504_MAC_SERDES_PCS_CONTROL);
++	val = val | MIIM_VSC8504_MAC_SERDES_ANEG;
++	vsc8504_write(phydev, MIIM_VSC8504_MAC_SERDES_PCS_CONTROL, val);
++
++	vsc8504_reset_page(phydev);
++
++	genphy_config_aneg(phydev);
++
++	return 0;
++}
++
+ static int vsc8514_config(struct phy_device *phydev)
+ {
+ 	u32 val;
+@@ -363,6 +493,16 @@ static struct phy_driver VSC8584_driver
+ 	.shutdown = &genphy_shutdown,
+ };
+ 
++static struct phy_driver VSC8504_driver = {
++	.name = "Vitesse VSC8504",
++	.uid = 0x704c0,
++	.mask = 0xffff0,
++	.features = PHY_GBIT_FEATURES,
++	.config = &vsc8504_config,
++	.startup = &vitesse_startup,
++	.shutdown = &genphy_shutdown,
++};
++
+ static struct phy_driver VSC8601_driver = {
+ 	.name = "Vitesse VSC8601",
+ 	.uid = 0x70420,
+@@ -434,6 +574,7 @@ int phy_vitesse_init(void)
+ 	phy_register(&VSC8221_driver);
+ 	phy_register(&VSC8574_driver);
+ 	phy_register(&VSC8584_driver);
++	phy_register(&VSC8504_driver);
+ 	phy_register(&VSC8514_driver);
+ 	phy_register(&VSC8662_driver);
+ 	phy_register(&VSC8664_driver);
+--- /dev/null
++++ b/include/vsc8504.h
+@@ -0,0 +1,65 @@
++/* Vitesse VSC8504 control register */
++// Main Registers
++#define MIIM_VSC8504_MODE_CONTROL               0x0000
++#define MIIM_VSC8504_MODE_STATUS                0x0001
++#define MIIM_VSC8504_DEVICE_ID1                 0x0002
++#define MIIM_VSC8504_DEVICE_ID2                 0x0003
++#define MIIM_VSC8504_AUTONEGOTIATION_ADVERTISEMENT 0x0004
++#define MIIM_VSC8504_LINK_PARTNER_AUTONEGOTIATION_CAPABILITY 0x0005
++#define MIIM_VSC8504_AUTONEGOTIATION_EXPANSION  0x0006
++#define MIIM_VSC8504_TRANSMIT_AUTONEGOTIATION_NEXT_PAGE 0x0007
++#define MIIM_VSC8504_AUTONEGOTIATION_LINK_PARTNER_NEXT_PAGE_RECEIVE 0x0008
++#define MIIM_VSC8504_1000BASE_T_CONTROL         0x0009
++#define MIIM_VSC8504_1000BASE_T_STATUS          0x000a
++#define MIIM_VSC8504_MMD_ACCESS_CONTROL         0x000D
++#define MIIM_VSC8504_1000BASE_T_STATUS_EXTENSION_1 0x000F
++#define MIIM_VSC8504_1000BASE_T_STATUS_EXTENSION_2 0x0011
++#define MIIM_VSC8504_BYPASS_CONTROL             0x0012
++#define MIIM_VSC8504_ERROR_COUNTER_1            0x0013
++#define MIIM_VSC8504_ERROR_COUNTER_2            0x0014
++#define MIIM_VSC8504_ERROR_COUNTER_3            0x0015
++#define MIIM_VSC8504_EXTENDED_PHY_CONTROL_1     0x0017
++#define MIIM_VSC8504_EXTENDED_PHY_CONTROL_2     0x0018
++#define MIIM_VSC8504_INTERRUPT_MASK             0x0019
++#define MIIM_VSC8504_INTERRUPT_STATUS           0x001a
++#define MIIM_VSC8504_DEVICE_AUXILIARY_CONTROL_AND_STATUS 0x001c
++#define MIIM_VSC8504_LED_MODE_SELECT            0x001d
++#define MIIM_VSC8504_LED_BEHAVIOR               0x001e
++#define MIIM_VSC8504_EXTENDED_PAGE_ACCESS	0x001f
++
++// Extended Page 1 Registers
++#define MIIM_VSC8504_SERDES_MEDIA_CONTROL       0x0110
++#define MIIM_VSC8504_CU_MEDIA_CRC_GOOD_COUNTER  0x0112
++#define MIIM_VSC8504_EXTENDED_MODE_CONTROL      0x0113
++#define MIIM_VSC8504_POE_AND_MISCELLANEOUS_FUNCTIONALITY 0x0117
++
++// Extended Page 2 Registers 
++#define MIIM_VSC8504_EEE_CONTROL                0x0211
++
++// Extended Page 3 Registers 
++#define MIIM_VSC8504_MAC_SERDES_PCS_CONTROL     0x0310
++#define MIIM_VSC8504_MAC_SERDES_ANEG    0x80
++#define MIIM_VSC8504_MAC_SERDES_PCS_STATUS      0x0311
++#define MIIM_VSC8504_MEDIA_SERDES_PCS_CONTROL   0x0317
++#define MIIM_VSC8504_MEDIA_SERDES_PCS_STATUS    0x0318
++
++// General Purpose Registers
++#define MIIM_VSC8504_SIGDET_GPIO_CONTROL        0x100d
++#define MIIM_VSC8504_GPIO_CONTROL_2             0x100e
++#define MIIM_VSC8504_GPIO_INPUT                 0x100f
++#define MIIM_VSC8504_GPIO_OUTPUT                0x1010
++#define MIIM_VSC8504_GPIO_PIN_CONFIGURATION     0x1011
++#define MIIM_VSC8504_MICROPROCESSOR_COMMAND     0x1012
++#define MIIM_VSC8504_MAC_CONF_FAST_LINK         0x1013
++#define MIIM_VSC8504_EXTENDED_REVISION_ID       0x101e
++#define MIIM_VSC8504_TWO_WIRE_SERIAL_MUX_CONTROL_1      0x1014
++#define MIIM_VSC8504_TWO_WIRE_SERIAL_MUX_CONTROL_2      0x1015
++#define MIIM_VSC8504_TWO_WIRE_SERIAL_MUX_DATA_READWRITE 0x1016
++
++/* Vitesse VSC8504 gerenal purpose register 18 */
++#define MIIM_VSC8504_18G_SGMII          0x80f0
++#define MIIM_VSC8504_18G_QSGMII         0x80e0
++#define MIIM_VSC8504_18G_1000BASE_X     0x8fc1
++#define MIIM_VSC8504_18G_100BASE_FX     0x8fd1
++#define MIIM_VSC8504_18G_CMDSTAT        0x8000
++
