@@ -1,0 +1,23 @@
+--- a/arch/arm/cpu/armv8/fsl-layerscape/fsl_lsch3_serdes.c
++++ b/arch/arm/cpu/armv8/fsl-layerscape/fsl_lsch3_serdes.c
+@@ -655,7 +655,7 @@ static void restart_clocks_and_reloc(voi
+ void fsl_serdes_init(void)
+ {
+ #ifdef CONFIG_TQMLS1088A_BB_MOMENT_CONNECT
+-    restart_clocks_and_reloc();
++	restart_clocks_and_reloc();
+ #endif
+ 
+ #if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
+@@ -712,6 +712,11 @@ void fsl_serdes_init(void)
+ 		    FSL_CHASSIS3_SRDS3_PRTCL_SHIFT,
+ 		    serdes3_prtcl_map);
+ #endif
++
++#ifdef CONFIG_TQMLS1088A_BB_MOMENT_CONNECT
++	// Disable unused DPMAC
++	wriop_disable_dpmac(1);
++#endif
+ }
+ 
+ int serdes_set_env(int sd, int rcwsr, int sd_prctl_mask, int sd_prctl_shift)
