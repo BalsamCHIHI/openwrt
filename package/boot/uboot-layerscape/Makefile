@@ -127,6 +127,7 @@ define U-Boot/moment_ls1088a-connect
   NAME:=Moment LS1088A Connect
   UBOOT_CONFIG:=moment_tqmls1088a_connect_emmc
   UBOOT_IMAGE:=u-boot-with-spl.bin
+  ENV_SIZE:=0x4000
 endef
 
 
