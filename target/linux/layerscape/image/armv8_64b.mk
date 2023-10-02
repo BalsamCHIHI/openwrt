@@ -411,6 +411,7 @@ define Device/moment_ls1088a-connect
   DEVICE_VENDOR := Moment
   DEVICE_MODEL := LS1088A Connect
   KERNEL_LOADADDR := 0x81000000
+  LS_SD_IMAGE_SIZE := 3072
   DEVICE_PACKAGES += \
     restool
 #    layerscape-mc \
@@ -431,9 +432,7 @@ define Device/moment_ls1088a-connect
     ls-append $(1)-dpl.dtb | pad-to 14M | \
     ls-append $(1)-dpc.dtb | pad-to 16M | \
     ls-append-kernel | pad-to $(LS_SD_ROOTFSPART_OFFSET)M | \
-    pad-to $(LS_SD_IMAGE_SIZE)M | \
-    gzip
-#    append-rootfs | pad-to $(LS_SD_IMAGE_SIZE)M | gzip
+    append-rootfs | pad-to $(LS_SD_IMAGE_SIZE)M | gzip
 endef
 TARGET_DEVICES += moment_ls1088a-connect
 
