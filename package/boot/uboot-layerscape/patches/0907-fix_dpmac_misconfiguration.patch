@@ -21,3 +21,23 @@
  }
  
  int serdes_set_env(int sd, int rcwsr, int sd_prctl_mask, int sd_prctl_shift)
+--- a/board/tqc/tqmls1088a/tqmls1088a_bb_moment_connect.c
++++ b/board/tqc/tqmls1088a/tqmls1088a_bb_moment_connect.c
+@@ -274,7 +274,7 @@ static int fdt_set_phy_handle(void *fdt,
+ 		return offset;
+ 
+ 	/* Get relevant dpmac node */
+-	sprintf(name, "dpmac@%x", mac);
++	sprintf(name, "ethernet@%x", mac);
+ 	fdt_for_each_subnode(offset, fdt, offset) {
+ 		path = fdt_get_name(fdt, offset, &lenp);
+ 		if(!strncmp(name, path, strlen(name))) {
+@@ -304,7 +304,7 @@ static int fdt_set_phy_mode(void *fdt, i
+ 		return offset;
+ 
+ 	/* Get relevant dpmac node */
+-	sprintf(name, "dpmac@%x", mac);
++	sprintf(name, "ethernet@%x", mac);
+ 	fdt_for_each_subnode(offset, fdt, offset) {
+ 		path = fdt_get_name(fdt, offset, &lenp);
+ 		if(!strncmp(name, path, strlen(name))) {
