@@ -413,14 +413,10 @@ define Device/moment_ls1088a-connect
   KERNEL_LOADADDR := 0x81000000
   LS_SD_IMAGE_SIZE := 3072
   DEVICE_PACKAGES += \
+    layerscape-rcw \
+    layerscape-mc \
+    layerscape-dpl \
     restool
-#    layerscape-mc \
-#    layerscape-dpl \
-#    tfa-ls1088a-connect-sdboot \
-#    restool \
-#    kmod-ahci-qoriq \
-#    kmod-hwmon-ina2xx \
-#    kmod-hwmon-lm90
   DEVICE_DTS := freescale/moment-ls1088a-connect
   IMAGE/sdcard.img.gz := \
     ls-clean | \
