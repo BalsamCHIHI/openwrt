@@ -24,6 +24,12 @@ define Device/fsl-sdboot
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
 
+define Device/fsl-emmcboot
+  KERNEL = kernel-bin | gzip | fit gzip $$(DTS_DIR)/$$(DEVICE_DTS).dtb
+  IMAGES := emmc.img.gz sysupgrade.bin
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+
 define Device/fsl_ls1012a-frdm
   DEVICE_VENDOR := NXP
   DEVICE_MODEL := FRDM-LS1012A
@@ -407,7 +413,7 @@ TARGET_DEVICES += traverse_ls1043
 
 define Device/moment_ls1088a-connect
   $(Device/rework-sdcard-images)
-  $(Device/fsl-sdboot)
+  $(Device/fsl-emmcboot)
   DEVICE_VENDOR := Moment
   DEVICE_MODEL := LS1088A Connect
   KERNEL_LOADADDR := 0x81000000
@@ -418,7 +424,7 @@ define Device/moment_ls1088a-connect
     layerscape-dpl \
     restool
   DEVICE_DTS := freescale/moment-ls1088a-connect
-  IMAGE/sdcard.img.gz := \
+  IMAGE/emmc.img.gz := \
     ls-clean | \
     ls-append-sdhead $(1) | pad-to 4K | \
     ls-append $(1)-rcw.bin | pad-to 1M | \
