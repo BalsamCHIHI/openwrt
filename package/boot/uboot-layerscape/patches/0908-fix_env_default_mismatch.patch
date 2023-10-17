@@ -1,0 +1,19 @@
+--- a/configs/moment_tqmls1088a_connect_emmc_defconfig
++++ b/configs/moment_tqmls1088a_connect_emmc_defconfig
+@@ -31,7 +31,6 @@ CONFIG_AUTOBOOT_KEYED=y
+ CONFIG_AUTOBOOT_PROMPT="Autoboot in %d seconds. Hit 'fgh' sequence to stop\n"
+ CONFIG_AUTOBOOT_STOP_STR="fgh"
+ CONFIG_USE_BOOTARGS=y
+-CONFIG_BOOTARGS="console=ttyS0,115200 root=/dev/ram0 earlycon=uart8250,mmio,0x21c0500 ramdisk_size=0x3000000 default_hugepagesz=2m hugepagesz=2m hugepages=256"
+ # CONFIG_USE_BOOTCOMMAND is not set
+ CONFIG_DEFAULT_FDT_FILE="moment-tqmls1088a-connect.dtb"
+ # CONFIG_DISPLAY_BOARDINFO is not set
+@@ -61,6 +60,8 @@ CONFIG_OF_CONTROL=y
+ CONFIG_ENV_OVERWRITE=y
+ CONFIG_ENV_IS_IN_MMC=y
+ CONFIG_SYS_RELOC_GD_ENV_ADDR=y
++CONFIG_USE_DEFAULT_ENV_FILE=y
++CONFIG_DEFAULT_ENV_FILE="../../../../package/boot/uboot-layerscape/files/moment_ls1088a-connect-uEnv.txt"
+ CONFIG_DM=y
+ CONFIG_SCSI_AHCI=y
+ CONFIG_FSL_ESDHC=y
