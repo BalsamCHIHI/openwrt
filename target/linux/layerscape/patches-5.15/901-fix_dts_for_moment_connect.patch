@@ -506,7 +506,7 @@
 +			reg = <0x0 0x21d0500 0x0 0x100>;
 +			clocks = <&clockgen QORIQ_CLK_PLATFORM_PLL
 +				QORIQ_CLK_PLL_DIV(4)>;
-+			interrupts = <0 32 IRQ_TYPE_LEVEL_HIGH>;
++			interrupts = <0 33 IRQ_TYPE_LEVEL_HIGH>;
  			status = "okay";
  		};
  
@@ -520,7 +520,7 @@
 +			reg = <0x0 0x21d0600 0x0 0x100>;
 +			clocks = <&clockgen QORIQ_CLK_PLATFORM_PLL
 +				QORIQ_CLK_PLL_DIV(4)>;
-+			interrupts = <0 32 IRQ_TYPE_LEVEL_HIGH>;
++			interrupts = <0 33 IRQ_TYPE_LEVEL_HIGH>;
  			status = "okay";
  		};
  
