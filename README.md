@@ -55,12 +55,19 @@ make4.1+ perl python3.6+ rsync subversion unzip which
 2. Run `./scripts/feeds install -a` to install symlinks for all obtained
    packages into package/feeds/
 
-3. Run `make menuconfig` to select your preferred configuration for the
-   toolchain, target system & firmware packages.
+3. Run `git checkout .config` to retrieve the configuration
 
-4. Run `make` to build your firmware. This will download all sources, build the
+4. Run `make -j$(($(nproc)+1))` to build your firmware. This will download all sources, build the
    cross-compile toolchain and then cross-compile the GNU/Linux kernel & all chosen
    applications for your target system.
+
+To change configuration, run :
+* OpenWrt : `make menuconfig`
+* Kernel : `make kernel_menuconfig`
+
+### Firmware location
+
+The firmware is located in `bin/targets/layerscape/armv8_64b/` and is named `openwrt-layerscape-armv8_64b-moment_ls1088a-connect-squashfs-emmc.img.gz`
 
 ### Related Repositories
 
