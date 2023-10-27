@@ -1,0 +1,16 @@
+--- a/board/tqc/common/tqc_moment_connect.c
++++ b/board/tqc/common/tqc_moment_connect.c
+@@ -59,10 +59,10 @@ struct tqc_moment_connect_i2c_gpio tqc_m
+ 	{ "wake_s2",      0x020,  9, PCA953X_DIR_IN,  -1 },
+ 	{ "w_disable_s1", 0x020, 10, PCA953X_DIR_OUT,  0 },
+ 	{ "w_disable_s2", 0x020, 11, PCA953X_DIR_OUT,  0 },
+-	{ "wifi_en",      0x020, 12, PCA953X_DIR_IN,  -1 },
+-	{ "wifi_ctl",     0x020, 13, PCA953X_DIR_IN,  -1 },
++	{ "wifi_en",      0x020, 12, PCA953X_DIR_OUT,  0 },
++	{ "wifi_ctl",     0x020, 13, PCA953X_DIR_OUT,  0 },
+ 	{ "en_rf_mesh_ip", 0x020, 14, PCA953X_DIR_OUT, 0 },
+-	{ "rst_iot",      0x020, 15, PCA953X_DIR_OUT,  0 },
++	{ "rst_iot",      0x020, 15, PCA953X_DIR_OUT,  1 },
+ };
+ 
+ 
