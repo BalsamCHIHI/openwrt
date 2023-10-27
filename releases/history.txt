@@ -1,3 +1,4 @@
-v1.00 : First release of all embedded OpenWRT (rcw+uboot+dpl/dpc+mc+dts+linux)
+v1.00 : First release (qspi boot version)
+v1.01 : First release of all embedded OpenWRT (rcw+uboot+dpl/dpc+mc+dts+linux, emmc boot version)
 
 
