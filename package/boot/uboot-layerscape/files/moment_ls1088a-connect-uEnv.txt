@@ -6,7 +6,8 @@ hwconfig=fsl_ddr:bank_intlv=auto
 mcinitcmd=mmc read 80000000 5000 1800;mmc read 80300000 7000 800;fsl_mc start mc 80000000 80300000
 mcdplapply=mmc read 80400000 6800 800;fsl_mc apply dpl 80400000
 sd_boot=ext4load mmc 0:1 $loadaddr fitImage;bootm $loadaddr
+addmbtype=setenv bootargs ${bootargs} ${mb_type}
 bootargs=root=/dev/mmcblk0p2 rw rootwait rootfstype=squashfs,f2fs noinitrd earlycon=uart8250,mmio,0x21c0600 console=ttyS1,115200
-bootcmd=echo starting openwrt ...; run mcdplapply;run sd_boot
+bootcmd=echo starting openwrt ...;run addmbtype;run mcdplapply;run sd_boot
 bootdelay=10
 fsl_bootcmd_mcinitcmd_set=y
