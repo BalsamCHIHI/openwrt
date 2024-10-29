@@ -1,0 +1,41 @@
+--- a/scripts/ls-main
++++ b/scripts/ls-main
+@@ -979,6 +979,18 @@ process_addni() {
+ 	fi
+ }
+ 
++restool_error_workaround() {
++	needed=0
++	test=$($restool -v 2>/dev/null | cut -d" " -f2)
++	if [ -z $test ]; then
++		needed=1
++	fi
++				
++	while [ -z $test ]; do
++		test=$($restool -v 2>/dev/null | cut -d" " -f2)
++	done
++}
++
+ process_listni() {
+ 	dprc_list="$($restool dprc list --full-path)"
+ 	echo "${dprc_list}" |
+@@ -989,6 +1001,9 @@ process_listni() {
+ 		while IFS= read -r line
+ 		do
+ 			dpni=$(echo $line | cut -f 1 -d " ")
++
++			restool_error_workaround
++
+ 			lb=$(get_label "$dpni")
+ 
+ 			ni=""
+@@ -1040,6 +1055,9 @@ process_listmac() {
+ 		while IFS= read -r line
+ 		do
+ 			dpmac=$(echo $line | cut -f 1 -d " ")
++
++			restool_error_workaround
++
+ 			lb=$(get_label "$dpmac")
+ 
+ 			details=""
