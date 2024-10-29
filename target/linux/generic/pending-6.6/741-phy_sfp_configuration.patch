@@ -1,0 +1,121 @@
+--- a/drivers/net/phy/mscc/mscc.h
++++ b/drivers/net/phy/mscc/mscc.h
+@@ -350,6 +350,10 @@ enum rgmii_clock_delay {
+ #define MSCC_RAM_TRAP_SERDES_6G_CFG		0x1E4F
+ #define PATCH_VEC_ZERO_EN			0x0100
+ 
++
++typedef enum { UNKNOWN, COPPER, FIBER } media_t;
++
++
+ struct reg_val {
+ 	u16	reg;
+ 	u32	val;
+--- a/drivers/net/phy/mscc/mscc_main.c
++++ b/drivers/net/phy/mscc/mscc_main.c
+@@ -1562,6 +1562,27 @@ static void vsc85xx_coma_mode_release(st
+ 	vsc85xx_phy_write_page(phydev, MSCC_PHY_PAGE_STANDARD);
+ }
+ 
++static media_t vsc85xx_dt_media_type_get(struct phy_device *phydev) {
++	struct device *dev = &phydev->mdio.dev;
++	struct device_node *of_node = dev->of_node;
++	const char *media_str;
++	int ret;   
++
++	if (!of_node)
++		return UNKNOWN;
++
++	ret = of_property_read_string(of_node, "media", &media_str);
++
++	if (ret < 0)
++		return UNKNOWN;
++	else if (strcmp(media_str, "copper") == 0)
++		return COPPER;
++	else if (strcmp(media_str, "fiber") == 0)
++		return FIBER;
++	else
++		return UNKNOWN;
++}
++
+ static int vsc8584_config_host_serdes(struct phy_device *phydev)
+ {
+ 	struct vsc8531_private *vsc8531 = phydev->priv;
+@@ -1674,7 +1695,7 @@ static int vsc8574_config_host_serdes(st
+ 
+ 		usleep_range(10000, 20000);
+ 	}
+-
++	
+ 	/* Disable SerDes for 100Base-FX */
+ 	ret = vsc8584_cmd(phydev, PROC_CMD_FIBER_MEDIA_CONF |
+ 			  PROC_CMD_FIBER_PORT(vsc8531->addr) |
+@@ -1695,6 +1716,7 @@ static int vsc8574_config_host_serdes(st
+ static int vsc8584_config_init(struct phy_device *phydev)
+ {
+ 	struct vsc8531_private *vsc8531 = phydev->priv;
++	media_t media;
+ 	int ret, i;
+ 	u16 val;
+ 
+@@ -1765,10 +1787,46 @@ static int vsc8584_config_init(struct ph
+ 	if (ret)
+ 		return ret;
+ 
++	// Configure each port accordingly to device tree infos
++	phy_lock_mdio_bus(phydev);
++	media = vsc85xx_dt_media_type_get(phydev);
++
++	// Disable SerDes for 100Base-FX
++	ret = vsc8584_cmd(phydev, PROC_CMD_FIBER_MEDIA_CONF |
++			PROC_CMD_FIBER_PORT(vsc8531->addr) |
++			PROC_CMD_READ_MOD_WRITE_PORT | PROC_CMD_RST_CONF_PORT | 
++			PROC_CMD_FIBER_DISABLE | PROC_CMD_FIBER_100BASE_FX);
++	if (ret)
++		goto err;
++
++	if (media == COPPER) {
++		// Disable SerDes for 1000Base-X
++		val = PROC_CMD_FIBER_MEDIA_CONF |
++			PROC_CMD_FIBER_PORT(vsc8531->addr) |
++			PROC_CMD_READ_MOD_WRITE_PORT | PROC_CMD_RST_CONF_PORT |
++			PROC_CMD_FIBER_DISABLE | PROC_CMD_FIBER_1000BASE_X;
++	} else {
++		// Enable SerDes for 1000Base-X
++		val = PROC_CMD_FIBER_MEDIA_CONF |
++			PROC_CMD_FIBER_PORT(vsc8531->addr) |
++			PROC_CMD_READ_MOD_WRITE_PORT | PROC_CMD_RST_CONF_PORT |
++			PROC_CMD_FIBER_1000BASE_X;
++	}
++	ret = vsc8584_cmd(phydev, val);
++	if (ret)
++		goto err;
++
++	phy_unlock_mdio_bus(phydev);
++
+ 	val = phy_read(phydev, MSCC_PHY_EXT_PHY_CNTL_1);
+ 	val &= ~(MEDIA_OP_MODE_MASK | VSC8584_MAC_IF_SELECTION_MASK);
+-	val |= (MEDIA_OP_MODE_COPPER << MEDIA_OP_MODE_POS) |
+-	       (VSC8584_MAC_IF_SELECTION_SGMII << VSC8584_MAC_IF_SELECTION_POS);
++
++	if (media == COPPER) {
++		val |= (MEDIA_OP_MODE_COPPER << MEDIA_OP_MODE_POS);
++	} else {
++		val |= (MEDIA_OP_MODE_1000BASEX << MEDIA_OP_MODE_POS);
++	}
++
+ 	ret = phy_write(phydev, MSCC_PHY_EXT_PHY_CNTL_1, val);
+ 	if (ret)
+ 		return ret;
+@@ -2226,9 +2284,8 @@ static int vsc8514_probe(struct phy_devi
+ static int vsc8574_probe(struct phy_device *phydev)
+ {
+ 	struct vsc8531_private *vsc8531;
+-	u32 default_mode[4] = {VSC8531_LINK_1000_ACTIVITY,
+-	   VSC8531_LINK_100_ACTIVITY, VSC8531_LINK_ACTIVITY,
+-	   VSC8531_DUPLEX_COLLISION};
++	u32 default_mode[4] = { VSC8531_LINK_ACTIVITY, VSC8531_LINK_1000_ACTIVITY, VSC8531_LINK_ACTIVITY, VSC8531_LINK_1000_ACTIVITY };
++
+ 
+ 	vsc8531 = devm_kzalloc(&phydev->mdio.dev, sizeof(*vsc8531), GFP_KERNEL);
+ 	if (!vsc8531)
