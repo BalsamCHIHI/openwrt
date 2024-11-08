@@ -25,6 +25,9 @@ include $(INCLUDE_DIR)/package.mk
 RSTRIP:=:
 STRIP:=:
 
+# Custom BDF files are versioned locally as Quilt does not support binary patches (joris.roussel@quetzal-lab.com)
+CURRENT_DIR = $(shell pwd)
+
 define Package/ath11k-firmware-default
   SECTION:=firmware
   CATEGORY:=Firmware
@@ -72,6 +75,13 @@ define Package/ath11k-firmware-qcn9074/install
 		$(1)/lib/firmware/ath11k/QCN9074/hw1.0/
 	$(INSTALL_BIN) \
 		$(PKG_BUILD_DIR)/QCN9074/hw1.0/board-2.bin $(1)/lib/firmware/ath11k/QCN9074/hw1.0/board-2.bin
+	$(INSTALL_DATA) $(CURRENT_DIR)/custom-bdf/fwcfg-pci-* $(1)/lib/firmware/ath11k/
+	$(INSTALL_DIR) $(1)/lib/firmware/ath11k/QCN9074/hw1.0/8devices
+	$(INSTALL_BIN) $(CURRENT_DIR)/custom-bdf/8devices/* $(1)/lib/firmware/ath11k/QCN9074/hw1.0/8devices/
+	$(INSTALL_DIR) $(1)/lib/firmware/ath11k/QCN9074/hw1.0/compex
+	$(INSTALL_BIN) $(CURRENT_DIR)/custom-bdf/compex/* $(1)/lib/firmware/ath11k/QCN9074/hw1.0/compex/
+	$(INSTALL_DIR) $(1)/lib/firmware/ath11k/QCN9074/hw1.0/compex-old
+	$(INSTALL_BIN) $(CURRENT_DIR)/custom-bdf/compex-old/* $(1)/lib/firmware/ath11k/QCN9074/hw1.0/compex-old/
 endef
 
 $(eval $(call BuildPackage,ath11k-firmware-ipq6018))
