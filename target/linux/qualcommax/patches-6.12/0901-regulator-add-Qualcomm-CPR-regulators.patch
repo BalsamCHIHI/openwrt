@@ -25,7 +25,7 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
 
 --- a/drivers/regulator/Kconfig
 +++ b/drivers/regulator/Kconfig
-@@ -1663,4 +1663,37 @@ config REGULATOR_QCOM_LABIBB
+@@ -1720,4 +1720,37 @@ config REGULATOR_QCOM_LABIBB
  	  boost regulator and IBB can be used as a negative boost regulator
  	  for LCD display panel.
  
@@ -65,7 +65,7 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
  endif
 --- a/drivers/regulator/Makefile
 +++ b/drivers/regulator/Makefile
-@@ -116,6 +116,9 @@ obj-$(CONFIG_REGULATOR_QCOM_RPMH) += qco
+@@ -121,6 +121,9 @@ obj-$(CONFIG_REGULATOR_QCOM_RPMH) += qco
  obj-$(CONFIG_REGULATOR_QCOM_SMD_RPM) += qcom_smd-regulator.o
  obj-$(CONFIG_REGULATOR_QCOM_SPMI) += qcom_spmi-regulator.o
  obj-$(CONFIG_REGULATOR_QCOM_USB_VBUS) += qcom_usb_vbus-regulator.o
@@ -8667,9 +8667,9 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
 +		return 0;
 +
 +	if (soc_version_major > 1)
-+		strlcpy(prop_name, prop_name_v2, sizeof(prop_name_v2));
++		strscpy(prop_name, prop_name_v2, sizeof(prop_name));
 +	else
-+		strlcpy(prop_name, prop_name_def, sizeof(prop_name_def));
++		strscpy(prop_name, prop_name_def, sizeof(prop_name));
 +
 +	if (!of_find_property(vreg->of_node, prop_name, &len)) {
 +		cpr3_err(vreg, "property %s is missing\n", prop_name);
@@ -8718,7 +8718,7 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
 +			"qcom,cpr-cold-temp-voltage-adjustment-%d",
 +			vreg->part_type);
 +	} else {
-+		strlcpy(prop_str, "qcom,cpr-cold-temp-voltage-adjustment",
++		strscpy(prop_str, "qcom,cpr-cold-temp-voltage-adjustment",
 +			sizeof(prop_str));
 +	}
 +
@@ -8773,10 +8773,10 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
 +	BUG_ON(soc_version_major <= 0);
 +
 +	if (soc_version_major > 1)
-+		strlcpy(prop_str, "qcom,cpr-cold-temp-threshold-v2",
++		strscpy(prop_str, "qcom,cpr-cold-temp-threshold-v2",
 +			sizeof(prop_str));
 +	else
-+		strlcpy(prop_str, "qcom,cpr-cold-temp-threshold",
++		strscpy(prop_str, "qcom,cpr-cold-temp-threshold",
 +			sizeof(prop_str));
 +
 +	if (!of_find_property(vreg->of_node, prop_str, NULL)) {
@@ -8816,15 +8816,15 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
 +			"qcom,cpr-cold-temp-voltage-adjustment-%d",
 +			vreg->part_type);
 +	} else {
-+		strlcpy(req_prop_str, "qcom,cpr-cold-temp-voltage-adjustment",
++		strscpy(req_prop_str, "qcom,cpr-cold-temp-voltage-adjustment",
 +			sizeof(req_prop_str));
 +	}
 +
 +	if (soc_version_major > 1)
-+		strlcpy(prop_str, "qcom,cpr-cold-temp-threshold-v2",
++		strscpy(prop_str, "qcom,cpr-cold-temp-threshold-v2",
 +			sizeof(prop_str));
 +	else
-+		strlcpy(prop_str, "qcom,cpr-cold-temp-threshold",
++		strscpy(prop_str, "qcom,cpr-cold-temp-threshold",
 +			sizeof(prop_str));
 +
 +	if (!of_find_property(vreg->of_node, req_prop_str, NULL)) {
@@ -8882,7 +8882,7 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
 +			 "qcom,cpr-open-loop-voltage-fuse-adjustment-%d",
 +			 vreg->part_type);
 +	} else {
-+		strlcpy(prop_str, "qcom,cpr-open-loop-voltage-fuse-adjustment",
++		strscpy(prop_str, "qcom,cpr-open-loop-voltage-fuse-adjustment",
 +			sizeof(prop_str));
 +	}
 +
@@ -11651,11 +11651,11 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
 +	return cpr3_regulator_register(pdev, ctrl);
 +}
 +
-+static int cpr4_apss_regulator_remove(struct platform_device *pdev)
++static void cpr4_apss_regulator_remove(struct platform_device *pdev)
 +{
 +	struct cpr3_controller *ctrl = platform_get_drvdata(pdev);
 +
-+	return cpr3_regulator_unregister(ctrl);
++	cpr3_regulator_unregister(ctrl);
 +}
 +
 +static struct platform_driver cpr4_apss_regulator_driver = {
@@ -11664,7 +11664,7 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
 +		.of_match_table	= cpr4_regulator_match_table,
 +	},
 +	.probe		= cpr4_apss_regulator_probe,
-+	.remove		= cpr4_apss_regulator_remove,
++	.remove_new	= cpr4_apss_regulator_remove,
 +	.suspend	= cpr4_apss_regulator_suspend,
 +	.resume		= cpr4_apss_regulator_resume,
 +};

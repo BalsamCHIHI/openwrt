@@ -21,16 +21,16 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
 
 --- a/drivers/power/Kconfig
 +++ b/drivers/power/Kconfig
-@@ -1,3 +1,4 @@
- # SPDX-License-Identifier: GPL-2.0-only
+@@ -2,3 +2,4 @@
  source "drivers/power/reset/Kconfig"
+ source "drivers/power/sequencing/Kconfig"
  source "drivers/power/supply/Kconfig"
 +source "drivers/power/qcom/Kconfig"
 --- a/drivers/power/Makefile
 +++ b/drivers/power/Makefile
-@@ -1,3 +1,4 @@
- # SPDX-License-Identifier: GPL-2.0-only
+@@ -2,3 +2,4 @@
  obj-$(CONFIG_POWER_RESET)	+= reset/
+ obj-$(CONFIG_POWER_SEQUENCING)	+= sequencing/
  obj-$(CONFIG_POWER_SUPPLY)	+= supply/
 +obj-$(CONFIG_QCOM_APM)		+= qcom/
 --- /dev/null
@@ -952,7 +952,7 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
 +	return ret;
 +}
 +
-+static int msm_apm_remove(struct platform_device *pdev)
++static void msm_apm_remove(struct platform_device *pdev)
 +{
 +	struct msm_apm_ctrl_dev *ctrl_dev;
 +
@@ -964,7 +964,7 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
 +		apm_debugfs_deinit(ctrl_dev);
 +	}
 +
-+	return 0;
++
 +}
 +
 +static struct platform_driver msm_apm_driver = {
@@ -973,7 +973,7 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
 +		.of_match_table	= msm_apm_match_table,
 +	},
 +	.probe		= msm_apm_probe,
-+	.remove		= msm_apm_remove,
++	.remove_new	= msm_apm_remove,
 +};
 +
 +static int __init msm_apm_init(void)
