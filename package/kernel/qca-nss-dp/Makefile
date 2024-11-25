@@ -19,7 +19,7 @@ define KernelPackage/qca-nss-dp
   SECTION:=kernel
   CATEGORY:=Kernel modules
   SUBMENU:=Network Devices
-  DEPENDS:=@TARGET_qualcommax +kmod-qca-ssdk
+  DEPENDS:=@TARGET_qualcommax +kmod-qca-ssdk +TARGET_qualcommax_ipq95xx:kmod-qca-nss-ppe
   TITLE:=Qualcom NSS dataplane ethernet driver
   FILES:=$(PKG_BUILD_DIR)/qca-nss-dp.ko
   AUTOLOAD:=$(call AutoLoad,31,qca-nss-dp,1)
@@ -36,6 +36,10 @@ endef
 
 EXTRA_CFLAGS+= \
 	-I$(STAGING_DIR)/usr/include/qca-ssdk
+
+ifneq ($(CONFIG_TARGET_qualcommax_ipq95xx),)
+EXTRA_CFLAGS+= -I$(STAGING_DIR)/usr/include/qca-nss-ppe
+endif
 
 NSS_DP_HAL_DIR:=$(PKG_BUILD_DIR)/hal
 define Build/Configure

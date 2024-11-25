@@ -1,0 +1,79 @@
+--- a/hal/dp_ops/edma_dp/edma_v2/edma_rx.c
++++ b/hal/dp_ops/edma_dp/edma_v2/edma_rx.c
+@@ -202,7 +202,7 @@ static inline int edma_rx_alloc_buffer_l
+ 		/*
+ 		 * Allocate one skb and add to refill list
+ 		 */
+-		skb_alloc = netdev_alloc_skb_fast(NULL, rx_alloc_size);
++		skb_alloc = netdev_alloc_skb(NULL, rx_alloc_size);
+ 		if (likely(skb_alloc)) {
+ 			list_add_tail(&skb_alloc->list, &rx_skb_alloc);
+ 			num_alloc++;
+@@ -290,14 +290,11 @@ static inline int edma_rx_alloc_buffer_l
+ 		 * we can be assured that invalidate was already done at the
+ 		 * time of previous transmit
+ 		 */
+-		if (unlikely(!skb->fast_recycled)) {
+ 			dmac_inv_range_no_dsb((void *)skb->data,
+ 					      (void *)(skb->data + rx_alloc_size -
+ 					      EDMA_RX_SKB_HEADROOM -
+ 					      NET_IP_ALIGN));
+ 
+-		}
+-		skb->fast_recycled = 0;
+ 
+ 		prod_idx = (prod_idx + 1) & EDMA_RX_RING_SIZE_MASK;
+ 
+--- a/hal/dp_ops/edma_dp/edma_v2/edma_tx.c
++++ b/hal/dp_ops/edma_dp/edma_v2/edma_tx.c
+@@ -40,7 +40,6 @@ uint32_t edma_tx_complete(uint32_t work_
+ 	uint32_t cons_idx;
+ 	uint32_t data;
+ 	struct sk_buff *skb;
+-	struct sk_buff_head h;
+ 	uint32_t txcmpl_errors;
+ 	uint32_t avail, count;
+ 	uint8_t cpu_id;
+@@ -89,8 +88,6 @@ uint32_t edma_tx_complete(uint32_t work_
+ 
+ 	dsb(st);
+ 
+-	skb_queue_head_init(&h);
+-
+ 	/*
+ 	 * TODO:
+ 	 * Instead of freeing the skb, it might be better to save and use
+@@ -148,22 +145,13 @@ uint32_t edma_tx_complete(uint32_t work_
+ 			 * Fast-recycle the SKB with a list, if skb is originally allocated
+ 			 * from recycler and has been fast trasmitted
+ 			 */
+-			if (likely(skb->fast_xmit) && likely(skb->is_from_recycler)) {
+-				dev_check_skb_fast_recyclable(skb);
+-				__skb_queue_head(&h, skb);
+-			} else {
+-				dev_kfree_skb(skb);
+-			}
++			dev_kfree_skb(skb);
+ 		}
+ 
+ 		cons_idx = ((cons_idx + 1) & EDMA_TX_RING_SIZE_MASK);
+ 		txcmpl = EDMA_TXCMPL_DESC(txcmpl_ring, cons_idx);
+ 	}
+ 
+-	if (likely(!skb_queue_empty(&h))) {
+-		dev_kfree_skb_list_fast(&h);
+-	}
+-
+ 	txcmpl_ring->cons_idx = cons_idx;
+ 	txcmpl_ring->avail_pkt -= count;
+ 
+@@ -690,9 +678,6 @@ enum edma_tx edma_tx_ring_xmit(struct ne
+ 		 * that allocates this packet later can avoid
+ 		 * an invalidate operation
+ 		 */
+-		if (likely(skb->fast_xmit) && likely(skb->is_from_recycler)) {
+-			skb->fast_recycled = 1;
+-		}
+ 	} else {
+ 		num_tx_desc_needed = edma_tx_num_descs_for_sg(skb);
+ 

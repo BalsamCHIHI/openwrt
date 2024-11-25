@@ -1,0 +1,23 @@
+--- a/hal/soc_ops/ipq95xx/nss_ipq95xx.h
++++ b/hal/soc_ops/ipq95xx/nss_ipq95xx.h
+@@ -73,7 +73,7 @@
+ #define NSS_DP_EDMA_TBU_CLK			"nss-tbu-clk"
+ #define NSS_DP_EDMA_NSSNOC_MEM_NOC_1_CLK	"nss-nssnoc-mem-noc-1-clk"
+ #define NSS_DP_EDMA_NSSNOC_MEMNOC_CLK		"nss-nssnoc-memnoc-clk"
+-#define NSS_DP_EDMA_CLK				"nss-edma-clk"
++#define NSS_DP_EDMA_CLK				"nss_edma_clk"
+ 
+ /*
+  * EDMA clock's frequencies
+--- a/hal/dp_ops/edma_dp/edma_v2/edma.c
++++ b/hal/dp_ops/edma_dp/edma_v2/edma.c
+@@ -938,7 +938,8 @@ static inline void edma_fetch_mitigation
+ 	if (IS_ERR(clk)) {
+ 		edma_err("Error in fetching %s clock reference. Setting the mitigation"
+ 				" timer rate to zero (means, mitigation will be disabled)\n", id);
+-		egc->edma_timer_rate = 0;
++		egc->edma_timer_rate = 353;
++		edma_debug("%s clock's rate: %u\n", id, egc->edma_timer_rate);
+ 		return;
+ 	}
+ 

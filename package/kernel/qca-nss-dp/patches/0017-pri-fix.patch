@@ -1,0 +1,11 @@
+--- a/hal/dp_ops/edma_dp/edma_v2/edma_tx.c
++++ b/hal/dp_ops/edma_dp/edma_v2/edma_tx.c
+@@ -407,7 +407,7 @@ static inline void edma_tx_fill_pp_desc(
+ 	EDMA_TXDESC_SERVICE_CODE_SET(txd, EDMA_SC_BYPASS);
+ 	EDMA_DST_INFO_SET(txd, dp_dev->macid);
+ 
+-	EDMA_TXDESC_INT_PRI_SET(txd, skb_get_int_pri(skb));
++	EDMA_TXDESC_INT_PRI_SET(txd, 0);
+ }
+ 
+ /*
