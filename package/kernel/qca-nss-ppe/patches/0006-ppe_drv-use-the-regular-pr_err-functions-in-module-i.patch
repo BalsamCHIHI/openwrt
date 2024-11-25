@@ -1,0 +1,52 @@
+From 06de6e2c83c75b15cb92220e373c529fc4d24fa4 Mon Sep 17 00:00:00 2001
+From: Alexandru Gagniuc <mr.nuke.me@gmail.com>
+Date: Sun, 24 Mar 2024 14:46:20 -0500
+Subject: [PATCH 6/6] ppe_drv: use the regular pr_err() functions in module
+ init()
+
+The ppe_drv loves to re-invent the debug log wheel with a long series
+of macros that is noth brain-dead and broken. If the module init
+failed for any reason, those functions don't work, print norhing, and
+return meaningless error codes.
+
+Since a module init failure is an error, stop using these cute
+ppe_drv_warn() helpers, and use pr_err(),
+
+Signed-off-by: Alexandru Gagniuc <mr.nuke.me@gmail.com>
+---
+ drv/ppe_drv/ppe_drv.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+--- a/drv/ppe_drv/ppe_drv.c
++++ b/drv/ppe_drv/ppe_drv.c
+@@ -1834,18 +1834,18 @@ static int __init ppe_drv_module_init(vo
+ 	int ret;
+ 
+ 	if (!of_find_compatible_node(NULL, NULL, "qcom,nss-ppe")) {
+-		ppe_drv_info("PPE device tree node not found\n");
++		pr_err("PPE device tree node not found\n");
+ 		return -EINVAL;
+ 	}
+ 
+ 	if (platform_driver_register(&ppe_drv_platform)) {
+-		ppe_drv_warn("unable to register the driver\n");
++		pr_err("unable to register the driver\n");
+ 		return -EIO;
+ 	}
+ 
+ 	ret = register_netdevice_notifier(&nss_ppe_netdevice);
+ 	if (ret) {
+-		ppe_drv_warn("Failed to register NETDEV notifier, error=%d\n", ret);
++		pr_err("Failed to register NETDEV notifier, error=%d\n", ret);
+ 		platform_driver_unregister(&ppe_drv_platform);
+ 		return -EINVAL;
+ 	}
+@@ -1855,7 +1855,7 @@ static int __init ppe_drv_module_init(vo
+ 	 */
+ 	ppe_drv_gbl.ppe_drv_header = register_sysctl("ppe/ppe_drv", ppe_drv_sub);
+ 	if (!ppe_drv_gbl.ppe_drv_header) {
+-		ppe_drv_warn("sysctl table configuration failed");
++		pr_err("sysctl table configuration failed");
+ 		unregister_netdevice_notifier(&nss_ppe_netdevice);
+ 		platform_driver_unregister(&ppe_drv_platform);
+ 		return -EINVAL;

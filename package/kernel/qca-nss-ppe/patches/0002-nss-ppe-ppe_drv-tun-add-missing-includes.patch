@@ -1,0 +1,36 @@
+From 79184dad9113914b36227dbdcc95d4ee4c60d53b Mon Sep 17 00:00:00 2001
+From: Alexandru Gagniuc <mr.nuke.me@gmail.com>
+Date: Sun, 24 Mar 2024 12:58:09 -0500
+Subject: [PATCH 2/6] nss-ppe: ppe_drv: tun: add missing #includes
+
+ppe_drv_tun.c and drv/ppe_drv/tun/ppe_drv_tun_v6.c use PPP_IP* macros,
+which are defined in <linux/ppp_defs.h>. Include this header where
+required to prevent "undeclared" compiler errors.
+
+Signed-off-by: Alexandru Gagniuc <mr.nuke.me@gmail.com>
+---
+ drv/ppe_drv/tun/ppe_drv_tun_encap.c | 1 +
+ drv/ppe_drv/tun/ppe_drv_tun_l2tp.c  | 2 ++
+ 2 files changed, 3 insertions(+)
+
+--- a/drv/ppe_drv/tun/ppe_drv_tun_encap.c
++++ b/drv/ppe_drv/tun/ppe_drv_tun_encap.c
+@@ -19,6 +19,7 @@
+ #include <net/gre.h>
+ #include <net/vxlan.h>
+ #include <linux/if_tunnel.h>
++#include <linux/ppp_defs.h>
+ #include <fal_tunnel.h>
+ #include <ppe_drv/ppe_drv.h>
+ #include "ppe_drv_tun.h"
+--- a/drv/ppe_drv/tun/ppe_drv_tun_l2tp.c
++++ b/drv/ppe_drv/tun/ppe_drv_tun_l2tp.c
+@@ -18,6 +18,8 @@
+ #include "ppe_drv_tun_prgm_prsr.h"
+ #include "ppe_drv_tun.h"
+ 
++#include <linux/ppp_defs.h>
++
+ /*
+  * ppe_drv_tun_prgm_prsr_l2tp_deconfigure
+  *	deconfigure Program parser for L2TP tunnel

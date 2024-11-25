@@ -1,0 +1,44 @@
+From 643bdcbb6e1be5120f9961b276b3c58c2823d004 Mon Sep 17 00:00:00 2001
+From: Alexandru Gagniuc <mr.nuke.me@gmail.com>
+Date: Sun, 24 Mar 2024 13:13:24 -0500
+Subject: [PATCH 5/6] HACK: nss-drv: ppe-drv: tun: remove dependency on nat46
+
+We don't want to add another out-of-tree module dependency, so remove
+functionality  that depends on nat46. This may break a couple of
+functions related to IPv4 to IPv6 translation. Since these are related
+to tunnelling, nothing of value is expected to break.
+
+Signed-off-by: Alexandru Gagniuc <mr.nuke.me@gmail.com>
+---
+ drv/ppe_drv/tun/ppe_drv_tun.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+--- a/drv/ppe_drv/tun/ppe_drv_tun.c
++++ b/drv/ppe_drv/tun/ppe_drv_tun.c
+@@ -18,8 +18,6 @@
+ #include <net/vxlan.h>
+ #include <linux/in.h>
+ #include <linux/version.h>
+-#include <nat46/nat46-core.h>
+-#include <nat46/nat46-netdev.h>
+ 
+ #include <fal/fal_ip.h>
+ #include <fal_tunnel.h>
+@@ -735,7 +733,7 @@ bool ppe_drv_tun_attach_mapt_v4_to_v6(st
+ 	 * So need to convert it before passing it as an argument.
+ 	 */
+ 
+-	if (!(xlate_4_to_6(netdev, &ip4, htons(sport), htons(dport), saddr_v6, daddr_v6))) {
++	if (true) {
+ 		ppe_drv_trace("%p: Could not find translation pair for v4 address\n", pp);
+ 		return false;
+ 	}
+@@ -822,7 +820,7 @@ static bool ppe_drv_tun_mapt_translate_v
+ 	ip6.daddr.in6_u.u6_addr32[2] = htonl(daddr_v6[2]);
+ 	ip6.daddr.in6_u.u6_addr32[3] = htonl(daddr_v6[3]);
+ 
+-	if (!(xlate_6_to_4(netdev, &ip6, htonl(pcf_v6->match_protocol), &saddr_v4, &daddr_v4))) {
++	if (true) {
+ 		ppe_drv_trace("%p: Could not find translation pair for v4 address\n", pcf_v6);
+ 		return false;
+ 	}

@@ -1,0 +1,120 @@
+--- a/drv/ppe_drv/ppe_drv_acl.c
++++ b/drv/ppe_drv/ppe_drv_acl.c
+@@ -14,6 +14,7 @@
+  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+  */
+ 
++#include <linux/vmalloc.h>
+ #include "ppe_drv.h"
+ 
+ #if (PPE_DRV_DEBUG_LEVEL == 3)
+--- a/drv/ppe_drv/ppe_drv_flow.c
++++ b/drv/ppe_drv/ppe_drv_flow.c
+@@ -18,6 +18,7 @@
+ #include <net/ipv6.h>
+ #include <linux/netdevice.h>
+ #include <linux/if_vlan.h>
++#include <linux/vmalloc.h>
+ #include <fal/fal_flow.h>
+ #include <fal/fal_qos.h>
+ #include "ppe_drv.h"
+--- a/drv/ppe_drv/ppe_drv_host.c
++++ b/drv/ppe_drv/ppe_drv_host.c
+@@ -16,6 +16,7 @@
+ 
+ #include <linux/netdevice.h>
+ #include <linux/if_ether.h>
++#include <linux/vmalloc.h>
+ #include <fal/fal_ip.h>
+ #include "ppe_drv.h"
+ 
+--- a/drv/ppe_drv/ppe_drv_iface.c
++++ b/drv/ppe_drv/ppe_drv_iface.c
+@@ -14,6 +14,7 @@
+  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+  */
+ 
++#include <linux/vmalloc.h>
+ #include "ppe_drv.h"
+ #include "ppe_drv_stats.h"
+ 
+--- a/drv/ppe_drv/ppe_drv_l3_if.c
++++ b/drv/ppe_drv/ppe_drv_l3_if.c
+@@ -14,6 +14,7 @@
+  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+  */
+ 
++#include <linux/vmalloc.h>
+ #include <fal/fal_ip.h>
+ #include <fal/fal_init.h>
+ #include <fal/fal_pppoe.h>
+--- a/drv/ppe_drv/ppe_drv_nexthop.c
++++ b/drv/ppe_drv/ppe_drv_nexthop.c
+@@ -16,6 +16,7 @@
+ 
+ #include <linux/etherdevice.h>
+ #include <linux/if_vlan.h>
++#include <linux/vmalloc.h>
+ #include <fal/fal_ip.h>
+ #include "ppe_drv.h"
+ 
+--- a/drv/ppe_drv/ppe_drv_policer.c
++++ b/drv/ppe_drv/ppe_drv_policer.c
+@@ -14,6 +14,7 @@
+  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+  */
+ 
++#include <linux/vmalloc.h>
+ #include <fal/fal_fdb.h>
+ #include <fal/fal_ip.h>
+ #include <fal/fal_misc.h>
+--- a/drv/ppe_drv/ppe_drv_port.c
++++ b/drv/ppe_drv/ppe_drv_port.c
+@@ -17,6 +17,7 @@
+ #include <linux/netdevice.h>
+ #include <linux/if_ether.h>
+ #include <linux/if_vlan.h>
++#include <linux/vmalloc.h>
+ #include <fal/fal_fdb.h>
+ #include <fal/fal_ip.h>
+ #include <fal/fal_misc.h>
+--- a/drv/ppe_drv/ppe_drv_pppoe.c
++++ b/drv/ppe_drv/ppe_drv_pppoe.c
+@@ -14,6 +14,7 @@
+  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+  */
+ 
++#include <linux/vmalloc.h>
+ #include <fal/fal_ip.h>
+ #include <fal/fal_init.h>
+ #include <fal/fal_pppoe.h>
+--- a/drv/ppe_drv/ppe_drv_pub_ip.c
++++ b/drv/ppe_drv/ppe_drv_pub_ip.c
+@@ -15,6 +15,7 @@
+  */
+ 
+ #include <linux/kref.h>
++#include <linux/vmalloc.h>
+ #include <fal/fal_ip.h>
+ #include <fal/fal_init.h>
+ #include "ppe_drv.h"
+--- a/drv/ppe_drv/ppe_drv_sc.c
++++ b/drv/ppe_drv/ppe_drv_sc.c
+@@ -14,6 +14,7 @@
+  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+  */
+ 
++#include <linux/vmalloc.h>
+ #include <fal/fal_servcode.h>
+ #include <fal/fal_qm.h>
+ #include "ppe_drv.h"
+--- a/drv/ppe_drv/ppe_drv_vsi.c
++++ b/drv/ppe_drv/ppe_drv_vsi.c
+@@ -14,6 +14,7 @@
+  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+  */
+ 
++#include <linux/vmalloc.h>
+ #include <fal/fal_ip.h>
+ #include <fal/fal_init.h>
+ #include <fal/fal_api.h>

@@ -1,0 +1,29 @@
+--- a/drv/ppe_drv/ppe_drv.c
++++ b/drv/ppe_drv/ppe_drv.c
+@@ -1030,7 +1030,7 @@ fail:
+  * ppe_drv_remove()
+  *	remove the ppe driver
+  */
+-static int ppe_drv_remove(struct platform_device *pdev)
++static void ppe_drv_remove(struct platform_device *pdev)
+ {
+ 	struct ppe_drv *p = platform_get_drvdata(pdev);
+ 	int i = 0;
+@@ -1166,7 +1166,7 @@ static int ppe_drv_remove(struct platfor
+ 	ppe_drv_flow_dump_exit();
+ 	ppe_drv_if_map_exit();
+ 
+-	return 0;
++	return;
+ }
+ 
+ /*
+@@ -1236,7 +1236,7 @@ static struct notifier_block nss_ppe_net
+  */
+ static struct platform_driver ppe_drv_platform = {
+ 	.probe		= ppe_drv_probe,
+-	.remove		= ppe_drv_remove,
++	.remove_new	= ppe_drv_remove,
+ 	.driver		= {
+ 		.owner	= THIS_MODULE,
+ 		.name	= "nss-ppe",

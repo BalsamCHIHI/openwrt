@@ -1,0 +1,8 @@
+--- a/drv/ppe_drv/Makefile
++++ b/drv/ppe_drv/Makefile
+@@ -62,4 +62,5 @@ qca-nss-ppe-objs += tun/ppe_drv_tun_v4.o
+ qca-nss-ppe-objs += tun/ppe_drv_tun_v6.o
+ endif
+ 
++ccflags-y += -Wno-missing-prototypes -Wno-missing-declarations
+ ccflags-y += -DPPE_DRV_DEBUG_LEVEL=3

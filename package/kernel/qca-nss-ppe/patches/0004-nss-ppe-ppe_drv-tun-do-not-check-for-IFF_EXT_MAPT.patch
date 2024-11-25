@@ -1,0 +1,34 @@
+From f6c081b1ea4444f99cc81b8e5f9c5d52f2c5e7fd Mon Sep 17 00:00:00 2001
+From: Alexandru Gagniuc <mr.nuke.me@gmail.com>
+Date: Sun, 24 Mar 2024 13:08:42 -0500
+Subject: [PATCH 4/6] nss-ppe: ppe_drv: tun: do not check for IFF_EXT_MAPT
+
+IFF_EXT_MAPT is a bit that is set in (struct netdevice).priv_flags_ext
+
+The main issue is that priv_flags_ext does not exist in the upstream
+kernel. The second problem is that nobody sets the IFF_EXT_MAPT bit in
+the first place.
+
+This makes checink for IFF_EXT_MAPT dead code. Remove it.
+
+Signed-off-by: Alexandru Gagniuc <mr.nuke.me@gmail.com>
+---
+ drv/ppe_drv/tun/ppe_drv_tun_v6.c | 7 -------
+ 1 file changed, 7 deletions(-)
+
+--- a/drv/ppe_drv/tun/ppe_drv_tun_v6.c
++++ b/drv/ppe_drv/tun/ppe_drv_tun_v6.c
+@@ -245,13 +245,6 @@ bool ppe_drv_v6_tun_allow_tunnel_create(
+ 		return true;
+ 	}
+ 
+-	/*
+-	 * Check if the rule is for MAP-T
+-	 */
+-	if (dev->priv_flags_ext & IFF_EXT_MAPT) {
+-		return true;
+-	}
+-
+ 	return false;
+ }
+ 

@@ -1,0 +1,11 @@
+--- a/drv/ppe_drv/ppe_drv.c
++++ b/drv/ppe_drv/ppe_drv.c
+@@ -1794,7 +1794,7 @@ static struct ctl_table ppe_drv_sub[] =
+ 		.mode           =       0644,
+ 		.proc_handler   =       ppe_drv_src2uni_handler
+ 	},
+-	{}
++//	{}
+ };
+ 
+ /*
