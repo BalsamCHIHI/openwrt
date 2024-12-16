@@ -1,0 +1,218 @@
+--- a/drivers/net/wireless/ath/ath11k/core.c
++++ b/drivers/net/wireless/ath/ath11k/core.c
+@@ -9,6 +9,7 @@
+ #include <linux/remoteproc.h>
+ #include <linux/firmware.h>
+ #include <linux/of.h>
++#include <linux/ctype.h>
+ 
+ #include "core.h"
+ #include "dp_tx.h"
+@@ -1025,6 +1026,130 @@ int ath11k_core_resume(struct ath11k_bas
+ }
+ EXPORT_SYMBOL(ath11k_core_resume);
+ 
++static int ath11k_fetch_fwcfg_file(struct ath11k_base *ab)
++{
++	char filename[100];
++	const char *buf;
++	size_t i = 0;
++	char val[100];
++	size_t key_idx;
++	size_t val_idx;
++	char c;
++	size_t sz;
++	int ret;
++	const struct firmware *fw;
++
++	ab->fwcfg.flags = 0;
++
++	/* fwcfg-<bus>-<id>.txt */
++	/* If this changes, change ath11k_read_fwinfo as well. */
++	scnprintf(filename, sizeof(filename), "%s/fwcfg-%s-%s.txt",
++			ATH11K_FW_DIR, ath11k_bus_str(ab->hif.bus), dev_name(ab->dev));
++
++	ret = firmware_request_nowarn(&fw, filename, ab->dev);
++	if (ret)
++		ab->fwcfg_file = ERR_PTR(ret);
++	else
++		ab->fwcfg_file = fw;
++	if (IS_ERR(ab->fwcfg_file)) {
++		/* FW config file is optional, don't be scary. */
++		ath11k_dbg(ab, ATH11K_DBG_BOOT,
++				"Could not find firmware config file %s, continuing with defaults.\n",
++				filename);
++		return PTR_ERR(ab->fwcfg_file);
++	}
++
++	ath11k_dbg(ab, ATH11K_DBG_BOOT, "found firmware config file %s\n",
++			filename);
++
++	/* Now, attempt to parse results.
++	 * Format is key=value
++	 */
++	buf = (const char *)(ab->fwcfg_file->data);
++	while (i < ab->fwcfg_file->size) {
++start_again:
++		/* First, eat space, or entire line if we have # as first char */
++		c = buf[i];
++		while (isspace(c)) {
++			i++;
++			if (i >= ab->fwcfg_file->size)
++				goto done;
++			c = buf[i];
++		}
++		/* Eat comment ? */
++		if (c == '#') {
++			i++;
++			while (i < ab->fwcfg_file->size) {
++				c = buf[i];
++				i++;
++				if (c == '\n')
++					goto start_again;
++			}
++			/* Found no newline, must be done. */
++			goto done;
++		}
++
++		/* If here, we have start of token, store it in 'filename' to save space */
++		key_idx = 0;
++		while (i < ab->fwcfg_file->size) {
++			c = buf[i];
++			if (c == '=') {
++				i++;
++				c = buf[i];
++				/* Eat any space after the '=' sign. */
++				while (i < ab->fwcfg_file->size) {
++					if (!isspace(c))
++						break;
++					i++;
++					c = buf[i];
++				}
++				break;
++			}
++			if (isspace(c)) {
++				i++;
++				continue;
++			}
++			filename[key_idx] = c;
++			key_idx++;
++			if (key_idx >= sizeof(filename)) {
++				/* Too long, bail out. */
++				goto done;
++			}
++			i++;
++		}
++		filename[key_idx] = 0; /* null terminate */
++
++		/* We have found the key, now find the value */
++		val_idx = 0;
++		while (i < ab->fwcfg_file->size) {
++			c = buf[i];
++			if (isspace(c))
++				break;
++			val[val_idx] = c;
++			val_idx++;
++			if (val_idx >= sizeof(val)) {
++				/* Too long, bail out. */
++				goto done;
++			}
++			i++;
++		}
++		val[val_idx] = 0; /* null terminate value */
++
++		/* Assign key and values as appropriate */
++		if (strcasecmp(filename, "bname") == 0) {
++			sz = sizeof(ab->fwcfg.bname);
++			strncpy(ab->fwcfg.bname, val, sz);
++			ab->fwcfg.bname[sz - 1] = 0; /* ensure null term */
++		} else {
++			ath11k_warn(ab, "Unknown fwcfg key name -:%s:-, val: %s\n",
++					filename, val);
++		}
++	}
++done:
++	return 0;
++}
++
++
+ static void ath11k_core_check_cc_code_bdfext(const struct dmi_header *hdr, void *data)
+ {
+ 	struct ath11k_base *ab = data;
+@@ -1354,7 +1479,10 @@ static int ath11k_core_fetch_board_data_
+ 	struct ath11k_fw_ie *hdr;
+ 	int ret, ie_id;
+ 
+-	filename = ATH11K_BOARD_API2_FILE;
++	if (ab->fwcfg.bname[0])
++		filename = ab->fwcfg.bname;
++	else
++		filename = ATH11K_BOARD_API2_FILE;
+ 
+ 	if (!bd->fw)
+ 		bd->fw = ath11k_core_firmware_request(ab, filename);
+@@ -1434,6 +1562,8 @@ next:
+ 		data += ie_len;
+ 	}
+ 
++	strlcpy(ab->fw_board_name, filename, sizeof(ab->fw_board_name));
++
+ out:
+ 	if (!bd->data || !bd->len) {
+ 		ath11k_dbg(ab, ATH11K_DBG_BOOT,
+@@ -1474,6 +1604,13 @@ int ath11k_core_fetch_bdf(struct ath11k_
+ 	int bd_api;
+ 	int ret = 0;
+ 
++	if (!IS_ERR(ab->fwcfg_file)) {
++		release_firmware(ab->fwcfg_file);
++		ab->fwcfg_file = NULL;
++	}
++
++	ath11k_fetch_fwcfg_file(ab);
++
+ 	filename = ATH11K_BOARD_API2_FILE;
+ 	boardname = kzalloc(BOARD_NAME_SIZE, GFP_KERNEL);
+ 	if (!boardname) {
+@@ -1537,7 +1674,13 @@ int ath11k_core_fetch_bdf(struct ath11k_
+ 		goto exit;
+ 
+ 	bd_api = 1;
+-	ret = ath11k_core_fetch_board_data_api_1(ab, bd, ATH11K_DEFAULT_BOARD_FILE);
++
++	if (ab->fwcfg.bname[0])
++		strlcpy(ab->fw_board_name, ab->fwcfg.bname, sizeof(ab->fw_board_name));
++	else
++		strlcpy(ab->fw_board_name, ATH11K_DEFAULT_BOARD_FILE, sizeof(ab->fw_board_name));
++	ret = ath11k_core_fetch_board_data_api_1(ab, bd, ab->fw_board_name);
++
+ 	if (ret) {
+ 		ath11k_core_create_firmware_path(ab, filename,
+ 						 filepath, sizeof(filepath));
+@@ -2301,6 +2444,10 @@ void ath11k_core_deinit(struct ath11k_ba
+ 	ath11k_hif_power_down(ab);
+ 	ath11k_mac_destroy(ab);
+ 	ath11k_core_soc_destroy(ab);
++
++	if (!IS_ERR(ab->fwcfg_file))
++		release_firmware(ab->fwcfg_file);
++	ab->fwcfg_file = NULL;
+ }
+ EXPORT_SYMBOL(ath11k_core_deinit);
+ 
+--- a/drivers/net/wireless/ath/ath11k/core.h
++++ b/drivers/net/wireless/ath/ath11k/core.h
+@@ -967,6 +967,13 @@ struct ath11k_base {
+ 
+ 	const struct firmware *cal_file;
+ 
++	const struct firmware *fwcfg_file;
++	char fw_board_name[100];
++	struct {
++		u32 flags;
++		char bname[100];
++	} fwcfg;
++
+ 	/* Below regd's are protected by ab->data_lock */
+ 	/* This is the regd set for every radio
+ 	 * by the firmware during initialization
