@@ -1,37 +1,16 @@
 --- a/drivers/net/wireless/ath/ath11k/core.c
 +++ b/drivers/net/wireless/ath/ath11k/core.c
-@@ -8,6 +8,7 @@
- #include <linux/slab.h>
+@@ -9,6 +9,7 @@
  #include <linux/remoteproc.h>
  #include <linux/firmware.h>
-+#include <linux/ctype.h>
  #include <linux/of.h>
++#include <linux/ctype.h>
  
  #include "core.h"
-@@ -1200,7 +1201,10 @@ static int ath11k_core_fetch_board_data_
- 	struct ath11k_fw_ie *hdr;
- 	int ret, ie_id;
- 
--	filename = ATH11K_BOARD_API2_FILE;
-+	if (ab->fwcfg.bname[0])
-+		filename = ab->fwcfg.bname;
-+	else
-+		filename = ATH11K_BOARD_API2_FILE;
- 
- 	if (!bd->fw)
- 		bd->fw = ath11k_core_firmware_request(ab, filename);
-@@ -1280,6 +1284,8 @@ next:
- 		data += ie_len;
- 	}
- 
-+	strlcpy(ab->fw_board_name, filename, sizeof(ab->fw_board_name));
-+
- out:
- 	if (!bd->data || !bd->len) {
- 		ath11k_dbg(ab, ATH11K_DBG_BOOT,
-@@ -1297,6 +1303,129 @@ err:
- 	return ret;
+ #include "dp_tx.h"
+@@ -978,6 +979,130 @@ int ath11k_core_resume(struct ath11k_bas
  }
+ EXPORT_SYMBOL(ath11k_core_resume);
  
 +static int ath11k_fetch_fwcfg_file(struct ath11k_base *ab)
 +{
@@ -156,11 +135,33 @@
 +	return 0;
 +}
 +
- int ath11k_core_fetch_board_data_api_1(struct ath11k_base *ab,
- 				       struct ath11k_board_data *bd,
- 				       const char *name)
-@@ -1319,6 +1448,13 @@ int ath11k_core_fetch_bdf(struct ath11k_
- 	char *filename, filepath[100];
++
+ static void ath11k_core_check_cc_code_bdfext(const struct dmi_header *hdr, void *data)
+ {
+ 	struct ath11k_base *ab = data;
+@@ -1307,7 +1432,10 @@ static int ath11k_core_fetch_board_data_
+ 	struct ath11k_fw_ie *hdr;
+ 	int ret, ie_id;
+ 
+-	filename = ATH11K_BOARD_API2_FILE;
++	if (ab->fwcfg.bname[0])
++		filename = ab->fwcfg.bname;
++	else
++		filename = ATH11K_BOARD_API2_FILE;
+ 
+ 	if (!bd->fw)
+ 		bd->fw = ath11k_core_firmware_request(ab, filename);
+@@ -1387,6 +1515,8 @@ next:
+ 		data += ie_len;
+ 	}
+ 
++	strlcpy(ab->fw_board_name, filename, sizeof(ab->fw_board_name));
++
+ out:
+ 	if (!bd->data || !bd->len) {
+ 		ath11k_dbg(ab, ATH11K_DBG_BOOT,
+@@ -1427,6 +1557,13 @@ int ath11k_core_fetch_bdf(struct ath11k_
+ 	int bd_api;
  	int ret = 0;
  
 +	if (!IS_ERR(ab->fwcfg_file)) {
@@ -173,10 +174,10 @@
  	filename = ATH11K_BOARD_API2_FILE;
  	boardname = kzalloc(BOARD_NAME_SIZE, GFP_KERNEL);
  	if (!boardname) {
-@@ -1382,7 +1518,12 @@ int ath11k_core_fetch_bdf(struct ath11k_
+@@ -1490,7 +1627,13 @@ int ath11k_core_fetch_bdf(struct ath11k_
  		goto exit;
  
- 	ab->bd_api = 1;
+ 	bd_api = 1;
 -	ret = ath11k_core_fetch_board_data_api_1(ab, bd, ATH11K_DEFAULT_BOARD_FILE);
 +
 +	if (ab->fwcfg.bname[0])
@@ -184,23 +185,24 @@
 +	else
 +		strlcpy(ab->fw_board_name, ATH11K_DEFAULT_BOARD_FILE, sizeof(ab->fw_board_name));
 +	ret = ath11k_core_fetch_board_data_api_1(ab, bd, ab->fw_board_name);
++
  	if (ret) {
  		ath11k_core_create_firmware_path(ab, filename,
  						 filepath, sizeof(filepath));
-@@ -2126,6 +2267,10 @@ void ath11k_core_deinit(struct ath11k_ba
- 	ath11k_hif_power_down(ab);
+@@ -2240,6 +2383,10 @@ void ath11k_core_deinit(struct ath11k_ba
  	ath11k_mac_destroy(ab);
  	ath11k_core_soc_destroy(ab);
+ 	ath11k_fw_destroy(ab);
 +
 +	if (!IS_ERR(ab->fwcfg_file))
 +		release_firmware(ab->fwcfg_file);
-+	ab->fwcfg_file = NULL; 
++	ab->fwcfg_file = NULL;
  }
  EXPORT_SYMBOL(ath11k_core_deinit);
  
 --- a/drivers/net/wireless/ath/ath11k/core.h
 +++ b/drivers/net/wireless/ath/ath11k/core.h
-@@ -914,6 +914,13 @@ struct ath11k_base {
+@@ -954,6 +954,13 @@ struct ath11k_base {
  
  	const struct firmware *cal_file;
  
