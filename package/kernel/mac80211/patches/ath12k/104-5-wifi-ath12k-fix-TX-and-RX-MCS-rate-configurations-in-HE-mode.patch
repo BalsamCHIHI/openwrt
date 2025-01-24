@@ -114,11 +114,9 @@ Acked-by: Jeff Johnson <quic_jjohnson@quicinc.com>
  drivers/net/wireless/ath/ath12k/wmi.h | 2 ++
  2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath12k/wmi.c b/drivers/net/wireless/ath/ath12k/wmi.c
-index 2cd3ff9b0164..7aabee813de6 100644
 --- a/drivers/net/wireless/ath/ath12k/wmi.c
 +++ b/drivers/net/wireless/ath/ath12k/wmi.c
-@@ -2138,8 +2138,8 @@ int ath12k_wmi_send_peer_assoc_cmd(struct ath12k *ar,
+@@ -2140,8 +2140,8 @@ int ath12k_wmi_send_peer_assoc_cmd(struc
  		he_mcs->tlv_header = ath12k_wmi_tlv_cmd_hdr(WMI_TAG_HE_RATE_SET,
  							    sizeof(*he_mcs));
  
@@ -129,11 +127,9 @@ index 2cd3ff9b0164..7aabee813de6 100644
  		ptr += sizeof(*he_mcs);
  	}
  
-diff --git a/drivers/net/wireless/ath/ath12k/wmi.h b/drivers/net/wireless/ath/ath12k/wmi.h
-index b4cf0e849387..0e472df28717 100644
 --- a/drivers/net/wireless/ath/ath12k/wmi.h
 +++ b/drivers/net/wireless/ath/ath12k/wmi.h
-@@ -3929,7 +3929,9 @@ struct ath12k_wmi_vht_rate_set_params {
+@@ -3951,7 +3951,9 @@ struct ath12k_wmi_vht_rate_set_params {
  
  struct ath12k_wmi_he_rate_set_params {
  	__le32 tlv_header;

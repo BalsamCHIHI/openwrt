@@ -119,11 +119,9 @@ Acked-by: Jeff Johnson <quic_jjohnson@quicinc.com>
  drivers/net/wireless/ath/ath12k/mac.c | 33 ++++++++++++++++++++++-----
  1 file changed, 27 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath12k/mac.c b/drivers/net/wireless/ath/ath12k/mac.c
-index 7af421107f79..ff036922f925 100644
 --- a/drivers/net/wireless/ath/ath12k/mac.c
 +++ b/drivers/net/wireless/ath/ath12k/mac.c
-@@ -2474,8 +2474,10 @@ static void ath12k_peer_assoc_h_he(struct ath12k *ar,
+@@ -2477,8 +2477,10 @@ static void ath12k_peer_assoc_h_he(struc
  	arg->peer_nss = min(sta->deflink.rx_nss, max_nss);
  
  	if (arg->peer_phymode == MODE_11AX_HE160) {
@@ -135,7 +133,7 @@ index 7af421107f79..ff036922f925 100644
  		arg->peer_bw_rxnss_override = ATH12K_BW_NSS_MAP_ENABLE;
  
  		if (!rx_nss) {
-@@ -5617,6 +5619,12 @@ ath12k_create_vht_cap(struct ath12k *ar, u32 rate_cap_tx_chainmask,
+@@ -5635,6 +5637,12 @@ ath12k_create_vht_cap(struct ath12k *ar,
  	vht_cap.vht_mcs.rx_mcs_map = cpu_to_le16(rxmcs_map);
  	vht_cap.vht_mcs.tx_mcs_map = cpu_to_le16(txmcs_map);
  
@@ -148,7 +146,7 @@ index 7af421107f79..ff036922f925 100644
  	return vht_cap;
  }
  
-@@ -5799,11 +5807,12 @@ static void ath12k_mac_set_hemcsmap(struct ath12k *ar,
+@@ -5815,11 +5823,12 @@ static void ath12k_mac_set_hemcsmap(stru
  				    struct ieee80211_sta_he_cap *he_cap)
  {
  	struct ieee80211_he_mcs_nss_supp *mcs_nss = &he_cap->he_mcs_nss_supp;
@@ -164,7 +162,7 @@ index 7af421107f79..ff036922f925 100644
  	for (i = 0; i < 8; i++) {
  		if (i < ar->num_tx_chains &&
  		    (ar->cfg_tx_chainmask >> cap->tx_chain_mask_shift) & BIT(i))
-@@ -5816,12 +5825,24 @@ static void ath12k_mac_set_hemcsmap(struct ath12k *ar,
+@@ -5832,12 +5841,24 @@ static void ath12k_mac_set_hemcsmap(stru
  			rxmcs_map |= IEEE80211_HE_MCS_SUPPORT_0_11 << (i * 2);
  		else
  			rxmcs_map |= IEEE80211_HE_MCS_NOT_SUPPORTED << (i * 2);

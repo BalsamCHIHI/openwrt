@@ -117,11 +117,9 @@ Acked-by: Jeff Johnson <quic_jjohnson@quicinc.com>
  drivers/net/wireless/ath/ath12k/wmi.h | 21 +++++++++++
  2 files changed, 71 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath12k/mac.c b/drivers/net/wireless/ath/ath12k/mac.c
-index 8ab15de8243e..ee672060ba92 100644
 --- a/drivers/net/wireless/ath/ath12k/mac.c
 +++ b/drivers/net/wireless/ath/ath12k/mac.c
-@@ -2950,6 +2950,50 @@ static int ath12k_mac_vif_recalc_sta_he_txbf(struct ath12k *ar,
+@@ -2953,6 +2953,50 @@ static int ath12k_mac_vif_recalc_sta_he_
  	return 0;
  }
  
@@ -172,7 +170,7 @@ index 8ab15de8243e..ee672060ba92 100644
  static void ath12k_bss_assoc(struct ath12k *ar,
  			     struct ath12k_vif *arvif,
  			     struct ieee80211_bss_conf *bss_conf)
-@@ -3343,6 +3387,12 @@ static void ath12k_mac_bss_info_changed(struct ath12k *ar,
+@@ -3351,6 +3395,12 @@ static void ath12k_mac_bss_info_changed(
  				ath12k_warn(ar->ab,
  					    "failed to set HE TXBF config for vdev: %d\n",
  					    arvif->vdev_id);
@@ -185,8 +183,6 @@ index 8ab15de8243e..ee672060ba92 100644
  		}
  		ath12k_control_beaconing(arvif, info);
  
-diff --git a/drivers/net/wireless/ath/ath12k/wmi.h b/drivers/net/wireless/ath/ath12k/wmi.h
-index 3a0fd1c5015d..b4cf0e849387 100644
 --- a/drivers/net/wireless/ath/ath12k/wmi.h
 +++ b/drivers/net/wireless/ath/ath12k/wmi.h
 @@ -1139,6 +1139,7 @@ enum wmi_tlv_vdev_param {
@@ -197,7 +193,7 @@ index 3a0fd1c5015d..b4cf0e849387 100644
  };
  
  enum wmi_tlv_peer_flags {
-@@ -3012,6 +3013,26 @@ struct ath12k_wmi_rx_reorder_queue_remove_arg {
+@@ -3012,6 +3013,26 @@ struct ath12k_wmi_rx_reorder_queue_remov
  #define HE_MU_BFER_ENABLE	1
  #define HE_SU_BFER_ENABLE	1
  

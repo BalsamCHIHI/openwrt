@@ -117,11 +117,9 @@ Acked-by: Jeff Johnson <quic_jjohnson@quicinc.com>
  drivers/net/wireless/ath/ath12k/wmi.h |  28 +---
  3 files changed, 156 insertions(+), 102 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath12k/mac.c b/drivers/net/wireless/ath/ath12k/mac.c
-index 137394c36460..8ab15de8243e 100644
 --- a/drivers/net/wireless/ath/ath12k/mac.c
 +++ b/drivers/net/wireless/ath/ath12k/mac.c
-@@ -2848,6 +2848,108 @@ static int ath12k_setup_peer_smps(struct ath12k *ar, struct ath12k_vif *arvif,
+@@ -2851,6 +2851,108 @@ static int ath12k_setup_peer_smps(struct
  					 ath12k_smps_map[smps]);
  }
  
@@ -230,7 +228,7 @@ index 137394c36460..8ab15de8243e 100644
  static void ath12k_bss_assoc(struct ath12k *ar,
  			     struct ath12k_vif *arvif,
  			     struct ieee80211_bss_conf *bss_conf)
-@@ -2855,9 +2957,11 @@ static void ath12k_bss_assoc(struct ath12k *ar,
+@@ -2858,9 +2960,11 @@ static void ath12k_bss_assoc(struct ath1
  	struct ieee80211_vif *vif = arvif->vif;
  	struct ath12k_wmi_vdev_up_params params = {};
  	struct ath12k_wmi_peer_assoc_arg peer_arg;
@@ -242,7 +240,7 @@ index 137394c36460..8ab15de8243e 100644
  	int ret;
  
  	lockdep_assert_held(&ar->conf_mutex);
-@@ -2877,8 +2981,29 @@ static void ath12k_bss_assoc(struct ath12k *ar,
+@@ -2880,8 +2984,29 @@ static void ath12k_bss_assoc(struct ath1
  
  	ath12k_peer_assoc_prepare(ar, vif, ap_sta, &peer_arg, false);
  
@@ -272,7 +270,7 @@ index 137394c36460..8ab15de8243e 100644
  	ret = ath12k_wmi_send_peer_assoc_cmd(ar, &peer_arg);
  	if (ret) {
  		ath12k_warn(ar->ab, "failed to run peer assoc for %pM vdev %i: %d\n",
-@@ -3212,6 +3337,13 @@ static void ath12k_mac_bss_info_changed(struct ath12k *ar,
+@@ -3220,6 +3345,13 @@ static void ath12k_mac_bss_info_changed(
  		ether_addr_copy(arvif->bssid, info->bssid);
  
  	if (changed & BSS_CHANGED_BEACON_ENABLED) {
@@ -286,7 +284,7 @@ index 137394c36460..8ab15de8243e 100644
  		ath12k_control_beaconing(arvif, info);
  
  		if (arvif->is_up && vif->bss_conf.he_support &&
-@@ -5335,11 +5467,14 @@ static void ath12k_mac_copy_he_cap(struct ath12k_band_cap *band_cap,
+@@ -5351,11 +5483,14 @@ static void ath12k_mac_copy_he_cap(struc
  
  	he_cap_elem->mac_cap_info[1] &=
  		IEEE80211_HE_MAC_CAP1_TF_MAC_PAD_DUR_MASK;
@@ -304,7 +302,7 @@ index 137394c36460..8ab15de8243e 100644
  	he_cap_elem->phy_cap_info[5] |= num_tx_chains - 1;
  
  	switch (iftype) {
-@@ -6298,71 +6433,6 @@ static int ath12k_mac_setup_vdev_create_arg(struct ath12k_vif *arvif,
+@@ -6317,71 +6452,6 @@ static int ath12k_mac_setup_vdev_create_
  	return 0;
  }
  
@@ -376,7 +374,7 @@ index 137394c36460..8ab15de8243e 100644
  static void ath12k_mac_update_vif_offload(struct ath12k_vif *arvif)
  {
  	struct ieee80211_vif *vif = arvif->vif;
-@@ -7196,7 +7266,6 @@ ath12k_mac_vdev_start_restart(struct ath12k_vif *arvif,
+@@ -7339,7 +7409,6 @@ ath12k_mac_vdev_start_restart(struct ath
  	struct ath12k_base *ab = ar->ab;
  	struct wmi_vdev_start_req_arg arg = {};
  	const struct cfg80211_chan_def *chandef = &ctx->def;
@@ -384,7 +382,7 @@ index 137394c36460..8ab15de8243e 100644
  	int ret;
  
  	lockdep_assert_held(&ar->conf_mutex);
-@@ -7252,14 +7321,6 @@ ath12k_mac_vdev_start_restart(struct ath12k_vif *arvif,
+@@ -7395,14 +7464,6 @@ ath12k_mac_vdev_start_restart(struct ath
  		spin_unlock_bh(&ab->base_lock);
  
  		/* TODO: Notify if secondary 80Mhz also needs radar detection */
@@ -399,8 +397,6 @@ index 137394c36460..8ab15de8243e 100644
  	}
  
  	arg.passive |= !!(chandef->chan->flags & IEEE80211_CHAN_NO_IR);
-diff --git a/drivers/net/wireless/ath/ath12k/mac.h b/drivers/net/wireless/ath/ath12k/mac.h
-index 5efbb6822628..8d541f1c2d80 100644
 --- a/drivers/net/wireless/ath/ath12k/mac.h
 +++ b/drivers/net/wireless/ath/ath12k/mac.h
 @@ -41,6 +41,21 @@ struct ath12k_generic_iter {
@@ -425,11 +421,9 @@ index 5efbb6822628..8d541f1c2d80 100644
  enum ath12k_supported_bw {
  	ATH12K_BW_20    = 0,
  	ATH12K_BW_40    = 1,
-diff --git a/drivers/net/wireless/ath/ath12k/wmi.h b/drivers/net/wireless/ath/ath12k/wmi.h
-index 6a913f9b8315..3a0fd1c5015d 100644
 --- a/drivers/net/wireless/ath/ath12k/wmi.h
 +++ b/drivers/net/wireless/ath/ath12k/wmi.h
-@@ -2995,31 +2995,6 @@ struct ath12k_wmi_rx_reorder_queue_remove_arg {
+@@ -2995,31 +2995,6 @@ struct ath12k_wmi_rx_reorder_queue_remov
  #define WMI_VDEV_PARAM_TXBF_SU_TX_BFER BIT(2)
  #define WMI_VDEV_PARAM_TXBF_MU_TX_BFER BIT(3)
  
@@ -461,7 +455,7 @@ index 6a913f9b8315..3a0fd1c5015d 100644
  #define HE_MODE_SU_TX_BFEE	BIT(0)
  #define HE_MODE_SU_TX_BFER	BIT(1)
  #define HE_MODE_MU_TX_BFEE	BIT(2)
-@@ -3031,8 +3006,11 @@ struct ath12k_wmi_rx_reorder_queue_remove_arg {
+@@ -3031,8 +3006,11 @@ struct ath12k_wmi_rx_reorder_queue_remov
  #define HE_DL_MUOFDMA_ENABLE	1
  #define HE_UL_MUOFDMA_ENABLE	1
  #define HE_DL_MUMIMO_ENABLE	1

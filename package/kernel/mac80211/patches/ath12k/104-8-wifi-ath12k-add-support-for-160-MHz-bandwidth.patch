@@ -125,11 +125,9 @@ Acked-by: Jeff Johnson <quic_jjohnson@quicinc.com>
  drivers/net/wireless/ath/ath12k/wmi.h  | 28 +++++++++
  5 files changed, 124 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath12k/core.h b/drivers/net/wireless/ath/ath12k/core.h
-index 7f2e9a9b4097..6f7fb4d94957 100644
 --- a/drivers/net/wireless/ath/ath12k/core.h
 +++ b/drivers/net/wireless/ath/ath12k/core.h
-@@ -702,6 +702,8 @@ struct ath12k_pdev_cap {
+@@ -717,6 +717,8 @@ struct ath12k_pdev_cap {
  	u32 tx_chain_mask_shift;
  	u32 rx_chain_mask_shift;
  	struct ath12k_band_cap band[NUM_NL80211_BANDS];
@@ -138,11 +136,9 @@ index 7f2e9a9b4097..6f7fb4d94957 100644
  };
  
  struct mlo_timestamp {
-diff --git a/drivers/net/wireless/ath/ath12k/mac.c b/drivers/net/wireless/ath/ath12k/mac.c
-index 3434b69a0a4b..7af421107f79 100644
 --- a/drivers/net/wireless/ath/ath12k/mac.c
 +++ b/drivers/net/wireless/ath/ath12k/mac.c
-@@ -2047,6 +2047,34 @@ ath12k_peer_assoc_h_vht_limit(u16 tx_mcs_set,
+@@ -2050,6 +2050,34 @@ ath12k_peer_assoc_h_vht_limit(u16 tx_mcs
  	return tx_mcs_set;
  }
  
@@ -177,7 +173,7 @@ index 3434b69a0a4b..7af421107f79 100644
  static void ath12k_peer_assoc_h_vht(struct ath12k *ar,
  				    struct ieee80211_vif *vif,
  				    struct ieee80211_sta *sta,
-@@ -2062,6 +2090,7 @@ static void ath12k_peer_assoc_h_vht(struct ath12k *ar,
+@@ -2065,6 +2093,7 @@ static void ath12k_peer_assoc_h_vht(stru
  	u8 max_nss, vht_mcs;
  	int i, vht_nss, nss_idx;
  	bool user_rate_valid = true;
@@ -185,7 +181,7 @@ index 3434b69a0a4b..7af421107f79 100644
  
  	if (WARN_ON(ath12k_mac_vif_chan(vif, &def)))
  		return;
-@@ -2156,10 +2185,24 @@ static void ath12k_peer_assoc_h_vht(struct ath12k *ar,
+@@ -2159,10 +2188,24 @@ static void ath12k_peer_assoc_h_vht(stru
  	/* TODO:  Check */
  	arg->tx_max_mcs_nss = 0xFF;
  
@@ -213,7 +209,7 @@ index 3434b69a0a4b..7af421107f79 100644
  }
  
  static int ath12k_mac_get_max_he_mcs_map(u16 mcs_map, int nss)
-@@ -2248,6 +2291,7 @@ static void ath12k_peer_assoc_h_he(struct ath12k *ar,
+@@ -2251,6 +2294,7 @@ static void ath12k_peer_assoc_h_he(struc
  	u16 he_tx_mcs = 0, v = 0;
  	int he_nss, nss_idx;
  	bool user_rate_valid = true;
@@ -221,7 +217,7 @@ index 3434b69a0a4b..7af421107f79 100644
  
  	if (WARN_ON(ath12k_mac_vif_chan(vif, &def)))
  		return;
-@@ -2426,11 +2470,28 @@ static void ath12k_peer_assoc_h_he(struct ath12k *ar,
+@@ -2429,11 +2473,28 @@ static void ath12k_peer_assoc_h_he(struc
  		    he_mcs_mask[i])
  			max_nss = i + 1;
  	}
@@ -252,7 +248,7 @@ index 3434b69a0a4b..7af421107f79 100644
  }
  
  static void ath12k_peer_assoc_h_he_6ghz(struct ath12k *ar,
-@@ -2962,13 +3023,13 @@ static void ath12k_peer_assoc_prepare(struct ath12k *ar,
+@@ -2965,13 +3026,13 @@ static void ath12k_peer_assoc_prepare(st
  	ath12k_peer_assoc_h_basic(ar, vif, sta, arg);
  	ath12k_peer_assoc_h_crypto(ar, vif, sta, arg);
  	ath12k_peer_assoc_h_rates(ar, vif, sta, arg);
@@ -267,7 +263,7 @@ index 3434b69a0a4b..7af421107f79 100644
  	ath12k_peer_assoc_h_smps(sta, arg);
  
  	/* TODO: amsdu_disable req? */
-@@ -5533,10 +5594,8 @@ ath12k_create_vht_cap(struct ath12k *ar, u32 rate_cap_tx_chainmask,
+@@ -5551,10 +5612,8 @@ ath12k_create_vht_cap(struct ath12k *ar,
  
  	ath12k_set_vht_txbf_cap(ar, &vht_cap.cap);
  
@@ -280,7 +276,7 @@ index 3434b69a0a4b..7af421107f79 100644
  
  	rxmcs_map = 0;
  	txmcs_map = 0;
-@@ -9551,7 +9610,8 @@ static int ath12k_mac_setup_iface_combinations(struct ath12k_hw *ah)
+@@ -9710,7 +9769,8 @@ static int ath12k_mac_setup_iface_combin
  	combinations[0].radar_detect_widths = BIT(NL80211_CHAN_WIDTH_20_NOHT) |
  						BIT(NL80211_CHAN_WIDTH_20) |
  						BIT(NL80211_CHAN_WIDTH_40) |
@@ -290,7 +286,7 @@ index 3434b69a0a4b..7af421107f79 100644
  
  	wiphy->iface_combinations = combinations;
  	wiphy->n_iface_combinations = 1;
-@@ -9767,6 +9827,9 @@ static int ath12k_mac_hw_register(struct ath12k_hw *ah)
+@@ -9926,6 +9986,9 @@ static int ath12k_mac_hw_register(struct
  	ieee80211_hw_set(hw, SUPPORTS_TX_FRAG);
  	ieee80211_hw_set(hw, REPORTS_LOW_ACK);
  
@@ -300,8 +296,6 @@ index 3434b69a0a4b..7af421107f79 100644
  	if ((ht_cap & WMI_HT_CAP_ENABLED) || ar->supports_6ghz) {
  		ieee80211_hw_set(hw, AMPDU_AGGREGATION);
  		ieee80211_hw_set(hw, TX_AMPDU_SETUP_IN_HW);
-diff --git a/drivers/net/wireless/ath/ath12k/mac.h b/drivers/net/wireless/ath/ath12k/mac.h
-index 8d541f1c2d80..e7e29bb9fcf0 100644
 --- a/drivers/net/wireless/ath/ath12k/mac.h
 +++ b/drivers/net/wireless/ath/ath12k/mac.h
 @@ -37,6 +37,8 @@ struct ath12k_generic_iter {
@@ -313,11 +307,9 @@ index 8d541f1c2d80..e7e29bb9fcf0 100644
  
  #define ATH12K_TX_POWER_MAX_VAL	70
  #define ATH12K_TX_POWER_MIN_VAL	0
-diff --git a/drivers/net/wireless/ath/ath12k/wmi.c b/drivers/net/wireless/ath/ath12k/wmi.c
-index e98b79c1b191..15c08a2313bc 100644
 --- a/drivers/net/wireless/ath/ath12k/wmi.c
 +++ b/drivers/net/wireless/ath/ath12k/wmi.c
-@@ -523,6 +523,10 @@ ath12k_pull_mac_phy_cap_svc_ready_ext(struct ath12k_wmi_pdev *wmi_handle,
+@@ -525,6 +525,10 @@ ath12k_pull_mac_phy_cap_svc_ready_ext(st
  		pdev_cap->he_mcs = le32_to_cpu(mac_caps->he_supp_mcs_5g);
  		pdev_cap->tx_chain_mask = le32_to_cpu(mac_caps->tx_chain_mask_5g);
  		pdev_cap->rx_chain_mask = le32_to_cpu(mac_caps->rx_chain_mask_5g);
@@ -328,7 +320,7 @@ index e98b79c1b191..15c08a2313bc 100644
  	} else {
  		return -EINVAL;
  	}
-@@ -980,11 +984,24 @@ int ath12k_wmi_vdev_down(struct ath12k *ar, u8 vdev_id)
+@@ -982,11 +986,24 @@ int ath12k_wmi_vdev_down(struct ath12k *
  static void ath12k_wmi_put_wmi_channel(struct ath12k_wmi_channel_params *chan,
  				       struct wmi_vdev_start_req_arg *arg)
  {
@@ -354,8 +346,6 @@ index e98b79c1b191..15c08a2313bc 100644
  
  	chan->info |= le32_encode_bits(arg->mode, WMI_CHAN_INFO_MODE);
  	if (arg->passive)
-diff --git a/drivers/net/wireless/ath/ath12k/wmi.h b/drivers/net/wireless/ath/ath12k/wmi.h
-index 0600995d0cb0..6f9ba0e39fe8 100644
 --- a/drivers/net/wireless/ath/ath12k/wmi.h
 +++ b/drivers/net/wireless/ath/ath12k/wmi.h
 @@ -2264,6 +2264,21 @@ enum wmi_direct_buffer_module {
