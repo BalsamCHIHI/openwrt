@@ -1,0 +1,17 @@
+#!/bin/sh /etc/rc.common
+
+START=90
+
+USE_PROCD=1
+
+boot() {
+	ls-addni dpmac.2
+	ls-addni dpmac.3
+	ls-addni dpmac.4
+	ls-addni dpmac.5
+	ls-addni dpmac.6
+	ls-addni dpmac.7
+	ls-addni dpmac.8
+	ls-addni dpmac.9
+	ls-addni dpmac.10
+}
