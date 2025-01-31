@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/version.mk
 
 PKG_NAME:=ipq-wifi
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL=$(PROJECT_GIT)/project/firmware/qca-wireless.git
@@ -27,6 +27,7 @@ endef
 # <https://wireless.wiki.kernel.org/en/users/drivers/ath10k/boardfiles>
 
 ALLWIFIBOARDS:= \
+	8devices_kiwi \
 	8devices_mango \
 	arcadyan_aw1000 \
 	asus_rt-ax89x \
@@ -91,6 +92,11 @@ define ipq-wifi-install-ath11-one-to
   $(INSTALL_DATA) $(1) $(2)/lib/firmware/ath11k/$(3)/board-2.bin
 endef
 
+define ipq-wifi-install-ath12-one-to
+  $(INSTALL_DIR)  $(2)/lib/firmware/ath12k/$(3)/
+  $(INSTALL_DATA) $(1) $(2)/lib/firmware/ath12k/$(3)/board-2.bin
+endef
+
 define ipq-wifi-install-one
   $(if $(filter $(suffix $(1)),.QCA4019 .qca4019),\
     $(call ipq-wifi-install-one-to,$(1),$(2),QCA4019/hw1.0),\
@@ -108,8 +114,10 @@ define ipq-wifi-install-one
     $(call ipq-wifi-install-ath11-one-to,$(1),$(2),IPQ8074/hw2.0),\
   $(if $(filter $(suffix $(1)),.QCN9074 .qcn9074),\
     $(call ipq-wifi-install-ath11-one-to,$(1),$(2),QCN9074/hw1.0),\
+  $(if $(filter $(suffix $(1)),.QCN9274 .qcn9274),\
+    $(call ipq-wifi-install-ath12-one-to,$(1),$(2),QCN9274/hw2.0),\
     $(error Unrecognized board-file suffix '$(suffix $(1))' for '$(1)')\
-  ))))))))
+  )))))))))
 
 endef
 # Blank line required at end of above define due to foreach context
@@ -142,7 +150,7 @@ Do not install it for any other device!
 endef
 
 # To add local files for testing:
-# 1. create a new directory in the ipq-wifi package directory called "files".
+# 1. create a new directory in the ipq-wifi package directory called "src".
 # 2. place there the needed board files.
 #
 # To send a board file upstream:
@@ -157,8 +165,9 @@ endef
 # 2. Add $(eval $(call generate-ipq-wifi-package,<devicename>,<display name>))
 #
 # Board files should follow this name structure:
-#   board-<devicename>.<qca4019|qca9888|qca9889|qca9984|qca99x0|ipq8074>
+#   board-<devicename>.<qca4019|qca9888|qca9889|qca9984|qca99x0|ipq6018|ipq8074|qcn9074|qcn9274>
 
+$(eval $(call generate-ipq-wifi-package,8devices_kiwi,8devices Kiwi))
 $(eval $(call generate-ipq-wifi-package,8devices_mango,8devices Mango))
 $(eval $(call generate-ipq-wifi-package,arcadyan_aw1000,Arcadyan AW1000))
 $(eval $(call generate-ipq-wifi-package,asus_rt-ax89x,Asus RT-AX89X))
