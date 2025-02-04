@@ -1142,7 +1142,7 @@ drv_mac80211_setup() {
 
 	find_phy || {
 		echo "Could not find PHY for device '$1'"
-		wireless_set_retry 0
+		wireless_set_retry 1
 		return 1
 	}
 
