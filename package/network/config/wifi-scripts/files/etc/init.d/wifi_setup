@@ -1,0 +1,35 @@
+#!/bin/sh /etc/rc.common
+
+START=91
+
+USE_PROCD=1
+
+boot() {
+    FLAG_FILE="/etc/wifi_setup_done"
+	    
+    if [ -f "$FLAG_FILE" ]; then
+        echo "Wifi setup already applied."
+        return 0
+    fi
+
+    uci set wireless.radio0.htmode='HE40'
+    uci set wireless.radio0.channel='auto'
+    uci set wireless.radio0.cell_density='0'
+    uci set wireless.default_radio0.ssid='Connect_Server_2.4GHz'
+    uci set wireless.radio0.country='FR'
+    uci set wireless.radio0.disabled='0'
+
+    uci set wireless.radio1.htmode='HE160'
+    uci set wireless.radio1.channel='auto'
+    uci set wireless.radio1.cell_density='0'
+    uci set wireless.default_radio1.ssid='Connect_Server_5GHz'
+    uci set wireless.radio1.country='FR'
+    uci set wireless.radio1.disabled='0'
+
+    uci commit
+    reload_config
+
+    # Create the flag file to indicate the script has run
+    touch "$FLAG_FILE"
+}
+
