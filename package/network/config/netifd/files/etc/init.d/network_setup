@@ -12,6 +12,7 @@ boot() {
         return 0
     fi
 
+    uci set network.@globals[0].packet_steering='0'
     uci set network.@device[0].ports='eth1 eth2 eth3 eth4 eth5 eth6 eth7 eth8'
     uci set network.lan.ipaddr='192.168.10.1'
     uci set network.wan=interface
