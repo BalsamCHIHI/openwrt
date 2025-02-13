@@ -1,0 +1,47 @@
+#!/bin/sh /etc/rc.common
+
+START=0
+
+USE_PROCD=1
+
+boot() {
+    MARKER_FILE="/etc/wlan_fw_setup_done"
+
+    if [ -f "$MARKER_FILE" ]; then
+        return 0
+    fi
+
+    bname=$(cat /proc/cmdline | awk -F'bname=' '{print $2}' | awk '{print $1}')
+
+    if [ -z "$bname" ]; then
+        echo "bname variable not found."
+        return 0
+    fi
+
+    case "$bname" in
+        compex-old)
+            SOURCE_1="/lib/firmware/ath11k/QCN9074/hw1.0/compex-old/fwcfg-pci-0000:01:00.0.txt"
+            SOURCE_2="/lib/firmware/ath11k/QCN9074/hw1.0/compex-old/fwcfg-pci-0001:01:00.0.txt"
+            ;;
+        compex)
+            SOURCE_1="/lib/firmware/ath11k/QCN9074/hw1.0/compex/fwcfg-pci-0000:01:00.0.txt"
+            SOURCE_2="/lib/firmware/ath11k/QCN9074/hw1.0/compex/fwcfg-pci-0001:01:00.0.txt"
+            ;;
+        8devices)
+            SOURCE_1="/lib/firmware/ath11k/QCN9074/hw1.0/8devices/fwcfg-pci-0000:01:00.0.txt"
+            SOURCE_2="/lib/firmware/ath11k/QCN9074/hw1.0/8devices/fwcfg-pci-0001:01:00.0.txt"
+            ;;
+        *)
+            return 0
+            ;;
+    esac
+
+    TARGET_1="/lib/firmware/ath11k/fwcfg-pci-0000:01:00.0.txt"
+    TARGET_2="/lib/firmware/ath11k/fwcfg-pci-0001:01:00.0.txt"
+
+    ln -sf "$SOURCE_1" "$TARGET_1"
+    ln -sf "$SOURCE_2" "$TARGET_2"
+
+    touch "$MARKER_FILE"
+    echo "WLan FW setup completed successfully for bname type $bname."
+}
