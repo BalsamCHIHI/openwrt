@@ -1,0 +1,1 @@
+bname = compex-old/5G.bin
