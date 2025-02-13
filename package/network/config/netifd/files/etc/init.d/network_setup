@@ -1,30 +1,73 @@
 #!/bin/sh /etc/rc.common
 
-START=91
+START=21
 
 USE_PROCD=1
 
 boot() {
-    FLAG_FILE="/etc/network_setup_done"
+    MARKER_FILE="/etc/network_setup_done"
 
-    if [ -f "$FLAG_FILE" ]; then
-        echo "Network setup already applied."
+    if [ -f "$MARKER_FILE" ]; then
         return 0
     fi
 
-    uci set network.@globals[0].packet_steering='0'
-    uci set network.@device[0].ports='eth1 eth2 eth3 eth4 eth5 eth6 eth7 eth8'
-    uci set network.lan.ipaddr='192.168.10.1'
-    uci set network.wan=interface
-    uci set network.wan.proto='static'
-    uci set network.wan.device='eth0'
-    uci set network.wan.ipaddr='172.100.1.2'
-    uci set network.wan.gateway='172.100.1.1'
-    uci set network.wan.netmask='255.255.255.0'
+    board=$(cat /proc/cmdline | awk -F'board=' '{print $2}' | awk '{print $1}')
+
+    if [ -z "$board" ]; then
+        echo "Board variable not found."
+        return 0
+    fi
+
+    uci delete network.wan
+    uci delete network.wan0
+    uci delete network.wan2
+    uci delete network.wan4
     uci delete network.wan6
+    uci delete network.wan8
+
+    uci set network.@globals[0].packet_steering='0'
+
+    case "$board" in
+        WAP)
+            uci set network.@device[0].ports='eth1 eth3 eth5 eth7'
+            uci set network.lan.ipaddr='192.168.10.1'
+
+            uci set network.wan2=interface
+            uci set network.wan2.proto='dhcp'
+            uci set network.wan2.device='eth2'
+
+            uci set network.wan4=interface
+            uci set network.wan4.proto='dhcp'
+            uci set network.wan4.device='eth4'
+
+            uci set network.wan6=interface
+            uci set network.wan6.proto='dhcp'
+            uci set network.wan6.device='eth6'
+
+            uci set network.wan8=interface
+            uci set network.wan8.proto='dhcp'
+            uci set network.wan8.device='eth8'
+            ;;
+        SERVER)
+            uci set network.@device[0].ports='eth1 eth2 eth3 eth4 eth5 eth6 eth7 eth8'
+            uci set network.lan.ipaddr='192.168.10.1'
+
+            uci set network.wan0=interface
+            uci set network.wan0.proto='static'
+            uci set network.wan0.device='eth0'
+            uci set network.wan0.ipaddr='172.100.1.2'
+            uci set network.wan0.gateway='172.100.1.1'
+            uci set network.wan0.netmask='255.255.255.0'
+            uci set network.wan0.dns='172.100.1.1 8.8.8.8 1.1.1.1'
+            ;;
+        *)
+            return 0
+            ;;
+    esac
+
     uci commit
     reload_config
 
-    # Create the flag file to indicate the script has run
-    touch "$FLAG_FILE"
+    touch "$MARKER_FILE"
+    echo "Network setup completed successfully for board type $board."
 }
