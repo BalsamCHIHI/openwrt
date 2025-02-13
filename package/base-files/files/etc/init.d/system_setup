@@ -1,0 +1,43 @@
+#!/bin/sh /etc/rc.common
+
+START=14
+
+USE_PROCD=1
+
+boot() {
+    MARKER_FILE="/etc/system_setup_done"
+
+    if [ -f "$MARKER_FILE" ]; then
+        return 0
+    fi
+
+    board=$(cat /proc/cmdline | awk -F'board=' '{print $2}' | awk '{print $1}')
+
+    if [ -z "$board" ]; then
+        echo "Board variable not found."
+        return 0
+    fi
+
+    case "$board" in
+        WAP)
+            uci set system.@system[0].hostname='Connect-Wap'
+            ;;
+        SERVER)
+            uci set system.@system[0].hostname='Connect-Server'
+            ;;
+        *)
+            return 0
+            ;;
+    esac
+
+    uci set system.@system[0].zonename='Europe/Paris'
+    uci set system.@system[0].timezone='CET-1CEST,M3.5.0,M10.5.0/3'
+    uci set system.@system[0].zram_size_mb='512'
+    uci set system.@system[0].zram_comp_algo='zstd'
+
+    uci commit
+    reload_config
+
+    touch "$MARKER_FILE"
+    echo "System setup completed successfully for board type $board."
+}
