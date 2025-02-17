@@ -1,0 +1,43 @@
+#!/bin/sh /etc/rc.common
+
+START=16
+
+USE_PROCD=1
+
+boot() {
+    MARKER_FILE="/etc/firewall_setup_done"
+
+    if [ -f "$MARKER_FILE" ]; then
+        return 0
+    fi
+
+    board=$(cat /proc/cmdline | awk -F'board=' '{print $2}' | awk '{print $1}')
+
+    if [ -z "$board" ]; then
+        echo "Board variable not found."
+        return 0
+    fi
+
+    case "$board" in
+        WAP)
+            uci del firewall.@zone[1].network
+            uci add_list firewall.@zone[1].network='wan2'
+            uci add_list firewall.@zone[1].network='wan4'
+            uci add_list firewall.@zone[1].network='wan6'
+            uci add_list firewall.@zone[1].network='wan8'
+            ;;
+        SERVER)
+            uci del firewall.@zone[1].network
+            uci add_list firewall.@zone[1].network='wan0'
+            ;;
+        *)
+            return 0
+            ;;
+    esac
+
+    uci commit
+    reload_config
+
+    touch "$MARKER_FILE"
+    echo "Firewall setup completed successfully for board type $board."
+}
