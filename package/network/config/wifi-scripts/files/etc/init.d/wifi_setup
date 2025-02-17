@@ -1,35 +1,54 @@
 #!/bin/sh /etc/rc.common
 
-START=91
+START=22
 
 USE_PROCD=1
 
 boot() {
-    FLAG_FILE="/etc/wifi_setup_done"
-	    
-    if [ -f "$FLAG_FILE" ]; then
-        echo "Wifi setup already applied."
+    MARKER_FILE="/etc/wifi_setup_done"
+
+    if [ -f "$MARKER_FILE" ]; then
         return 0
     fi
+
+    board=$(cat /proc/cmdline | awk -F'board=' '{print $2}' | awk '{print $1}')
+
+    if [ -z "$board" ]; then
+        echo "Board variable not found."
+        return 0
+    fi
+
+    case "$board" in
+        WAP)
+            uci set wireless.default_radio0.ssid='Connect-Wap-2.4GHz'
+            uci set wireless.default_radio1.ssid='Connect-Wap-5GHz'
+            ;;
+        SERVER)
+            uci set wireless.default_radio0.ssid='Connect-Server-2.4GHz'
+            uci set wireless.default_radio1.ssid='Connect-Server-5GHz'
+            ;;
+        *)
+            return 0
+            ;;
+    esac
 
     uci set wireless.radio0.htmode='HE40'
     uci set wireless.radio0.channel='auto'
     uci set wireless.radio0.cell_density='0'
-    uci set wireless.default_radio0.ssid='Connect_Server_2.4GHz'
     uci set wireless.radio0.country='FR'
     uci set wireless.radio0.disabled='0'
+    uci set wireless.radio0.band='2g'
 
     uci set wireless.radio1.htmode='HE160'
     uci set wireless.radio1.channel='auto'
     uci set wireless.radio1.cell_density='0'
-    uci set wireless.default_radio1.ssid='Connect_Server_5GHz'
     uci set wireless.radio1.country='FR'
     uci set wireless.radio1.disabled='0'
+    uci set wireless.radio1.band='5g'
 
     uci commit
     reload_config
 
-    # Create the flag file to indicate the script has run
-    touch "$FLAG_FILE"
+    touch "$MARKER_FILE"
+    echo "WiFi setup completed successfully for board type $board."
 }
-
