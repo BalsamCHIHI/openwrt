@@ -1,6 +1,6 @@
 #!/bin/sh /etc/rc.common
 
-START=90
+START=99
 
 USE_PROCD=1
 
@@ -14,4 +14,5 @@ boot() {
 	ls-addni dpmac.8
 	ls-addni dpmac.9
 	ls-addni dpmac.10
+	/etc/init.d/network restart
 }
