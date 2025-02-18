@@ -19,10 +19,6 @@ boot() {
     fi
 
     case "$bname" in
-        compex-old)
-            SOURCE_1="/lib/firmware/ath11k/QCN9074/hw1.0/compex-old/fwcfg-pci-0000:01:00.0.txt"
-            SOURCE_2="/lib/firmware/ath11k/QCN9074/hw1.0/compex-old/fwcfg-pci-0001:01:00.0.txt"
-            ;;
         compex)
             SOURCE_1="/lib/firmware/ath11k/QCN9074/hw1.0/compex/fwcfg-pci-0000:01:00.0.txt"
             SOURCE_2="/lib/firmware/ath11k/QCN9074/hw1.0/compex/fwcfg-pci-0001:01:00.0.txt"
