@@ -91,11 +91,6 @@ define Package/ath11k-firmware-qcn9074/install
 	$(INSTALL_DATA) $(CURRENT_DIR)/custom-bdf/compex/fwcfg-pci-* \
 		$(1)/lib/firmware/ath11k/QCN9074/hw1.0/compex/
 
-	$(INSTALL_DIR) $(1)/lib/firmware/ath11k/QCN9074/hw1.0/compex-old
-	$(INSTALL_BIN) $(CURRENT_DIR)/custom-bdf/compex-old/*.bin \
-		$(1)/lib/firmware/ath11k/QCN9074/hw1.0/compex-old/
-	$(INSTALL_DATA) $(CURRENT_DIR)/custom-bdf/compex-old/fwcfg-pci-* \
-		$(1)/lib/firmware/ath11k/QCN9074/hw1.0/compex-old/
 endef
 
 $(eval $(call BuildPackage,ath11k-firmware-ipq6018))
