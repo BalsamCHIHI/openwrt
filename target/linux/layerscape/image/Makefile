@@ -59,9 +59,9 @@ define Build/traverse-fit-ls1088
 	-v $(LINUX_VERSION) -k $@ -a $(KERNEL_LOADADDR) \
 	-e $(if $(KERNEL_ENTRY),$(KERNEL_ENTRY),$(KERNEL_LOADADDR)) \
 	-C gzip -c 1 -c 2 \
-	-d $(DTS_DIR)/freescale/fsl-ls1088a-ten64.dtb \
+	-d $(DTS_DIR)/fsl-ls1088a-ten64.dtb \
 	-D "TEN64" -n "ten64" -a $(FDT_LOADADDR) -c 1 \
-	-d $(DTS_DIR)/freescale/fsl-ls1088a-rdb.dtb \
+	-d $(DTS_DIR)/fsl-ls1088a-rdb.dtb \
 	-D "LS1088ARDB" -n "ls1088ardb" -a $(FDT_LOADADDR) -c 2
 	PATH=$(LINUX_DIR)/scripts/dtc:$(PATH) mkimage -f $@.its $@.new
 	@mv -f $@.new $@
