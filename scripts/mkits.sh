@@ -94,6 +94,8 @@ fi
 
 # Conditionally create fdt information
 if [ -n "${DTB}" ]; then
+	# Correct the path if it contains redundant freescale directories
+	DTB=$(echo "${DTB}" | sed 's|/freescale/freescale/|/freescale/|')
 	FDT_NODE="
 		fdt${REFERENCE_CHAR}$FDTNUM {
 			description = \"${ARCH_UPPER} OpenWrt ${DEVICE} device tree blob\";
