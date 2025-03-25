@@ -412,24 +412,11 @@ define Device/traverse_ten64_mtd
 endef
 TARGET_DEVICES += traverse_ten64_mtd
 
-define Device/moment_ls1088a-connect
-  $(Device/rework-sdcard-images)
-  $(Device/fsl-emmcboot)
+define Device/moment_tqmls1088a-connect
   DEVICE_VENDOR := Moment
-  DEVICE_MODEL := LS1088A Connect
-  KERNEL_LOADADDR := 0x81000000
-  LS_SD_IMAGE_SIZE := 3072
+  DEVICE_MODEL := TQMLS1088a-Connect
+  DEVICE_VARIANT := Default
   DEVICE_PACKAGES += \
-    layerscape-rcw \
-    layerscape-mc \
-    layerscape-dpl \
     restool
-  DEVICE_DTS := freescale/fsl-ls1088a-rdb
-  IMAGE/emmc.img.gz := \
-    ls-clean | \
-    ls-append-sdhead $(1) | pad-to 4K | \
-    ls-append-kernel | pad-to $(LS_SD_ROOTFSPART_OFFSET)M | \
-    append-rootfs | pad-to $(LS_SD_IMAGE_SIZE)M | gzip
 endef
-TARGET_DEVICES += moment_ls1088a-connect
-
+TARGET_DEVICES += moment_tqmls1088a-connect
