@@ -1,5 +1,5 @@
---- a/arch/arm64/boot/dts/freescale/fsl-tqmls1088a-moment.dts
-+++ b/arch/arm64/boot/dts/freescale/fsl-tqmls1088a-moment.dts
+--- a/arch/arm64/boot/dts/freescale/moment-tqmls1088a-connect.dts
++++ b/arch/arm64/boot/dts/freescale/moment-tqmls1088a-connect.dts
 @@ -13,6 +13,7 @@
  		serial1 = "/soc/serial@21c0600";
  		serial2 = "/soc/serial@21d0500";
