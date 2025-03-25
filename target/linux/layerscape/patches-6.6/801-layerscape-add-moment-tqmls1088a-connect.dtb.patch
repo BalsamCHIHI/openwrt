@@ -4,21 +4,21 @@
  dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-ls1088a-qds.dtb
  dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-ls1088a-rdb.dtb
  dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-ls1088a-ten64.dtb
-+dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-tqmls1088a-moment.dtb
++dtb-$(CONFIG_ARCH_LAYERSCAPE) += moment-tqmls1088a-connect.dtb
  dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-ls2080a-qds.dtb
  dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-ls2080a-rdb.dtb
  dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-ls2081a-rdb.dtb
 --- /dev/null
-+++ b/arch/arm64/boot/dts/freescale/fsl-tqmls1088a-moment.dts
++++ b/arch/arm64/boot/dts/freescale/moment-tqmls1088a-connect.dts
 @@ -0,0 +1,1252 @@
 +/dts-v1/;
 +
 +/ {
-+	compatible = "tqc,tqmls1088a\0fsl,ls1088a";
++	compatible = "moment,ls1088a-tqmls1088a-connect", "moment,ls1088a-tqmls1088a", "tq,ls1088a-tqmls1088a-mbls10xxa", "tq,ls1088a-tqmls1088a", "fsl,ls1088a";
 +	interrupt-parent = <0x01>;
 +	#address-cells = <0x02>;
 +	#size-cells = <0x02>;
-+	model = "TQ TQMLS1088A SoM on Moment board";
++	model = "Moment LS1088A TQMLS1088A SoM on Connect board";
 +
 +	aliases {
 +		crypto = "/soc/crypto@8000000";
