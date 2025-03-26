@@ -30,7 +30,7 @@ boot() {
     case "$board" in
         WAP)
             uci set network.@device[0].ports='eth1 eth3 eth5 eth7'
-            uci set network.lan.ipaddr='192.168.10.1'
+            uci set network.lan.ipaddr='192.168.20.1'
 
             uci set network.wan2=interface
             uci set network.wan2.proto='dhcp'
