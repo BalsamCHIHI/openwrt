@@ -1,3 +1,4 @@
 v2.00 : OpenWrt-v24.10.0-moment release.
 v2.01 : OpenWrt-v24.10.0-moment release :
         enable link aggregation, update device-tree, update moment target device, change connect-wap ip address.
+v2.10 : Upgrade to OpenWrt-v24.10.1
