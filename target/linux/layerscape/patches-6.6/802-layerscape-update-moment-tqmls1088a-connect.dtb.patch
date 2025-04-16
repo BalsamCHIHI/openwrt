@@ -155,7 +155,78 @@
  		};
  
  		esdhc@2140000 {
-@@ -1217,32 +1231,31 @@
+@@ -837,49 +851,39 @@
+ 					#address-cells = <0x01>;
+ 					#size-cells = <0x01>;
+ 
+-					rcwpbi@0 {
+-						label = "RCW/PBI";
+-						reg = <0x00 0x10000>;
++					rcwpbi@00000000 {
++						label = "rcwpbi";
++						reg = <0x00000000 0x00100000>;
+ 					};
+ 
+-					uboot@10000 {
+-						label = "U-Boot";
+-						reg = <0x10000 0xc0000>;
++					uboot@00100000 {
++						label = "uboot";
++						reg = <0x00100000 0x00300000>;
+ 					};
+ 
+-					env@d0000 {
+-						label = "U-Boot Environment";
+-						reg = <0xd0000 0x10000>;
++					env@00400000 {
++						label = "env";
++						reg = <0x00400000 0x00020000>;
+ 					};
+ 
+-					dpaadpl@e0000 {
+-						label = "DPAA2 DPL";
+-						reg = <0xe0000 0x10000>;
++					dpaadpl@00420000 {
++						label = "envbackup";
++						reg = <0x00420000 0x00020000>;
+ 					};
+ 
+-					dpaadpc@f0000 {
+-						label = "DPAA2 DPC";
+-						reg = <0xf0000 0x10000>;
++					dpaadpc@00500000 {
++						label = "mcfw";
++						reg = <0x00500000 0x00300000>;
+ 					};
+ 
+-					mcfw@100000 {
+-						label = "DPAA2 MC Firmware";
+-						reg = <0x100000 0x1f0000>;
++					mcfw@00800000 {
++						label = "dpaadpc";
++						reg = <0x00800000 0x00100000>;
+ 					};
+ 
+-					dtb@2f0000 {
+-						label = "DTB";
+-						reg = <0x2f0000 0x10000>;
+-					};
+-
+-					linux@300000 {
+-						label = "Linux";
+-						reg = <0x300000 0x1500000>;
+-					};
+-
+-					rootfs@1800000 {
+-						label = "RootFS";
+-						reg = <0x1800000 0x2800000>;
++					dtb@00900000 {
++						label = "dpaadpl";
++						reg = <0x00900000 0x00100000>;
+ 					};
+ 				};
+ 			};
+@@ -1217,32 +1221,31 @@
  		};
  	};
  
