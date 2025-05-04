@@ -1,0 +1,75 @@
+CONFIG_TARGET_ar71xx=y
+CONFIG_TARGET_ar71xx_tiny=y
+CONFIG_TARGET_ar71xx_tiny_DEVICE_tl-mr3020-v1=y
+# CONFIG_ATH_USER_REGD is not set
+# CONFIG_BUSYBOX_DEFAULT_FEATURE_IPV6 is not set
+CONFIG_DROPBEAR_ZLIB=y
+CONFIG_FSTOOLS_OVL_MOUNT_COMPRESS_ZLIB=y
+# CONFIG_IPV6 is not set
+CONFIG_JSON_OVERVIEW_IMAGE_INFO=y
+# CONFIG_KERNEL_IPV6 is not set
+CONFIG_LUCI_SRCDIET=y
+# CONFIG_OPENLDAP_DEBUG is not set
+# CONFIG_PACKAGE_ATH_DFS is not set
+CONFIG_PACKAGE_block-mount=y
+CONFIG_PACKAGE_blockd=y
+CONFIG_PACKAGE_bridge=y
+CONFIG_PACKAGE_cgi-io=y
+CONFIG_PACKAGE_hostapd-utils=y
+CONFIG_PACKAGE_kmod-crypto-acompress=y
+CONFIG_PACKAGE_kmod-fs-autofs4=y
+# CONFIG_PACKAGE_kmod-gpio-button-hotplug is not set
+# CONFIG_PACKAGE_kmod-ipt-offload is not set
+# CONFIG_PACKAGE_kmod-lib-crc-ccitt is not set
+CONFIG_PACKAGE_kmod-lib-lz4=y
+CONFIG_PACKAGE_kmod-lib-lzo=y
+# CONFIG_PACKAGE_kmod-nf-flow is not set
+# CONFIG_PACKAGE_kmod-nf-ipt6 is not set
+# CONFIG_PACKAGE_kmod-nls-base is not set
+# CONFIG_PACKAGE_kmod-ppp is not set
+# CONFIG_PACKAGE_kmod-usb-core is not set
+# CONFIG_PACKAGE_kmod-usb-ledtrig-usbport is not set
+# CONFIG_PACKAGE_kmod-usb2 is not set
+CONFIG_PACKAGE_kmod-zram=y
+# CONFIG_PACKAGE_libip6tc is not set
+CONFIG_PACKAGE_libiwinfo-lua=y
+CONFIG_PACKAGE_liblua=y
+CONFIG_PACKAGE_liblucihttp=y
+CONFIG_PACKAGE_liblucihttp-lua=y
+CONFIG_PACKAGE_libubus-lua=y
+CONFIG_PACKAGE_lua=y
+CONFIG_PACKAGE_luci=y
+CONFIG_PACKAGE_luci-app-firewall=y
+CONFIG_PACKAGE_luci-app-opkg=y
+CONFIG_PACKAGE_luci-base=y
+CONFIG_PACKAGE_luci-compat=y
+CONFIG_PACKAGE_luci-lib-ip=y
+CONFIG_PACKAGE_luci-lib-json=y
+CONFIG_PACKAGE_luci-lib-jsonc=y
+CONFIG_PACKAGE_luci-lib-nixio=y
+CONFIG_PACKAGE_luci-mod-admin-full=y
+CONFIG_PACKAGE_luci-mod-failsafe=y
+CONFIG_PACKAGE_luci-mod-network=y
+CONFIG_PACKAGE_luci-mod-rpc=y
+CONFIG_PACKAGE_luci-mod-status=y
+CONFIG_PACKAGE_luci-mod-system=y
+CONFIG_PACKAGE_luci-proto-ppp=y
+CONFIG_PACKAGE_luci-theme-bootstrap=y
+# CONFIG_PACKAGE_ppp is not set
+CONFIG_PACKAGE_rpcd=y
+CONFIG_PACKAGE_rpcd-mod-file=y
+CONFIG_PACKAGE_rpcd-mod-iwinfo=y
+CONFIG_PACKAGE_rpcd-mod-luci=y
+CONFIG_PACKAGE_rpcd-mod-rrdns=y
+# CONFIG_PACKAGE_uboot-envtools is not set
+CONFIG_PACKAGE_uhttpd=y
+CONFIG_PACKAGE_wireless-tools=y
+CONFIG_PACKAGE_wpa-cli=y
+CONFIG_PACKAGE_wpad=y
+# CONFIG_PACKAGE_wpad-mini is not set
+CONFIG_PACKAGE_zlib=y
+CONFIG_PACKAGE_zram-swap=y
+# CONFIG_PKG_RELRO_FULL is not set
+CONFIG_PKG_RELRO_PARTIAL=y
+CONFIG_PROCD_SHOW_BOOT=y
+CONFIG_WPA_RFKILL_SUPPORT=y
