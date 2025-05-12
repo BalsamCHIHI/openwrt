@@ -412,6 +412,14 @@ define Device/traverse_ten64_mtd
 endef
 TARGET_DEVICES += traverse_ten64_mtd
 
+define Device/tq_tqmls1088a-mbls10xxa
+  DEVICE_VENDOR := TQ
+  DEVICE_MODEL := TQMLS1088A-MBLS10XXA
+  DEVICE_PACKAGES += restool
+  DEVICE_DTS := fsl-ls1088a-tqmls1088a-mbls10xxa
+endef
+TARGET_DEVICES += tq_tqmls1088a-mbls10xxa
+
 define Device/moment_tqmls1088a-connect
   DEVICE_VENDOR := Moment
   DEVICE_MODEL := TQMLS1088A-Connect
