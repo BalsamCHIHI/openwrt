@@ -414,9 +414,8 @@ TARGET_DEVICES += traverse_ten64_mtd
 
 define Device/moment_tqmls1088a-connect
   DEVICE_VENDOR := Moment
-  DEVICE_MODEL := TQMLS1088a-Connect
-  DEVICE_VARIANT := Default
-  DEVICE_PACKAGES += \
-    restool
+  DEVICE_MODEL := TQMLS1088A-Connect
+  DEVICE_PACKAGES += restool
+  DEVICE_DTS := fsl-ls1088a-tqmls1088a-connect
 endef
 TARGET_DEVICES += moment_tqmls1088a-connect
