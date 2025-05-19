@@ -1,0 +1,210 @@
+Index: linux-6.6.86/drivers/net/phy/mscc/mscc.h
+===================================================================
+--- linux-6.6.86.orig/drivers/net/phy/mscc/mscc.h
++++ linux-6.6.86/drivers/net/phy/mscc/mscc.h
+@@ -133,6 +133,38 @@ enum rgmii_clock_delay {
+ #define MSCC_PHY_PAGE_EXTENDED_4	  0x0004 /* Extended reg - page 4 */
+ #define MSCC_PHY_PAGE_CSR_CNTL		  MSCC_PHY_PAGE_EXTENDED_4
+ #define MSCC_PHY_PAGE_MACSEC		  MSCC_PHY_PAGE_EXTENDED_4
++
++#define MSCC_TWO_WIRE_SERIAL_MUX_CONTROL_1      0x14
++#define MSCC_TWO_WIRE_SERIAL_MUX_CONTROL_2      0x15
++#define MSCC_TWO_WIRE_SERIAL_MUX_DATA_READWRITE 0x16
++#define MSCC_EXTENDED_PAGE_ACCESS               0x1f
++
++#define MSCC_PHY_EXTENDED_PARAMS   5 
++#define MSCC_PHY_DIAG_ADR	        (0xA2>>1)
++#define MSCC_PHY_TEMPERATURE_MSB	96
++#define MSCC_PHY_TEMPERATURE_LSB	97
++#define MSCC_PHY_VCC_MSB			98
++#define MSCC_PHY_VSS_LSB			99
++#define MSCC_PHY_TX_BIAS_MSB		100
++#define MSCC_PHY_TX_BIAS_LSB		101
++#define MSCC_PHY_TX_POWER_MSB		102
++#define MSCC_PHY_TX_POWER_LSB		103
++#define MSCC_PHY_RX_POWER_MSB		104
++#define MSCC_PHY_RX_POWER_LSB		105
++static const uint8_t mscc_phy_reg_table[] = {
++	MSCC_PHY_TEMPERATURE_MSB,
++	MSCC_PHY_TEMPERATURE_LSB,
++	MSCC_PHY_VCC_MSB,
++	MSCC_PHY_VSS_LSB,
++	MSCC_PHY_TX_BIAS_MSB,
++	MSCC_PHY_TX_BIAS_LSB,
++	MSCC_PHY_TX_POWER_MSB,
++	MSCC_PHY_TX_POWER_LSB,
++	MSCC_PHY_RX_POWER_MSB,
++	MSCC_PHY_RX_POWER_LSB
++};
++#define MSCC_PHY_REG_NUMBER (sizeof(mscc_phy_reg_table)/sizeof(mscc_phy_reg_table[0]))
++
+ /* Extended reg - GPIO; this is a bank of registers that are shared for all PHYs
+  * in the same package.
+  */
+Index: linux-6.6.86/drivers/net/phy/mscc/mscc_main.c
+===================================================================
+--- linux-6.6.86.orig/drivers/net/phy/mscc/mscc_main.c
++++ linux-6.6.86/drivers/net/phy/mscc/mscc_main.c
+@@ -17,6 +17,7 @@
+ #include <linux/of.h>
+ #include <linux/netdevice.h>
+ #include <dt-bindings/net/mscc-phy-vsc8531.h>
++#include <linux/delay.h>
+ #include "mscc_serdes.h"
+ #include "mscc.h"
+ 
+@@ -98,6 +99,14 @@ static const struct vsc85xx_hw_stat vsc8
+ 	},
+ };
+ 
++const char *diag_reg_strings[] = {
++		"Temperature",
++		"VCC",
++		"TX Bias",
++		"TX Power",
++		"RX Power",
++};
++
+ #if IS_ENABLED(CONFIG_OF_MDIO)
+ static const struct vsc8531_edge_rate_table edge_table[] = {
+ 	{MSCC_VDDMAC_3300, { 0, 2,  4,  7, 10, 17, 29, 53} },
+@@ -127,7 +137,7 @@ static int vsc85xx_get_sset_count(struct
+ 	if (!priv)
+ 		return 0;
+ 
+-	return priv->nstats;
++	return (priv->nstats+MSCC_PHY_EXTENDED_PARAMS);
+ }
+ 
+ static void vsc85xx_get_strings(struct phy_device *phydev, u8 *data)
+@@ -141,6 +151,121 @@ static void vsc85xx_get_strings(struct p
+ 	for (i = 0; i < priv->nstats; i++)
+ 		strscpy(data + i * ETH_GSTRING_LEN, priv->hw_stats[i].string,
+ 			ETH_GSTRING_LEN);
++	for (i = 0 ; i < MSCC_PHY_EXTENDED_PARAMS; i++)
++		strscpy(data + (priv->nstats + i) * ETH_GSTRING_LEN,
++			diag_reg_strings[i], ETH_GSTRING_LEN);
++}
++			
++#define TIMEOUT_MS 1000  // Timeout in milliseconds
++
++static void vsc85xx_get_hw_stats(struct phy_device *phydev, u64 *data)
++{
++	struct vsc8531_private *priv = phydev->priv;
++	u16 val;
++	int ret;
++	s16 temperature = 0;
++	u16 vcc = 0;
++	u16 tx_bias = 0;
++	u16 tx_power = 0;
++	u16 rx_power = 0;
++	u8	index    = 0;
++	unsigned long timeout;
++
++	pr_debug("PHY_ID: %d, PORT: %d, MDIO: %d\n",
++		phydev->phy_id, phydev->port, phydev->mdio.addr);
++
++	val = (MSCC_PHY_DIAG_ADR << 9) | (1 << 4) | 0xf;
++	ret = vsc85xx_phy_write_page(phydev, MSCC_PHY_PAGE_EXTENDED_GPIO);
++	if (ret)
++		pr_err("Failed to write to page\n");
++	ret = phy_write(phydev, MSCC_TWO_WIRE_SERIAL_MUX_CONTROL_1, val);
++	if (ret)
++		pr_err("Failed to write to register\n");
++
++	for (uint8_t i = 0; i < MSCC_PHY_REG_NUMBER; i++) {
++		uint8_t reg = mscc_phy_reg_table[i];
++		uint8_t port = (phydev->mdio.addr > 7) ? (phydev->mdio.addr - 8) : (phydev->mdio.addr - 4);
++		val = (port << 10) | (3 << 8) | (reg << 0);
++		ret = phy_write(phydev, MSCC_TWO_WIRE_SERIAL_MUX_CONTROL_2, val);
++		if (ret)
++			pr_err("Failed to write to register\n");
++		timeout = jiffies + msecs_to_jiffies(TIMEOUT_MS);
++		while (val & (1 << 9)) {
++			val = phy_read(phydev, MSCC_TWO_WIRE_SERIAL_MUX_CONTROL_2);
++			if (time_after(jiffies, timeout)) {
++				pr_err("Timeout while waiting for register access\n");
++				break;
++			}
++			usleep_range(1000, 2000);  // Sleep for 1-2 milliseconds
++		}
++		val = phy_read(phydev, MSCC_TWO_WIRE_SERIAL_MUX_DATA_READWRITE);
++		val = val >> 8;
++		switch (reg) {
++			case MSCC_PHY_TEMPERATURE_MSB:
++				temperature = val << 8;
++				break;
++			case MSCC_PHY_TEMPERATURE_LSB:
++				pr_debug("[SFP]  temperature = %d.%02d °C, %d raw\n", temperature / 256, (temperature * 100 / 256) % 100, temperature);
++				temperature |= val & 0xff;
++				if (temperature != 0xffff)
++					data[index+priv->nstats] = (u16)temperature;
++				else
++					data[index+priv->nstats] = 0;
++				index++;
++				break;
++			case MSCC_PHY_VCC_MSB:
++				vcc = val << 8;
++				break;
++			case MSCC_PHY_VSS_LSB:
++				vcc |= val & 0xff;
++				pr_debug("  vcc         = %d mV, %d raw\n", vcc / 10, vcc);
++				if (vcc != 0xffff)
++					data[index+priv->nstats] = vcc;
++				else
++					data[index+priv->nstats] = 0;
++				index++;
++				break;
++			case MSCC_PHY_TX_BIAS_MSB:
++				tx_bias = val << 8;
++				break;
++			case MSCC_PHY_TX_BIAS_LSB:
++				tx_bias |= val & 0xff;
++				pr_debug("  tx_bias     = %d µA, %d raw\n", tx_bias * 2, tx_bias);
++				if (tx_bias != 0xffff)
++					data[index+priv->nstats] = tx_bias;
++				else
++					data[index+priv->nstats] = 0;
++				index++;
++				break;
++			case MSCC_PHY_TX_POWER_MSB:
++				tx_power = val << 8;
++				break;
++			case MSCC_PHY_TX_POWER_LSB:
++				tx_power |= val & 0xff;
++				pr_debug("  tx_power    = %d µW, %d raw\n", tx_power / 10, tx_power);
++				if (tx_power != 0xffff)
++					data[index+priv->nstats] = tx_power;
++				else
++					data[index+priv->nstats] = 0;
++				index++;
++				break;
++			case MSCC_PHY_RX_POWER_MSB:
++				rx_power = val << 8;
++				break;
++			case MSCC_PHY_RX_POWER_LSB:
++				rx_power |= val & 0xff;
++				pr_debug("  rx_power    = %d µW, %d raw\n", rx_power / 10, rx_power);
++				if (rx_power != 0xffff)
++					data[index+priv->nstats] = rx_power;
++				else
++					data[index+priv->nstats] = 0;
++				index++;
++				break;
++			default:
++				break;
++		}
++	}
++	phy_write(phydev, MSCC_EXTENDED_PAGE_ACCESS, 0);
+ }
+ 
+ static u64 vsc85xx_get_stat(struct phy_device *phydev, int i)
+@@ -170,6 +294,8 @@ static void vsc85xx_get_stats(struct phy
+ 
+ 	for (i = 0; i < priv->nstats; i++)
+ 		data[i] = vsc85xx_get_stat(phydev, i);
++
++	vsc85xx_get_hw_stats(phydev, data);
+ }
+ 
+ static int vsc85xx_led_cntl_set(struct phy_device *phydev,
