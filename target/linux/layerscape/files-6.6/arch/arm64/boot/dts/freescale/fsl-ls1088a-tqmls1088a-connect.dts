@@ -427,7 +427,6 @@
 		regulator-max-microvolt = <3300000>;
 	};
 
-
 	timer {
 		compatible = "arm,armv8-timer";
 		interrupts = <0x01 0x0d 0x08 0x01 0x0e 0x08 0x01 0x0b 0x08 0x01 0x0a 0x08>;
@@ -577,44 +576,44 @@
 			#size-cells = <0x00>;
 
 			mdio1_phy4: emdio1_phy@04 {
-                		reg = <0x04>;
+				reg = <0x04>;
 				media = "fiber";
-            		};
+			};
 
-            		mdio1_phy5: emdio1_phy@05 {
-                		reg = <0x05>;
+			mdio1_phy5: emdio1_phy@05 {
+				reg = <0x05>;
 				media = "fiber";
-            		};
+			};
 
-            		mdio1_phy6: emdio1_phy@06 {
-                		reg = <0x06>;
+			mdio1_phy6: emdio1_phy@06 {
+				reg = <0x06>;
 				media = "copper";
-            		};
+			};
 
-            		mdio1_phy7: emdio1_phy@07 {
-                		reg = <0x07>;
+			mdio1_phy7: emdio1_phy@07 {
+				reg = <0x07>;
 				media = "copper";
-            		};
+			};
 
-            		mdio1_phy8: emdio1_phy@08 {
-                		reg = <0x08>;
+			mdio1_phy8: emdio1_phy@08 {
+				reg = <0x08>;
 				media = "fiber";
-            		};
+			};
 
-            		mdio1_phy9: emdio1_phy@09 {
-                		reg = <0x09>;
+			mdio1_phy9: emdio1_phy@09 {
+				reg = <0x09>;
 				media = "fiber";
-            		};
+			};
 
-            		mdio1_phy10: emdio1_phy@0a {
-                		reg = <0x0a>;
+			mdio1_phy10: emdio1_phy@0a {
+				reg = <0x0a>;
 				media = "fiber";
-            		};
+			};
 
-            		mdio1_phy11: emdio1_phy@0b {
-                		reg = <0x0b>;
+			mdio1_phy11: emdio1_phy@0b {
+				reg = <0x0b>;
 				media = "fiber";
-            		};
+			};
 		};
 
 		mdio@8B97000 {
@@ -678,6 +677,7 @@
 				label = "mb-eeprom";
 				reg = <0x54>;
 			};
+
 			at24cs01@5c {
 				compatible = "atmel,24cs01";
 				label = "mb-uuid";
@@ -689,6 +689,7 @@
 				label = "db-eeprom";
 				reg = <0x55>;
 			};
+
 			at24cs01@5d {
 				compatible = "atmel,24cs01";
 				label = "db-uuid";
@@ -700,6 +701,7 @@
 				label = "ant-eeprom";
 				reg = <0x52>;
 			};
+
 			at24cs01@5a {
 				compatible = "atmel,24cs01";
 				label = "ant-uuid";
@@ -866,22 +868,22 @@
 						reg = <0x00400000 0x00020000>;
 					};
 
-					dpaadpl@00420000 {
+					envbackup@00420000 {
 						label = "envbackup";
 						reg = <0x00420000 0x00020000>;
 					};
 
-					dpaadpc@00500000 {
+					mcfw@00500000 {
 						label = "mcfw";
 						reg = <0x00500000 0x00300000>;
 					};
 
-					mcfw@00800000 {
+					dpaadpc@00800000 {
 						label = "dpaadpc";
 						reg = <0x00800000 0x00100000>;
 					};
 
-					dtb@00900000 {
+					dpaadpl@00900000 {
 						label = "dpaadpl";
 						reg = <0x00900000 0x00100000>;
 					};
@@ -1052,54 +1054,54 @@
 		};
 
 		pcs_mdio3: mdio@8c0f000 {
-                        compatible = "fsl,fman-memac-mdio";
-                        reg = <0x0 0x8c0f000 0x0 0x1000>;
-                        little-endian;
-                        #address-cells = <0x01>;
-                        #size-cells = <0x00>;
-                        status = "okay";
+			compatible = "fsl,fman-memac-mdio";
+			reg = <0x0 0x8c0f000 0x0 0x1000>;
+			little-endian;
+			#address-cells = <0x01>;
+			#size-cells = <0x00>;
+			status = "okay";
 
-                        pcs3_0: ethernet-phy@0 {
-                                reg = <0x00>;
-                        };
+			pcs3_0: ethernet-phy@0 {
+				reg = <0x00>;
+			};
 
-                        pcs3_1: ethernet-phy@1 {
-                                reg = <0x01>;
-                        };
+			pcs3_1: ethernet-phy@1 {
+				reg = <0x01>;
+			};
 
-                        pcs3_2: ethernet-phy@2 {
-                                reg = <0x02>;
-                        };
+			pcs3_2: ethernet-phy@2 {
+				reg = <0x02>;
+			};
 
-                        pcs3_3: ethernet-phy@3 {
-                                reg = <0x03>;
-                        };
+			pcs3_3: ethernet-phy@3 {
+				reg = <0x03>;
+			};
 		};
 
-                pcs_mdio7: mdio@8c1f000 {
-                        compatible = "fsl,fman-memac-mdio";
-                        reg = <0x0 0x8c1f000 0x0 0x1000>;
-                        little-endian;
-                        #address-cells = <0x01>;
-                        #size-cells = <0x00>;
-                        status = "okay";
+		pcs_mdio7: mdio@8c1f000 {
+			compatible = "fsl,fman-memac-mdio";
+			reg = <0x0 0x8c1f000 0x0 0x1000>;
+			little-endian;
+			#address-cells = <0x01>;
+			#size-cells = <0x00>;
+			status = "okay";
 
-                        pcs7_0: ethernet-phy@0 {
-                                reg = <0x00>;
-                        };
+			pcs7_0: ethernet-phy@0 {
+				reg = <0x00>;
+			};
 
-                        pcs7_1: ethernet-phy@1 {
-                                reg = <0x01>;
-                        };
+			pcs7_1: ethernet-phy@1 {
+				reg = <0x01>;
+			};
 
-                        pcs7_2: ethernet-phy@2 {
-                                reg = <0x02>;
-                        };
+			pcs7_2: ethernet-phy@2 {
+				reg = <0x02>;
+			};
 
-                        pcs7_3: ethernet-phy@3 {
-                                reg = <0x03>;
-                        };
-                };
+			pcs7_3: ethernet-phy@3 {
+				reg = <0x03>;
+			};
+		};
 
 		fsl-mc@80c000000 {
 			compatible = "fsl,qoriq-mc";
@@ -1115,11 +1117,12 @@
 				#address-cells = <0x01>;
 				#size-cells = <0x00>;
 
-				/*dpmac@1 {
+				dpmac@1 {
 					compatible = "fsl,qoriq-mc-dpmac";
 					reg = <0x01>;
 					phy-connection-type = "sgmii";
-				};*/
+					status = "disabled";
+				};
 
 				dpmac@2 {
 					compatible = "fsl,qoriq-mc-dpmac";
