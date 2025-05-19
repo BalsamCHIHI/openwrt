@@ -1,0 +1,42 @@
+Index: linux-6.6.86/drivers/net/phy/mscc/mscc_main.c
+===================================================================
+--- linux-6.6.86.orig/drivers/net/phy/mscc/mscc_main.c
++++ linux-6.6.86/drivers/net/phy/mscc/mscc_main.c
+@@ -163,6 +163,7 @@
+ 	u16 val;
+ 	int ret;
+ 	s16 temperature = 0;
++	s16 temperature_raw = 0;
+ 	u16 vcc = 0;
+ 	u16 tx_bias = 0;
+ 	u16 tx_power = 0;
+@@ -201,15 +202,22 @@
+ 		val = val >> 8;
+ 		switch (reg) {
+ 			case MSCC_PHY_TEMPERATURE_MSB:
+-				temperature = val << 8;
++				temperature_raw = val << 8;
+ 				break;
+ 			case MSCC_PHY_TEMPERATURE_LSB:
+-				pr_debug("[SFP]  temperature = %d.%02d °C, %d raw\n", temperature / 256, (temperature * 100 / 256) % 100, temperature);
+-				temperature |= val & 0xff;
+-				if (temperature != 0xffff)
+-					data[index+priv->nstats] = (u16)temperature;
+-				else
+-					data[index+priv->nstats] = 0;
++				temperature_raw |= val & 0xff;
++				/* Convert from signed 16-bit (MSB.LSB format) to temperature
++				 * Temperature = signed_value / 256
++				 * Store as millidegrees Celsius (multiply by 1000)
++				 * Result: temperature (m°C) = (raw_value * 1000) / 256
++				 */
++				temperature = temperature_raw;
++				pr_debug("[SFP]  temperature = %d.%03d °C, %d raw\n", 
++					temperature / 256, 
++					(abs(temperature) * 1000 / 256) % 1000, 
++					temperature_raw);
++				/* Store as millidegrees Celsius for precision */
++				data[index+priv->nstats] = (u64)((s32)temperature * 1000 / 256);
+ 				index++;
+ 				break;
+ 			case MSCC_PHY_VCC_MSB:
