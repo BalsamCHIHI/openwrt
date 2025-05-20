@@ -1,5 +1,5 @@
 #!/bin/sh /etc/rc.common
-START=50
+START=90
 STOP=10
 
 server_port="12345"
@@ -39,12 +39,24 @@ start() {
         exit 1
     fi
     if ! grep -qs "$flash_path" /proc/mounts || ! grep -qs "jffs2" /proc/mounts; then
-        sleep 120
-        if ! grep -qs "$flash_path" /proc/mounts || ! grep -qs "jffs2" /proc/mounts; then
+        (
+            timeout=60  # Maximum wait time in seconds
+            count=0
+
+            while [ $count -lt $timeout ]; do
+                if grep -qs "$flash_path" /proc/mounts && grep -qs "jffs2" /proc/mounts; then
+                    echo "Partition mounted."
+                    main &
+                    echo $! > /var/run/monitor_server.pid
+                    exit 0
+                fi
+                sleep 1
+                count=$((count + 1))
+            done
+
+            echo "Timeout waiting for partition to mount." >&2
             exit 1
-        else
-            main & echo $! > /var/run/monitor_server.pid
-        fi
+        ) &
     else
         main & echo $! > /var/run/monitor_server.pid
     fi

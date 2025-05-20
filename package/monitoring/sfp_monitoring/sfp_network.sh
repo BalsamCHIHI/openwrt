@@ -192,12 +192,24 @@ start() {
         exit 1
     fi
     if ! grep -qs "$flash_path" /proc/mounts || ! grep -qs "jffs2" /proc/mounts; then
-        sleep 120
-        if ! grep -qs "$flash_path" /proc/mounts || ! grep -qs "jffs2" /proc/mounts; then
+    (
+            timeout=60  # Maximum wait time in seconds
+            count=0
+
+            while [ $count -lt $timeout ]; do
+                if grep -qs "$flash_path" /proc/mounts && grep -qs "jffs2" /proc/mounts; then
+                    echo "Partition mounted."
+                    main &
+                    echo $! > "$pid_path"
+                    exit 0
+                fi
+                sleep 1
+                count=$((count + 1))
+            done
+
+            echo "Timeout waiting for partition to mount." >&2
             exit 1
-        else
-            main & echo $! > "$pid_path"
-        fi
+    ) &
     else
         main & echo $! > "$pid_path"
     fi

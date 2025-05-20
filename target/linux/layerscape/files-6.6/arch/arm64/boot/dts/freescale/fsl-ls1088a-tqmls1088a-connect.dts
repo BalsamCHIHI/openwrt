@@ -859,6 +859,17 @@
 				compatible = "jedec,spi-nor";
 				spi-max-frequency = <0x3b9aca0>;
 				reg = <0x01>;
+
+				partitions {
+					compatible = "fixed-partitions";
+					#address-cells = <0x01>;
+					#size-cells = <0x01>;
+
+					monitor@00000000 {
+						label = "monitor";
+						reg = <0x00000000 0x04000000>;
+					};
+				};
 			};
 		};
 
