@@ -1,16 +1,18 @@
-#!/bin/sh /etc/rc.common
+#!/bin/sh -e
 START=98
 STOP=10
 
-server_ip="192.168.10.1"
-#"172.100.1.1"
+server_ip="172.100.1.2"
 server_port="12345"
 TIMEOUT=2
-flash_path="/mnt/monitor"
+flash_path="/etc/monitor"
 max_flash_occupancy=90
-pid_path="/var/run/hwmon_monitor.pid"
+pid_path="/var/run/monitoring_hwmon.pid"
 
 save_logs() {
+    if [ ! -d "$flash_path" ]; then
+        mkdir -p "$flash_path"
+    fi
     line="$1"
     if [ -d "$flash_path" ] && [ -r "$flash_path" ]; then
         newest_file=$(ls -1v "$flash_path" 2>/dev/null | tail -n 1)
@@ -164,8 +166,8 @@ main() {
                 data=""
             else
                 # Check if the server is available
-                if socat -T $TIMEOUT - TCP:$server_ip:$server_port,connect-timeout=$TIMEOUT >/dev/null 2>&1; then
-                    echo -e "$data" | socat - TCP:$server_ip:$server_port
+                if socat -T "$TIMEOUT" - TCP:"$server_ip":"$server_port",connect-timeout="$TIMEOUT" >/dev/null 2>&1; then
+                    printf "%s\n" "$data" | socat - TCP:"$server_ip":"$server_port"
                 fi
                 if echo "$data" | grep -q "HWM"; then
                     data=$(echo "$data" | sed 's|HWM||')
@@ -180,14 +182,10 @@ main() {
 }
 
 start() {
-    # Check if the PID file already exists
-    if [ -f "$pid_path" ]; then
-        echo "hwmon monitor is already running."
-        exit 1
-    fi
     board_type=$(get_board_type)
     if [ "$board_type" = "comexpress" ]; then
-        main & echo $! > "$pid_path"
+        echo $$ > "$pid_path"
+        main
     else
         if ! grep -qs "$flash_path" /proc/mounts || ! grep -qs "jffs2" /proc/mounts; then
         (
@@ -209,10 +207,13 @@ start() {
             exit 1
         ) &
         else
-            main & echo $! > "$pid_path"
+            echo $$ > "$pid_path"
+            main
         fi
     fi
 }
+
+
 
 stop() {
     echo "Stopping hwmon_monitor"
@@ -222,3 +223,5 @@ stop() {
         echo "No PID file found. Process may not be running."
     fi
 }
+
+start
