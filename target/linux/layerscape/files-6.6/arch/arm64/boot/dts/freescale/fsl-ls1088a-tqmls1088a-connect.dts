@@ -1,11 +1,12 @@
 /dts-v1/;
 
 / {
-	compatible = "moment,ls1088a-tqmls1088a-connect", "moment,ls1088a-tqmls1088a", "tq,ls1088a-tqmls1088a-mbls10xxa", "tq,ls1088a-tqmls1088a", "fsl,ls1088a";
+	model = "Moment LS1088A TQMLS1088A SoM on Connect board";
+	compatible = "moment,ls1088a-tqmls1088a-connect", "tq,ls1088a-tqmls1088a", "fsl,ls1088a";
 	interrupt-parent = <0x01>;
 	#address-cells = <0x02>;
 	#size-cells = <0x02>;
-	model = "Moment LS1088A TQMLS1088A SoM on Connect board";
+
 
 	aliases {
 		crypto = "/soc/crypto@8000000";
