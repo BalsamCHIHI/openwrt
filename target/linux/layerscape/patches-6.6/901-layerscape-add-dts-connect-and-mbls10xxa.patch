@@ -9,3 +9,26 @@
  dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-ls2080a-qds.dtb
  dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-ls2080a-rdb.dtb
  dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-ls2081a-rdb.dtb
+--- a/Documentation/devicetree/bindings/arm/fsl.yaml
++++ b/Documentation/devicetree/bindings/arm/fsl.yaml
+@@ -1404,6 +1404,20 @@ properties:
+               - fsl,ls1088a-rdb
+           - const: fsl,ls1088a
+ 
++      - description: TQ-Systems LS1088A based Boards
++        items:
++          - enum:
++              - tq,ls1088a-tqmls1088a-mbls10xxa
++          - const: tq,ls1088a-tqmls1088a
++          - const: fsl,ls1088a
++
++      - description: Moment LS1088A based Boards
++        items:
++          - enum:
++              - moment,ls1088a-tqmls1088a-connect
++          - const: tq,ls1088a-tqmls1088a
++          - const: fsl,ls1088a
++
+       - description: LS2080A based Boards
+         items:
+           - enum:
