@@ -1123,14 +1123,18 @@
 				dpmac@1 {
 					compatible = "fsl,qoriq-mc-dpmac";
 					reg = <0x01>;
-					phy-connection-type = "sgmii";
+					phy-connection-type = "xgmii";
+					managed = "auto";
 					status = "disabled";
 				};
-
 				dpmac@2 {
 					compatible = "fsl,qoriq-mc-dpmac";
 					reg = <0x02>;
 					phy-connection-type = "xgmii";
+					fixed-link {
+						speed = <10000>;
+						full-duplex;
+					};
 				};
 
 				dpmac@3 {
@@ -1141,7 +1145,6 @@
 					managed = "in-band-status";
 					pcs-handle = <&pcs3_0>;
 				};
-
 				dpmac@4 {
 					compatible = "fsl,qoriq-mc-dpmac";
 					reg = <0x04>;
@@ -1150,7 +1153,6 @@
 					managed = "in-band-status";
 					pcs-handle = <&pcs3_1>;
 				};
-
 				dpmac@5 {
 					compatible = "fsl,qoriq-mc-dpmac";
 					reg = <0x05>;
@@ -1159,7 +1161,6 @@
 					managed = "in-band-status";
 					pcs-handle = <&pcs3_2>;
 				};
-
 				dpmac@6 {
 					compatible = "fsl,qoriq-mc-dpmac";
 					reg = <0x06>;
@@ -1177,7 +1178,6 @@
 					managed = "in-band-status";
 					pcs-handle = <&pcs7_0>;
 				};
-
 				dpmac@8 {
 					compatible = "fsl,qoriq-mc-dpmac";
 					reg = <0x08>;
@@ -1186,7 +1186,6 @@
 					managed = "in-band-status";
 					pcs-handle = <&pcs7_1>;
 				};
-
 				dpmac@9 {
 					compatible = "fsl,qoriq-mc-dpmac";
 					reg = <0x09>;
@@ -1195,7 +1194,6 @@
 					managed = "in-band-status";
 					pcs-handle = <&pcs7_2>;
 				};
-
 				dpmac@10 {
 					compatible = "fsl,qoriq-mc-dpmac";
 					reg = <0x0a>;
