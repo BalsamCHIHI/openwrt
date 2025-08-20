@@ -2,8 +2,12 @@
 START=99
 STOP=10
 
+# Function to get flash usage percentage
+get_flash_usage() {
+    df "$flash_path" | awk 'NR==2 {print $5}' | sed 's/%//'
+}
+
 server_ip="192.168.10.1"
-#"172.100.1.1"
 server_port="12345"
 TIMEOUT=2
 flash_path="/mnt/monitor"
@@ -26,14 +30,15 @@ get_board_type() {
 
 save_logs() {
     line="$1"
+    logfile_regex='^logfile_[0-9]{8}_[0-9]{6}\.log$'
     if [ -d "$flash_path" ] && [ -r "$flash_path" ]; then
         newest_file=$(ls -1v "$flash_path" 2>/dev/null | tail -n 1)
     else
         newest_file=""
     fi
 
-    if ! echo "$newest_file" | grep -qE '^logfile_[0-9]{8}_[0-9]{6}\.log$'; then
-        newest_file=$(ls -t "$flash_path" 2>/dev/null | grep -E '^logfile_[0-9]{8}_[0-9]{6}\.log$' | tail -n 1)
+    if ! echo "$newest_file" | grep -qE "$logfile_regex"; then
+        newest_file=$(ls -t "$flash_path" 2>/dev/null | grep -E "$logfile_regex" | head -n 1)
     fi
 
     if [ -z "$newest_file" ]; then
@@ -52,13 +57,12 @@ save_logs() {
     fi
 
     if grep -qs "$flash_path" /proc/mounts; then
-        usage=$(df "$flash_path" | awk 'NR==2 {print $5}' | sed 's/%//')
+        usage=$(get_flash_usage)
     else
         echo "Error: $flash_path is not a valid mount point."
         return
     fi
 
-    usage=$(df "$flash_path" | awk 'NR==2 {print $5}' | sed 's/%//')
     if ! echo "$usage" | grep -qE '^[0-9]+$'; then
         echo "Error: Unable to determine flash usage. Skipping cleanup."
         return
@@ -66,11 +70,6 @@ save_logs() {
 
     if [ "$usage" -gt $max_flash_occupancy ]; then
         echo "$line" > "$flash_path/logfile_$(date +%Y%m%d_%H%M%S).log"
-    fi
-
-    # Check if the partition is more than 90% full
-    usage=$(df "$flash_path" | awk 'NR==2 {print $5}' | sed 's/%//')
-    if [ "$usage" -gt $max_flash_occupancy ]; then
         # Delete the oldest file in the directory
         oldest_file=$(ls -t "$flash_path" 2>/dev/null | tail -n 1)
         if [ -n "$oldest_file" ]; then
@@ -98,7 +97,6 @@ parse_ethtool_output() {
     tx_power=$(echo "$output" | grep "TX Power" | awk '{print $NF}')
     rx_power=$(echo "$output" | grep "RX Power" | awk '{print $NF}')
 
-
     # Count the number of digits in temperature
     num_digits=$(echo "$temperature" | wc -c)
 
@@ -106,41 +104,31 @@ parse_ethtool_output() {
     if [ "$num_digits" -gt 6 ]; then
         temperature=0
     fi
-    
-    # Convert temperature from unsigned to signed 16-bit value
-    if [ "$temperature" -gt 32767 ]; then
-        temperature=$((temperature - 65536))
-    fi
-
-    vcc_converted=$((vcc / 10))
-    tx_bias_converted=$((tx_bias * 2))
-    tx_power_converted=$((tx_power / 10))
-    rx_power_converted=$((rx_power / 10))
 
     if [ "$board_type" = "server" ]; then
-        data="$temperature $vcc_converted $tx_bias_converted $tx_power_converted $rx_power_converted"
+        data="$temperature $vcc $tx_bias $tx_power $rx_power"
         if [ "$data" = "$values_not_connected" ]; then
             line_not_connected="$interface $line_not_connected"
         elif [ "$data" = "$values_missing" ]; then
             line_missing="$interface $line_missing"
         else
-            # Server is not available, call save_nor_flash function
+            # Send to syslog
+            logger -t "sfp_monitor" -p local0.info "board_type=$board_type interface=$interface temperature=$temperature vcc=$vcc tx_bias=$tx_bias tx_power=$tx_power rx_power=$rx_power"
+            
+            # Also save locally as backup
             save_logs "$(date) $board_type $interface $data"
         fi
     else
-        data="$temperature $vcc_converted $tx_bias_converted $tx_power_converted $rx_power_converted"
+        data="$temperature $vcc $tx_bias $tx_power $rx_power"
         if [ "$data" = "$values_not_connected" ]; then
             line_not_connected="$interface $line_not_connected"
         elif [ "$data" = "$values_missing" ]; then
             line_missing="$interface $line_missing"
         else
-            # Check if the server is available
-            if socat -T $TIMEOUT - TCP:$server_ip:$server_port,connect-timeout=$TIMEOUT >/dev/null 2>&1; then
-                # Server is available, send the message
-                data="SFP$board_type $interface $temperature $vcc_converted $tx_bias_converted $tx_power_converted $rx_power_converted"
-                echo -e "$data" | socat - TCP:$server_ip:$server_port
-            fi
-            # Server is not available, call save_nor_flash function
+            # Send to syslog
+            logger -t "sfp_monitor" -p local0.info "board_type=$board_type interface=$interface temperature=$temperature vcc=$vcc tx_bias=$tx_bias tx_power=$tx_power rx_power=$rx_power"
+            
+            # Also save locally as backup
             save_logs "$(date) $interface $data"
         fi
     fi
@@ -153,33 +141,44 @@ main() {
     if [ "$board_type" = "comexpress" ]; then
         exit 1
     fi
-    interfaces="eth1 eth2 eth3 eth4 eth5 eth6"
+    
+    # Dynamically detect available interfaces
+    interfaces=""
+    for iface in eth1 eth2 eth3 eth4 eth5 eth6; do
+        if ip link show "$iface" >/dev/null 2>&1; then
+            interfaces="$interfaces $iface"
+        fi
+    done
+    interfaces=$(echo "$interfaces" | xargs)  # Trim whitespace
+    
+    if [ -z "$interfaces" ]; then
+        echo "No interfaces found. Exiting."
+        exit 1
+    fi
     while true; do
         line_not_connected="$values_not_connected"
         line_missing="$values_missing"
         for interface in $interfaces; do
             output=$(get_ethtool_output "$interface")
             parse_ethtool_output "$interface" "$output" "$board_type" "$line_not_connected" "$line_missing"
-            sleep 5
+            sleep 30
         done
+        
+        # Handle not connected interfaces
         if [ "$line_not_connected" != "$values_not_connected" ]; then
             save_logs "$(date) $board_type $line_not_connected"
             if [ "$board_type" != "server" ]; then
-                if socat -T $TIMEOUT - TCP:$server_ip:$server_port,connect-timeout=$TIMEOUT >/dev/null 2>&1; then
-                    # Server is available, send the message
-                    data="SFP$board_type $line_not_connected"
-                    echo -e "$data" | socat - TCP:$server_ip:$server_port
-                fi
+                # Send not connected status to syslog
+                logger -t "sfp_monitor" -p local0.warning "board_type=$board_type status=not_connected interfaces=$line_not_connected"
             fi
         fi
+        
+        # Handle missing interfaces
         if [ "$line_missing" != "$values_missing" ]; then
             save_logs "$(date) $board_type $line_missing"
             if [ "$board_type" != "server" ]; then
-                if socat -T $TIMEOUT - TCP:$server_ip:$server_port,connect-timeout=$TIMEOUT >/dev/null 2>&1; then
-                    # Server is available, send the message
-                    data="SFP$board_type $line_missing"
-                    echo -e "$data" | socat - TCP:$server_ip:$server_port
-                fi
+                # Send missing status to syslog
+                logger -t "sfp_monitor" -p local0.err "board_type=$board_type status=missing interfaces=$line_missing"
             fi
         fi
     done
@@ -191,6 +190,7 @@ start() {
         echo "sfp monitor is already running."
         exit 1
     fi
+    
     if ! grep -qs "$flash_path" /proc/mounts || ! grep -qs "jffs2" /proc/mounts; then
     (
             timeout=60  # Maximum wait time in seconds
@@ -218,7 +218,7 @@ start() {
 stop() {
     echo "Stopping sfp_monitor"    
     if [ -f "$pid_path" ]; then
-        kill $(cat "$pid_path") && rm -f "$pid_path"
+        kill "$(cat "$pid_path")" && rm -f "$pid_path"
     else
         echo "No running process found."
     fi
