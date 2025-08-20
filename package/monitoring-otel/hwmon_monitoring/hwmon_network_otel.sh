@@ -2,8 +2,12 @@
 START=98
 STOP=10
 
+# Function to get flash usage percentage
+get_flash_usage() {
+    df "$flash_path" | awk 'NR==2 {print $5}' | sed 's/%//'
+}
+
 server_ip="192.168.10.1"
-#"172.100.1.1"
 server_port="12345"
 TIMEOUT=2
 flash_path="/mnt/monitor"
@@ -12,14 +16,15 @@ pid_path="/var/run/hwmon_monitor.pid"
 
 save_logs() {
     line="$1"
+    logfile_regex='^logfile_[0-9]{8}_[0-9]{6}\.log$'
     if [ -d "$flash_path" ] && [ -r "$flash_path" ]; then
         newest_file=$(ls -1v "$flash_path" 2>/dev/null | tail -n 1)
     else
         newest_file=""
     fi
 
-    if ! echo "$newest_file" | grep -qE '^logfile_[0-9]{8}_[0-9]{6}\.log$'; then
-        newest_file=$(ls -t "$flash_path" 2>/dev/null | grep -E '^logfile_[0-9]{8}_[0-9]{6}\.log$' | tail -n 1)
+    if ! echo "$newest_file" | grep -qE "$logfile_regex"; then
+        newest_file=$(ls -t "$flash_path" 2>/dev/null | grep -E "$logfile_regex" | head -n 1)
     fi
 
     if [ -z "$newest_file" ]; then
@@ -38,13 +43,12 @@ save_logs() {
     fi
 
     if grep -qs "$flash_path" /proc/mounts; then
-        usage=$(df "$flash_path" | awk 'NR==2 {print $5}' | sed 's/%//')
+        usage=$(get_flash_usage)
     else
         echo "Error: $flash_path is not a valid mount point."
         return
     fi
 
-    usage=$(df "$flash_path" | awk 'NR==2 {print $5}' | sed 's/%//')
     if ! echo "$usage" | grep -qE '^[0-9]+$'; then
         echo "Error: Unable to determine flash usage. Skipping cleanup."
         return
@@ -52,11 +56,6 @@ save_logs() {
 
     if [ "$usage" -gt $max_flash_occupancy ]; then
         echo "$line" > "$flash_path/logfile_$(date +%Y%m%d_%H%M%S).log"
-    fi
-
-    # Check if the partition is more than 90% full
-    usage=$(df "$flash_path" | awk 'NR==2 {print $5}' | sed 's/%//')
-    if [ "$usage" -gt $max_flash_occupancy ]; then
         # Delete the oldest file in the directory
         oldest_file=$(ls -t "$flash_path" 2>/dev/null | tail -n 1)
         if [ -n "$oldest_file" ]; then
@@ -84,6 +83,7 @@ get_board_type() {
 
 main() {
     board_type=$(get_board_type)
+    
     while true; do
         data=""
 
@@ -105,11 +105,7 @@ main() {
             fi
             
             hwmon_name=$(basename "$hwmon" | sed 's/[^0-9]//g')
-            if [ -n "$label" ]; then
-                data="HWM$board_type $hwmon_name $label $name"
-            else
-                data="HWM$board_type $hwmon_name $name"
-            fi
+            sensor_data=""
 
             for input in "$hwmon"/*_input; do
                 if [ -r "$input" ]; then
@@ -121,17 +117,18 @@ main() {
                             "ads7830")
                                 case "$label" in
                                     "db-sensor-adc")
-                                        if [ "$input_name" == *6* ]; then
-                                            echo 1 > /sys/class/leds/adcen-bat/brightness
-                                            value=$(cat "$input" 2>/dev/null)
-                                            echo 0 > /sys/class/leds/adcen-bat/brightness
-                                        fi
-
-                                        if [ "$input_name" == *7* ]; then
-                                            echo 1 > /sys/class/leds/adcen-edlc/brightness
-                                            value=$(cat "$input" 2>/dev/null)
-                                            echo 0 > /sys/class/leds/adcen-edlc/brightness
-                                        fi
+                                        case "$input_name" in
+                                            *6*)
+                                                echo 1 > /sys/class/leds/adcen-bat/brightness
+                                                value=$(cat "$input" 2>/dev/null)
+                                                echo 0 > /sys/class/leds/adcen-bat/brightness
+                                                ;;
+                                            *7*)
+                                                echo 1 > /sys/class/leds/adcen-edlc/brightness
+                                                value=$(cat "$input" 2>/dev/null)
+                                                echo 0 > /sys/class/leds/adcen-edlc/brightness
+                                                ;;
+                                        esac
                                         ;;
                                     *)
                                         ;;
@@ -140,9 +137,7 @@ main() {
                             *)
                                 ;;
                         esac
-
-                        data="$data $input_name $value"
-
+                        sensor_data="${sensor_data:+$sensor_data,}$input_name:$value"
                     else
                         echo "Cannot read $input: No such device or address"
                     fi
@@ -151,30 +146,18 @@ main() {
                 fi
             done
 
-            if [ -z "$data" ]; then
+            if [ -z "$sensor_data" ]; then
                 sleep 100
                 continue
             fi
 
-            if [ "$board_type" = "server" ]; then
-                if echo "$data" | grep -q "HWM"; then
-                    data=$(echo "$data" | sed 's|HWM||')
-                fi
-                save_logs "$(date) $data"
-                data=""
-            else
-                # Check if the server is available
-                if socat -T $TIMEOUT - TCP:$server_ip:$server_port,connect-timeout=$TIMEOUT >/dev/null 2>&1; then
-                    echo -e "$data" | socat - TCP:$server_ip:$server_port
-                fi
-                if echo "$data" | grep -q "HWM"; then
-                    data=$(echo "$data" | sed 's|HWM||')
-                fi
-                save_logs "$(date) $data"
-                data=""
-            fi
+            # Send HWMon data to syslog
+            logger -t "hwmon_monitor" -p local0.info "board_type=$board_type hwmon_id=$hwmon_name name=$name label=$label sensor_data=$sensor_data"
+            
+            # Also save locally as backup
+            save_logs "$(date) $board_type $hwmon_name $label $name $sensor_data"
+            
             sleep 100
-
         done
     done
 }
@@ -185,6 +168,7 @@ start() {
         echo "hwmon monitor is already running."
         exit 1
     fi
+    
     board_type=$(get_board_type)
     if [ "$board_type" = "comexpress" ]; then
         main & echo $! > "$pid_path"
