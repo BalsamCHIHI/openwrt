@@ -32,8 +32,8 @@ boot() {
 
     uci set system.@system[0].zonename='Europe/Paris'
     uci set system.@system[0].timezone='CET-1CEST,M3.5.0,M10.5.0/3'
-    uci set system.@system[0].zram_size_mb='512'
-    uci set system.@system[0].zram_comp_algo='zstd'
+    #uci set system.@system[0].zram_size_mb='512'
+    #uci set system.@system[0].zram_comp_algo='zstd'
 
     uci commit
     reload_config
