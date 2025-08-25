@@ -17,9 +17,10 @@
 		gpio_expander = &pca9555;
 	};
 
-	ram {
-		reg = <0x00 0x80000000 0x00 0x7BE00000>;
+	memory {
 		device_type = "memory";
+		reg = <0x00000000 0x80000000 0x00000000 0x80000000>,	// Lower 2GB DRAM
+			<0x00000080 0x80000000 0x00000000 0x80000000>;		// Upper 2GB DRAM
 	};
 
 	cpus {
