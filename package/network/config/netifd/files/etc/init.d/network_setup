@@ -59,6 +59,7 @@ boot() {
             uci set network.wan0.gateway='172.100.1.1'
             uci set network.wan0.netmask='255.255.255.0'
             uci set network.wan0.dns='172.100.1.1 8.8.8.8 1.1.1.1'
+            uci set network.wan0.mtu='9000'
             ;;
         *)
             return 0
