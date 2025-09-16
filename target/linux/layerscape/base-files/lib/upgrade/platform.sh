@@ -33,6 +33,18 @@ platform_do_upgrade_sdboot() {
 
 }
 
+# Map logical names to actual MTD partition labels
+get_mtd_label() {
+	case "$1" in
+		pbl) echo "pbl" ;;
+		uboot) echo "u-boot" ;;
+		mc) echo "dpaa2-mc" ;;
+		dpc) echo "dpaa2-dpc" ;;
+		dpl) echo "dpaa2-dpl" ;;
+		*) ;;
+	esac
+}
+
 platform_do_upgrade_tqmls1088a_sdboot() {
 	local diskdev partdev
 	local tar_file="$1"
@@ -47,11 +59,13 @@ platform_do_upgrade_tqmls1088a_sdboot() {
 	if export_partdevice partdev 1; then
 		mkdir -p /boot
 		mount "/dev/$partdev" /boot 2>&1
-		echo "Erasing Kernel and DTB..."
+		echo "Erasing Kernel..."
 		rm /boot/Image
-		rm /boot/fsl-ls1088a-tqmls1088a-connect.dtb
-		echo "Writing Kernel and DTB..."
+		echo "Writing Kernel..."
 		tar xf $tar_file ${board_dir}/Image -O > /boot/Image
+		echo "Erasing DTB..."
+		rm /boot/fsl-ls1088a-tqmls1088a-connect.dtb
+		echo "Writing DTB..."
 		tar xf $tar_file ${board_dir}/fsl-ls1088a-tqmls1088a-connect.dtb -O > /boot/fsl-ls1088a-tqmls1088a-connect.dtb
 		umount /boot
 	fi
@@ -59,7 +73,22 @@ platform_do_upgrade_tqmls1088a_sdboot() {
 	echo "Erasing RootFS..."
 	dd if=/dev/zero of=/dev/mmcblk0p2 bs=1024 > /dev/null 2>&1
 	echo "Writing RootFS..."
-	tar xf $tar_file ${board_dir}/root -O  | dd of=/dev/mmcblk0p2 bs=1024 > /dev/null 2>&1
+	tar xf $tar_file ${board_dir}/rootfs -O  | dd of=/dev/mmcblk0p2 bs=1024 > /dev/null 2>&1
+
+	# Flash optional QSPI partitions
+	for part in pbl uboot mc dpc dpl; do
+		image_path="${board_dir}/${part}.bin"
+		if tar tf "$tar_file" | grep -q "$image_path"; then
+			tar xf "$tar_file" "$image_path" -O > "/tmp/${part}.bin"
+			mtd_label=$(get_mtd_label "$part")
+			if [ -n "$mtd_label" ]; then
+				mtd erase "$mtd_label"
+				mtd write "/tmp/${part}.bin" "$mtd_label"
+			else
+				echo "Error: Unknown MTD label for $part"
+			fi
+		fi
+	done
 }
 
 platform_do_upgrade_traverse_slotubi() {

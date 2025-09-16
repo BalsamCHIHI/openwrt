@@ -97,7 +97,20 @@ define Build/tqmls1088a-sysupgrade
 	$(foreach dtb,$(DEVICE_DTS), \
 		$(CP) $(KDIR)/image-$(dtb).dtb $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/$(dtb).dtb;)
 
-	dd if=$(IMAGE_ROOTFS) of=$@.sysupgrade/sysupgrade-$(DEVICE_NAME)/root bs=1024 conv=sync
+	dd if=$(IMAGE_ROOTFS) of=$@.sysupgrade/sysupgrade-$(DEVICE_NAME)/rootfs bs=1024 conv=sync
+
+	# Optional QSPI firmware files
+	$(if $(wildcard $(TOPDIR)/../atf/build/tqmls1088a/debug/bl2_qspi.pbl), \
+		$(CP) $(TOPDIR)/../atf/build/tqmls1088a/debug/bl2_qspi.pbl $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/pbl.bin)
+	$(if $(wildcard $(TOPDIR)/../atf/build/tqmls1088a/debug/fip.bin), \
+		$(CP) $(TOPDIR)/../atf/build/tqmls1088a/debug/fip.bin $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/uboot.bin)
+	$(if $(wildcard $(TOPDIR)/../mc/ls1088a/mc_ls1088a_10.39.0.itb), \
+		$(CP) $(TOPDIR)/../mc/ls1088a/mc_ls1088a_10.39.0.itb $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/mc.bin)
+	$(if $(wildcard $(TOPDIR)/../mc-utils/config/ls1088a/tqmls1088a-connect/dpc-backplane_mac2-phy_mac3_mac10.dtb), \
+		$(CP) $(TOPDIR)/../mc-utils/config/ls1088a/tqmls1088a-connect/dpc-backplane_mac2-phy_mac3_mac10.dtb $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/dpc.bin)
+	$(if $(wildcard $(TOPDIR)/../mc-utils/config/ls1088a/tqmls1088a-connect/dpl-eth_mac2_mac10.dtb), \
+		$(CP) $(TOPDIR)/../mc-utils/config/ls1088a/tqmls1088a-connect/dpl-eth_mac2_mac10.dtb $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/dpl.bin)
+
 	tar --sort=name --owner=0 --group=0 --numeric-owner -czf $@.tar -C $@.sysupgrade sysupgrade-$(DEVICE_NAME)
 	mv $@.tar $@
 endef
