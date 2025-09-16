@@ -420,6 +420,9 @@ define Device/tq_ls1088a-tqmls1088a-mbls10xxa
   SUPPORTED_DEVICES := tq,ls1088a-tqmls1088a-mbls10xxa tq,ls1088a-tqmls1088a-mbls10xxa-sdboot
   DEVICE_DTS := fsl-ls1088a-tqmls1088a-mbls10xxa
   DEVICE_PACKAGES += restool kmod-ahci-qoriq kmod-hwmon-ina2xx kmod-hwmon-lm90
+  IMAGE/sdcard.img.gz := ls-clean | tqmls1088a-sdcard | gzip
+  IMAGE/sysupgrade.bin := ls-clean | tqmls1088a-sysupgrade | append-metadata
+  IMAGES := sdcard.img.gz sysupgrade.bin
 endef
 TARGET_DEVICES += tq_ls1088a-tqmls1088a-mbls10xxa
 
@@ -431,5 +434,8 @@ define Device/moment_ls1088a-tqmls1088a-connect
   SUPPORTED_DEVICES := moment,ls1088a-tqmls1088a-connect moment,ls1088a-tqmls1088a-connect-sdboot
   DEVICE_DTS := fsl-ls1088a-tqmls1088a-connect
   DEVICE_PACKAGES += restool kmod-ahci-qoriq kmod-hwmon-ina2xx kmod-hwmon-lm90
+  IMAGE/sdcard.img.gz := ls-clean | tqmls1088a-sdcard | gzip
+  IMAGE/sysupgrade.bin := ls-clean | tqmls1088a-sysupgrade | append-metadata
+  IMAGES := sdcard.img.gz sysupgrade.bin
 endef
 TARGET_DEVICES += moment_ls1088a-tqmls1088a-connect

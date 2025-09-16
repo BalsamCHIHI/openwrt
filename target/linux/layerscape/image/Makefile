@@ -67,6 +67,41 @@ define Build/traverse-fit-ls1088
 	@mv -f $@.new $@
 endef
 
+define Build/tqmls1088a-sdcard
+	rm -rf $@.boot
+	mkdir -p $@.boot
+
+	$(CP) $(KDIR)/Image $@.boot/Image
+	$(foreach dtb,$(DEVICE_DTS), \
+		$(CP) $(KDIR)/image-$(dtb).dtb $@.boot/$(dtb).dtb;)
+
+	GUID=$(IMG_PART_DISKGUID) \
+	PADDING=1 \
+	ALIGN=1024 \
+	KERNELPARTTYPE=0xc \
+	ROOTFSPARTTYPE=0x83 \
+	$(SCRIPT_DIR)/gen_image_generic.sh \
+		$@ \
+		$(CONFIG_TARGET_KERNEL_PARTSIZE) \
+		$@.boot \
+		$(CONFIG_TARGET_ROOTFS_PARTSIZE) \
+		$(IMAGE_ROOTFS)
+endef
+
+define Build/tqmls1088a-sysupgrade
+	rm -rf $@.sysupgrade
+	mkdir -p $@.sysupgrade/sysupgrade-$(DEVICE_NAME)
+
+	echo "BOARD=$(DEVICE_NAME)" > $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/CONTROL
+	$(CP) $(KDIR)/Image $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/Image
+	$(foreach dtb,$(DEVICE_DTS), \
+		$(CP) $(KDIR)/image-$(dtb).dtb $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/$(dtb).dtb;)
+
+	dd if=$(IMAGE_ROOTFS) of=$@.sysupgrade/sysupgrade-$(DEVICE_NAME)/root bs=1024 conv=sync
+	tar --sort=name --owner=0 --group=0 --numeric-owner -czf $@.tar -C $@.sysupgrade sysupgrade-$(DEVICE_NAME)
+	mv $@.tar $@
+endef
+
 define Device/fix-sysupgrade
   DEVICE_COMPAT_VERSION := 2.0
   DEVICE_COMPAT_MESSAGE := DTB was added to sysupgrade. Image format is different. \
