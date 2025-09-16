@@ -16,6 +16,8 @@ case "$(board_name)" in
 	fsl,ls1046a-rdb-sdboot | \
 	fsl,ls1088a-rdb | \
 	fsl,ls1088a-rdb-sdboot | \
+	tq,ls1088a-tqmls1088a-mbls10xxa-sdboot | \
+	moment,ls1088a-tqmls1088a-connect-sdboot | \
 	fsl,ls2088a-rdb)
 		uci set system.@system[0].compat_version="2.0"
 		uci commit system

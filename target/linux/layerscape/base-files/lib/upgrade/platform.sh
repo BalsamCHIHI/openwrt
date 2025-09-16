@@ -33,6 +33,35 @@ platform_do_upgrade_sdboot() {
 
 }
 
+platform_do_upgrade_tqmls1088a_sdboot() {
+	local diskdev partdev
+	local tar_file="$1"
+	local board_dir=$(tar tf $tar_file | grep -m 1 '^sysupgrade-.*/$')
+	board_dir=${board_dir%/}
+
+	export_bootdevice && export_partdevice diskdev 0 || {
+		echo "Unable to determine upgrade device"
+		return 1
+	}
+
+	if export_partdevice partdev 1; then
+		mkdir -p /boot
+		mount "/dev/$partdev" /boot 2>&1
+		echo "Erasing Kernel and DTB..."
+		rm /boot/Image
+		rm /boot/fsl-ls1088a-tqmls1088a-connect.dtb
+		echo "Writing Kernel and DTB..."
+		tar xf $tar_file ${board_dir}/Image -O > /boot/Image
+		tar xf $tar_file ${board_dir}/fsl-ls1088a-tqmls1088a-connect.dtb -O > /boot/fsl-ls1088a-tqmls1088a-connect.dtb
+		umount /boot
+	fi
+
+	echo "Erasing RootFS..."
+	dd if=/dev/zero of=/dev/mmcblk0p2 bs=1024 > /dev/null 2>&1
+	echo "Writing RootFS..."
+	tar xf $tar_file ${board_dir}/root -O  | dd of=/dev/mmcblk0p2 bs=1024 > /dev/null 2>&1
+}
+
 platform_do_upgrade_traverse_slotubi() {
 	part="$(awk -F 'ubi.mtd=' '{printf $2}' /proc/cmdline | sed -e 's/ .*$//')"
 	echo "Active boot slot: ${part}"
@@ -67,6 +96,24 @@ platform_copy_config_sdboot() {
 		umount /mnt
 	fi
 }
+
+platform_copy_config_tqmls1088a_sdboot() {
+	local diskdev partdev
+
+	export_bootdevice && export_partdevice diskdev 0 || {
+		echo "Unable to determine upgrade device"
+		return 1
+	}
+
+	if export_partdevice partdev 1; then
+		mkdir -p /boot
+		mount "/dev/$partdev" /boot 2>&1
+		echo "Saving config backup..."
+		cp -af "$UPGRADE_BACKUP" "/boot/$BACKUP_FILE"
+		umount /boot
+	fi
+}
+
 platform_copy_config() {
 	local board=$(board_name)
 
@@ -81,6 +128,10 @@ platform_copy_config() {
 	fsl,ls1088a-rdb-sdboot | \
 	fsl,lx2160a-rdb-sdboot)
 		platform_copy_config_sdboot
+		;;
+	tq,ls1088a-tqmls1088a-mbls10xxa-sdboot | \
+	moment,ls1088a-tqmls1088a-connect-sdboot)
+		platform_copy_config_tqmls1088a_sdboot
 		;;
 	esac
 }
@@ -108,6 +159,10 @@ platform_check_image() {
 	fsl,ls1046a-rdb-sdboot | \
 	fsl,ls1088a-rdb | \
 	fsl,ls1088a-rdb-sdboot | \
+	tq,ls1088a-tqmls1088a-mbls10xxa | \
+	tq,ls1088a-tqmls1088a-mbls10xxa-sdboot | \
+	moment,ls1088a-tqmls1088a-connect | \
+	moment,ls1088a-tqmls1088a-connect-sdboot | \
 	fsl,ls2088a-rdb | \
 	fsl,lx2160a-rdb | \
 	fsl,lx2160a-rdb-sdboot)
@@ -154,6 +209,11 @@ platform_do_upgrade() {
 	fsl,ls1088a-rdb-sdboot | \
 	fsl,lx2160a-rdb-sdboot)
 		platform_do_upgrade_sdboot "$1"
+		return 0
+		;;
+	tq,ls1088a-tqmls1088a-mbls10xxa-sdboot | \
+	moment,ls1088a-tqmls1088a-connect-sdboot)
+		platform_do_upgrade_tqmls1088a_sdboot "$1"
 		return 0
 		;;
 	*)
