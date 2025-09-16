@@ -22,6 +22,15 @@ move_config() {
 			umount /boot
 		fi
 		;;
+	tq,ls1088a-tqmls1088a-mbls10xxa-sdboot | \
+	moment,ls1088a-tqmls1088a-connect-sdboot)
+			if [ -b $BOOTPART ]; then
+			mkdir -p /boot
+			mount $BOOTPART /boot 2>&1
+			[ -f "/boot/$BACKUP_FILE" ] && mv -f "/boot/$BACKUP_FILE" /
+			umount /boot
+		fi
+		;;
 	esac
 }
 
