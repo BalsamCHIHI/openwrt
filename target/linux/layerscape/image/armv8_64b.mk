@@ -412,18 +412,24 @@ define Device/traverse_ten64_mtd
 endef
 TARGET_DEVICES += traverse_ten64_mtd
 
-define Device/tq_tqmls1088a-mbls10xxa
+define Device/tq_ls1088a-tqmls1088a-mbls10xxa
   DEVICE_VENDOR := TQ
-  DEVICE_MODEL := TQMLS1088A-MBLS10XXA
-  DEVICE_PACKAGES += restool
+  DEVICE_MODEL := LS1088A-TQMLS1088A-MBLS10XXA
+  DEVICE_VARIANT := SD Boot
+  DEVICE_COMPAT_VERSION := 2.0
+  SUPPORTED_DEVICES := tq,ls1088a-tqmls1088a-mbls10xxa tq,ls1088a-tqmls1088a-mbls10xxa-sdboot
   DEVICE_DTS := fsl-ls1088a-tqmls1088a-mbls10xxa
+  DEVICE_PACKAGES += restool kmod-ahci-qoriq kmod-hwmon-ina2xx kmod-hwmon-lm90
 endef
-TARGET_DEVICES += tq_tqmls1088a-mbls10xxa
+TARGET_DEVICES += tq_ls1088a-tqmls1088a-mbls10xxa
 
-define Device/moment_tqmls1088a-connect
+define Device/moment_ls1088a-tqmls1088a-connect
   DEVICE_VENDOR := Moment
-  DEVICE_MODEL := TQMLS1088A-Connect
-  DEVICE_PACKAGES += restool
+  DEVICE_MODEL := LS1088A-TQMLS1088A-Connect
+  DEVICE_VARIANT := SD Boot
+  DEVICE_COMPAT_VERSION := 2.0
+  SUPPORTED_DEVICES := moment,ls1088a-tqmls1088a-connect moment,ls1088a-tqmls1088a-connect-sdboot
   DEVICE_DTS := fsl-ls1088a-tqmls1088a-connect
+  DEVICE_PACKAGES += restool kmod-ahci-qoriq kmod-hwmon-ina2xx kmod-hwmon-lm90
 endef
-TARGET_DEVICES += moment_tqmls1088a-connect
+TARGET_DEVICES += moment_ls1088a-tqmls1088a-connect
