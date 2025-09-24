@@ -48,7 +48,7 @@ get_mtd_label() {
 platform_do_upgrade_tqmls1088a_sdboot() {
 	local diskdev partdev
 	local tar_file="$1"
-	local board_dir=$(tar tf $tar_file | grep -m 1 '^sysupgrade-.*/$')
+	local board_dir=$(tar tf "$tar_file" | grep -m 1 '^sysupgrade-.*/$')
 	board_dir=${board_dir%/}
 
 	export_bootdevice && export_partdevice diskdev 0 || {
@@ -58,37 +58,60 @@ platform_do_upgrade_tqmls1088a_sdboot() {
 
 	if export_partdevice partdev 1; then
 		mkdir -p /boot
-		mount "/dev/$partdev" /boot 2>&1
-		echo "Erasing Kernel..."
-		rm /boot/Image
+		mount "/dev/$partdev" /boot
 		echo "Writing Kernel..."
-		tar xf $tar_file ${board_dir}/Image -O > /boot/Image
-		echo "Erasing DTB..."
-		rm /boot/fsl-ls1088a-tqmls1088a-connect.dtb
+		tar xf "$tar_file" "${board_dir}/Image" -O > /boot/Image
 		echo "Writing DTB..."
-		tar xf $tar_file ${board_dir}/fsl-ls1088a-tqmls1088a-connect.dtb -O > /boot/fsl-ls1088a-tqmls1088a-connect.dtb
+		tar xf "$tar_file" "${board_dir}/fsl-ls1088a-tqmls1088a-connect.dtb" -O > /boot/fsl-ls1088a-tqmls1088a-connect.dtb
 		umount /boot
 	fi
 
 	echo "Erasing RootFS..."
-	dd if=/dev/zero of=/dev/mmcblk0p2 bs=1024 > /dev/null 2>&1
+	dd if=/dev/zero of=/dev/mmcblk0p2 bs=1024
 	echo "Writing RootFS..."
-	tar xf $tar_file ${board_dir}/rootfs -O  | dd of=/dev/mmcblk0p2 bs=1024 > /dev/null 2>&1
+	tar xf "$tar_file" "${board_dir}/rootfs" -O | dd of=/dev/mmcblk0p2 bs=1024
 
-	# Flash optional QSPI partitions
-	for part in pbl uboot mc dpc dpl; do
-		image_path="${board_dir}/${part}.bin"
-		if tar tf "$tar_file" | grep -q "$image_path"; then
-			tar xf "$tar_file" "$image_path" -O > "/tmp/${part}.bin"
-			mtd_label=$(get_mtd_label "$part")
-			if [ -n "$mtd_label" ]; then
-				mtd erase "$mtd_label"
-				mtd write "/tmp/${part}.bin" "$mtd_label"
-			else
-				echo "Error: Unknown MTD label for $part"
-			fi
-		fi
-	done
+	# Detect variant from kernel cmdline
+	local variant
+	variant=$(awk -F'variant=' '{print $2}' /proc/cmdline | awk '{print $1}')
+	echo "variant: $variant"
+
+	local qspi_bin=""
+	if [ "$variant" = "2gb" ]; then
+		qspi_bin="${board_dir}/qspi-atf-2gb.bin"
+	elif [ "$variant" = "4gb" ]; then
+		qspi_bin="${board_dir}/qspi-atf-4gb.bin"
+	else
+		echo "Error: Unknown or missing variant in kernel cmdline. Skipping QSPI flash to avoid bricking."
+		return 0
+	fi
+
+	# Only proceed if the QSPI binary exists in the sysupgrade tar
+	if tar tf "$tar_file" | grep -q "$qspi_bin"; then
+		echo "Extracting QSPI binary ($qspi_bin)..."
+		tar xf "$tar_file" "$qspi_bin" -O > /tmp/qspi-full.bin
+
+		# Partition info: name, offset (bytes), size (bytes)
+		# Format: name:offset:size
+		local partitions="
+pbl:0x00000000:0x00100000
+uboot:0x00100000:0x00300000
+mc:0x00500000:0x00300000
+dpc:0x00800000:0x00100000
+dpl:0x00900000:0x00100000
+"
+
+		echo "Flashing QSPI partitions from full binary..."
+		echo "$partitions" | while IFS=: read -r name offset size; do
+			mtd_label=$(get_mtd_label "$name")
+			[ -z "$mtd_label" ] && continue
+			echo "  - $name ($mtd_label): offset=$offset size=$size"
+			dd if=/tmp/qspi-full.bin of=/tmp/${name}.bin bs=1 skip=$(( $offset )) count=$(( $size )) iflag=skip_bytes,count_bytes status=none
+			mtd write /tmp/${name}.bin "$mtd_label"
+		done
+	else
+		echo "No QSPI binary ($qspi_bin) found in sysupgrade archive, skipping QSPI flash."
+	fi
 }
 
 platform_do_upgrade_traverse_slotubi() {
