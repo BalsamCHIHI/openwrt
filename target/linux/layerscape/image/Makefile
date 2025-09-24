@@ -68,6 +68,7 @@ define Build/traverse-fit-ls1088
 endef
 
 define Build/tqmls1088a-sdcard
+	rm -f $@
 	rm -rf $@.boot
 	mkdir -p $@.boot
 
@@ -89,6 +90,7 @@ define Build/tqmls1088a-sdcard
 endef
 
 define Build/tqmls1088a-sysupgrade
+	rm -f $@
 	rm -rf $@.sysupgrade
 	mkdir -p $@.sysupgrade/sysupgrade-$(DEVICE_NAME)
 
