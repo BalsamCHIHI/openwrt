@@ -851,47 +851,6 @@
 				compatible = "jedec,spi-nor";
 				spi-max-frequency = <0x3b9aca0>;
 				reg = <0x00>;
-
-				partitions {
-					compatible = "fixed-partitions";
-					#address-cells = <0x01>;
-					#size-cells = <0x01>;
-
-					rcwpbi@00000000 {
-						label = "rcwpbi";
-						reg = <0x00000000 0x00100000>;
-					};
-
-					uboot@00100000 {
-						label = "uboot";
-						reg = <0x00100000 0x00300000>;
-					};
-
-					env@00400000 {
-						label = "env";
-						reg = <0x00400000 0x00020000>;
-					};
-
-					envbackup@00420000 {
-						label = "envbackup";
-						reg = <0x00420000 0x00020000>;
-					};
-
-					mcfw@00500000 {
-						label = "mcfw";
-						reg = <0x00500000 0x00300000>;
-					};
-
-					dpaadpc@00800000 {
-						label = "dpaadpc";
-						reg = <0x00800000 0x00100000>;
-					};
-
-					dpaadpl@00900000 {
-						label = "dpaadpl";
-						reg = <0x00900000 0x00100000>;
-					};
-				};
 			};
 
 			mx66u51235f@1 {
