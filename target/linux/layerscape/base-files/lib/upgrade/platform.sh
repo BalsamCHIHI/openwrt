@@ -38,10 +38,26 @@ get_mtd_label() {
 	case "$1" in
 		pbl) echo "pbl" ;;
 		uboot) echo "u-boot" ;;
+		env) echo "env" ;;
+		envbkp) echo "env-backup" ;;
 		mc) echo "dpaa2-mc" ;;
 		dpc) echo "dpaa2-dpc" ;;
 		dpl) echo "dpaa2-dpl" ;;
-		*) ;;
+		*) echo "" ;;
+	esac
+}
+
+# Map logical names to actual MTD partition numbers
+get_mtd_block_number() {
+	case "$1" in
+		pbl) echo "0" ;;
+		uboot) echo "1" ;;
+		env) echo "2" ;;
+		envbkp) echo "3" ;;
+		mc) echo "4" ;;
+		dpc) echo "5" ;;
+		dpl) echo "6" ;;
+		*) echo "" ;;
 	esac
 }
 
@@ -88,26 +104,49 @@ platform_do_upgrade_tqmls1088a_sdboot() {
 
 	# Only proceed if the QSPI binary exists in the sysupgrade tar
 	if tar tf "$tar_file" | grep -q "$qspi_bin"; then
-		echo "Extracting QSPI binary ($qspi_bin)..."
+		echo "Extracting QSPI partitions from Full binary ($qspi_bin)..."
 		tar xf "$tar_file" "$qspi_bin" -O > /tmp/qspi-full.bin
 
 		# Partition info: name, offset (bytes), size (bytes)
 		# Format: name:offset:size
-		local partitions="
+		local partitions="\
 pbl:0x00000000:0x00100000
 uboot:0x00100000:0x00300000
 mc:0x00500000:0x00300000
 dpc:0x00800000:0x00100000
-dpl:0x00900000:0x00100000
-"
+dpl:0x00900000:0x00100000"
 
-		echo "Flashing QSPI partitions from full binary..."
+		echo "Flashing QSPI partitions..."
 		echo "$partitions" | while IFS=: read -r name offset size; do
+			# Convert offset and size from hex to decimal
+			offset_dec=$((16#${offset#0x}))
+			size_dec=$((16#${size#0x}))
+			# Get MTD label and block number
 			mtd_label=$(get_mtd_label "$name")
-			[ -z "$mtd_label" ] && continue
+			mtd_block_num=$(get_mtd_block_number "$name")
+			mtd_block="/dev/mtdblock${mtd_block_num}"
+			# Skip if label or block number is missing
+			if [ -z "$name" ] || [ -z "$mtd_label" ] || [ -z "$mtd_block_num" ]; then
+				echo "Skipping $name: missing MTD label or block number"
+				continue
+			fi
+			# Check if mtdblock device exists
+			if [ ! -e "$mtd_block" ]; then
+				echo "Skipping $name: $mtd_block not found"
+				continue
+			fi
 			echo "  - $name ($mtd_label): offset=$offset size=$size"
-			dd if=/tmp/qspi-full.bin of=/tmp/${name}.bin bs=1 skip=$(( $offset )) count=$(( $size )) iflag=skip_bytes,count_bytes status=none
-			mtd write /tmp/${name}.bin "$mtd_label"
+			# Extract new partition slice from full binary
+			dd if=/tmp/qspi-full.bin of=/tmp/${name}.new.bin bs=1 skip=$offset_dec count=$size_dec iflag=skip_bytes,count_bytes
+			# Dump current partition content
+			dd if="$mtd_block" of="/tmp/${name}.old.bin" bs=1 count=$size_dec
+			# Compare old and new
+			if cmp /tmp/${name}.old.bin /tmp/${name}.new.bin; then
+				echo "Skipping $name: no changes"
+			else
+				echo "Updating $name: content differs"
+				mtd write /tmp/${name}.new.bin "$mtd_label"
+			fi
 		done
 	else
 		echo "No QSPI binary ($qspi_bin) found in sysupgrade archive, skipping QSPI flash."
