@@ -75,6 +75,8 @@ platform_do_upgrade_tqmls1088a_sdboot() {
 	if export_partdevice partdev 1; then
 		mkdir -p /boot
 		mount "/dev/$partdev" /boot
+		echo "Writing os-release..."
+		tar xf "$tar_file" "${board_dir}/os-release" -O > /boot/os-release
 		echo "Writing Kernel..."
 		tar xf "$tar_file" "${board_dir}/Image" -O > /boot/Image
 		echo "Writing DTB..."

@@ -72,10 +72,13 @@ define Build/tqmls1088a-sdcard
 	rm -rf $@.boot
 	mkdir -p $@.boot
 
+	# /boot/ partition
 	$(CP) $(KDIR)/Image $@.boot/Image
 	$(foreach dtb,$(DEVICE_DTS), \
 		$(CP) $(KDIR)/image-$(dtb).dtb $@.boot/$(dtb).dtb;)
+	$(CP) $(BUILD_DIR)/linux-layerscape_armv8_64b/base-files/ipkg-aarch64_generic/base-files/usr/lib64/os-release $@.boot/os-release
 
+	# RootFS partition
 	GUID=$(IMG_PART_DISKGUID) \
 	PADDING=1 \
 	ALIGN=1024 \
@@ -94,11 +97,14 @@ define Build/tqmls1088a-sysupgrade
 	rm -rf $@.sysupgrade
 	mkdir -p $@.sysupgrade/sysupgrade-$(DEVICE_NAME)
 
+	# /boot/ partition
 	echo "BOARD=$(DEVICE_NAME)" > $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/CONTROL
 	$(CP) $(KDIR)/Image $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/Image
 	$(foreach dtb,$(DEVICE_DTS), \
 		$(CP) $(KDIR)/image-$(dtb).dtb $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/$(dtb).dtb;)
+	$(CP) $(BUILD_DIR)/linux-layerscape_armv8_64b/base-files/ipkg-aarch64_generic/base-files/usr/lib64/os-release $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/os-release
 
+	# RootFS partition
 	dd if=$(IMAGE_ROOTFS) of=$@.sysupgrade/sysupgrade-$(DEVICE_NAME)/rootfs bs=1024 conv=sync
 
 	# Optional QSPI firmware files
