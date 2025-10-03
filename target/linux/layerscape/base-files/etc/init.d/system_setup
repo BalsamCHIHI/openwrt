@@ -12,32 +12,29 @@ boot() {
     fi
 
     board=$(cat /proc/cmdline | awk -F'board=' '{print $2}' | awk '{print $1}')
+    variant=$(cat /proc/cmdline | awk -F'variant=' '{print $2}' | awk '{print $1}')
+    mac_suffix=$(cat /proc/cmdline | awk -F'mac_suffix=' '{print $2}' | awk '{print $1}')
 
-    if [ -z "$board" ]; then
-        echo "Board variable not found."
-        return 0
-    fi
+    # Replace missing values with "variable name" string
+    [ -z "$board" ] && board="board"
+    [ -z "$variant" ] && variant="variant"
+    [ -z "$mac_suffix" ] && mac_suffix="mac_suffix"
 
-    case "$board" in
-        WAP)
-            uci set system.@system[0].hostname='Connect-Wap'
-            ;;
-        SERVER)
-            uci set system.@system[0].hostname='Connect-Server'
-            ;;
-        *)
-            return 0
-            ;;
-    esac
+    hostname="Connect-${board}-${variant}-${mac_suffix}"
 
-    uci set system.@system[0].zonename='Europe/Paris'
-    uci set system.@system[0].timezone='CET-1CEST,M3.5.0,M10.5.0/3'
-    #uci set system.@system[0].zram_size_mb='512'
-    #uci set system.@system[0].zram_comp_algo='zstd'
+    uci set system.@system[0].hostname="$hostname"
+    uci set system.@system[0].log_size='1024'
+    uci set system.@system[0].zonename='UTC'
+    uci set system.@system[0].log_ip='Ubuntu24x64-Balsam'
+    uci set system.@system[0].log_port='514'
+    uci set system.@system[0].log_proto='tcp'
+    uci set system.@system[0].log_file='/tmp/system.log'
+    uci set system.@system[0].conloglevel='8'
+    uci set system.@system[0].cronloglevel='5'
 
     uci commit
     reload_config
 
     touch "$MARKER_FILE"
-    echo "System setup completed successfully for board type $board."
+    echo "System setup completed successfully with hostname $hostname."
 }

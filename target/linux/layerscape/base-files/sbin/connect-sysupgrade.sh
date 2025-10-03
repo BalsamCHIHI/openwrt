@@ -1,15 +1,15 @@
 #!/bin/sh
 
-FIRMWARE_URL="http://ubuntu24x64/downloads/openwrt-layerscape-armv8_64b-moment_ls1088a-tqmls1088a-connect-squashfs-sysupgrade.bin"
-CHECKSUM_URL="http://ubuntu24x64/downloads/sha256sums"
-PROFILE_URL="http://ubuntu24x64/downloads/profiles.json"
+FIRMWARE_URL="http://Ubuntu24x64-Balsam/downloads/openwrt-layerscape-armv8_64b-moment_ls1088a-tqmls1088a-connect-squashfs-sysupgrade.bin"
+CHECKSUM_URL="http://Ubuntu24x64-Balsam/downloads/sha256sums"
+PROFILE_URL="http://Ubuntu24x64-Balsam/downloads/profiles.json"
 TMP_FW="/tmp/sysupgrade.bin"
 TMP_SUM="/tmp/sha256sums"
 TMP_PROFILE="/tmp/profiles.json"
 TMP_LOG="/tmp/connect-sysupgrade.log"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 HOSTNAME=$(cat /proc/sys/kernel/hostname)
-LOG_UPLOAD_URL="http://ubuntu24x64/cgi-bin/upload-raw.sh?filename=connect_sysupgrade-${HOSTNAME}-$TIMESTAMP.log"
+LOG_UPLOAD_URL="http://Ubuntu24x64-Balsam/cgi-bin/upload-raw.sh?filename=connect_sysupgrade-${HOSTNAME}-$TIMESTAMP.log"
 
 log() {
     echo "$1" | tee -a "$TMP_LOG"

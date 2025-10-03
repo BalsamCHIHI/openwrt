@@ -4,7 +4,7 @@ START=99
 USE_PROCD=1
 
 boot() {
-    HOST="ubuntu24x64"
+    HOST="Ubuntu24x64-Balsam"
     WAIT_SECONDS=5
     TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
     BUILD_DATE=$(grep BUILD_DATE /etc/os-release | cut -d= -f2 | tr -d '"')
