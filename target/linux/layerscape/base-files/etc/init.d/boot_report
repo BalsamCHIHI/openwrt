@@ -1,0 +1,27 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+USE_PROCD=1
+
+boot() {
+    HOST="ubuntu24x64"
+    WAIT_SECONDS=5
+    TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+    BUILD_DATE=$(grep BUILD_DATE /etc/os-release | cut -d= -f2 | tr -d '"')
+    HOSTNAME=$(cat /proc/sys/kernel/hostname)
+
+    logger -t boot-report "Waiting for ($HOST) to become reachable..."
+
+    i=0
+    while ! ping -c 1 -W 1 "$HOST" ; do
+        i=$((i + 1))
+        logger -t boot-report "Ping attempt $i failed. Retrying in $WAIT_SECONDS seconds..."
+        sleep "$WAIT_SECONDS"
+    done
+
+    logger -t boot-report "($HOST) is reachable. System boot completed successfully."
+    logger -t boot-report "Running firmware build date: $BUILD_DATE"
+
+    UPLOAD_URL="http://$HOST/cgi-bin/upload-raw.sh?filename=${HOSTNAME}_os-release_$TIMESTAMP"
+    wget --post-file=/etc/os-release "$UPLOAD_URL" -O - >> /tmp/boot-report-upload.log
+}
