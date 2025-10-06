@@ -39,6 +39,7 @@ boot() {
     uci set wireless.radio0.disabled='0'
     uci set wireless.radio0.band='2g'
     uci set wireless.radio0.cell_density='3'
+    uci set wireless.default_radio0.isolate='1'
 
     uci set wireless.radio1.htmode='HE160'
     uci set wireless.radio1.channel='auto'
@@ -47,6 +48,7 @@ boot() {
     uci set wireless.radio1.disabled='0'
     uci set wireless.radio1.band='5g'
     uci set wireless.radio1.cell_density='3'
+    uci set wireless.default_radio1.isolate='1'
 
     uci commit
     reload_config
