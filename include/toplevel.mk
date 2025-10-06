@@ -2,15 +2,6 @@
 #
 # Copyright (C) 2007-2020 OpenWrt.org
 
-# Automatically update version.date with current timestamp at every new build
-ifneq ($(filter world,$(MAKECMDGOALS)),)
-  $(shell date +%s > $(TOPDIR)/version.date)
-endif
-
-ifeq ($(MAKECMDGOALS),)
-  $(shell date +%s > $(TOPDIR)/version.date)
-endif
-
 PREP_MK= OPENWRT_BUILD= QUIET=0
 
 export IS_TTY=$(if $(MAKE_TERMOUT),1,0)
@@ -279,3 +270,6 @@ endif
 .PHONY: help FORCE
 .NOTPARALLEL:
 
+.PHONY: update-build-date
+update-build-date:
+	./scripts/update-build-date.sh
