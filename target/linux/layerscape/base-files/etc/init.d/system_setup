@@ -35,5 +35,7 @@ boot() {
     reload_config
 
     touch "$MARKER_FILE"
+
     echo "System setup completed successfully with hostname $hostname."
+    logger -t system-setup "System setup completed successfully with hostname $hostname."
 }

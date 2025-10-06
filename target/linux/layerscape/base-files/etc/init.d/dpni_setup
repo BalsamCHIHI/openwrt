@@ -13,5 +13,9 @@ boot() {
 	ls-addni dpmac.8
 	ls-addni dpmac.9
 	ls-addni dpmac.10
+
 	/etc/init.d/network restart
+
+	echo "DPAA2 dpni setup complete."
+	logger -t dpni-setup "DPAA2 dpni setup complete."
 }

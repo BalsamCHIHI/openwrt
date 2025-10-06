@@ -10,6 +10,7 @@ boot() {
     BUILD_DATE=$(grep BUILD_DATE /etc/os-release | cut -d= -f2 | tr -d '"')
     HOSTNAME=$(cat /proc/sys/kernel/hostname)
 
+    echo "Waiting for ($HOST) to become reachable..."
     logger -t boot-report "Waiting for ($HOST) to become reachable..."
 
     i=0
@@ -19,6 +20,8 @@ boot() {
         sleep "$WAIT_SECONDS"
     done
 
+    echo "($HOST) is reachable. System boot completed successfully."
+    echo "Running firmware build date: $BUILD_DATE"
     logger -t boot-report "($HOST) is reachable. System boot completed successfully."
     logger -t boot-report "Running firmware build date: $BUILD_DATE"
 
