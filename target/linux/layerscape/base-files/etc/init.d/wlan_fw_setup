@@ -14,6 +14,7 @@ boot() {
 
     if [ -z "$bname" ]; then
         echo "bname variable not found."
+        logger -t wlan_fw-setup "bname variable not found."
         return 0
     fi
 
@@ -38,5 +39,7 @@ boot() {
     ln -sf "$SOURCE_2" "$TARGET_2"
 
     touch "$MARKER_FILE"
+
     echo "WLan FW setup completed successfully for bname type $bname."
+    logger -t wlan_fw-setup "WLan FW setup completed successfully for bname type $bname."
 }

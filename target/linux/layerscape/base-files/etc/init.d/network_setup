@@ -14,6 +14,7 @@ boot() {
 
     if [ -z "$board" ]; then
         echo "Board variable not found."
+        logger -t network-setup "Board variable not found."
         return 0
     fi
 
@@ -69,5 +70,7 @@ boot() {
     reload_config
 
     touch "$MARKER_FILE"
+
     echo "Network setup completed successfully for board type $board."
+    logger -t network-setup "Network setup completed successfully for board type $board."
 }
