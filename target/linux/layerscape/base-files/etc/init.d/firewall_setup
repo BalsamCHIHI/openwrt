@@ -1,7 +1,6 @@
 #!/bin/sh /etc/rc.common
 
 START=16
-
 USE_PROCD=1
 
 boot() {
@@ -34,6 +33,26 @@ boot() {
             return 0
             ;;
     esac
+
+    uci set firewall.@defaults[0].input='ACCEPT'
+    uci set firewall.@defaults[0].forward='ACCEPT'
+
+    uci delete firewall.@rule[0]
+    uci delete firewall.@rule[0]
+    uci delete firewall.@rule[0]
+    uci delete firewall.@rule[0]
+    uci delete firewall.@rule[0]
+    uci delete firewall.@rule[0]
+    uci delete firewall.@rule[0]
+    uci delete firewall.@rule[0]
+    uci delete firewall.@rule[0]
+
+    uci set firewall.@zone[1].input='ACCEPT'
+    uci set firewall.@zone[1].forward='ACCEPT'
+
+    uci add firewall forwarding
+    uci set firewall.@forwarding[-1].src='wan'
+    uci set firewall.@forwarding[-1].dest='lan'
 
     uci commit
     reload_config
