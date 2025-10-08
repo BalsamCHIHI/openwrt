@@ -4,27 +4,36 @@ START=99
 USE_PROCD=1
 
 boot() {
-    HOST="Ubuntu24x64-Balsam"
-    WAIT_SECONDS=5
+    HOST="10.10.0.190"
+    WAIT_SECONDS=2
+    MAX_ATTEMPTS=6
     TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
     BUILD_DATE=$(grep BUILD_DATE /etc/os-release | cut -d= -f2 | tr -d '"')
     HOSTNAME=$(cat /proc/sys/kernel/hostname)
 
-    echo "Waiting for ($HOST) to become reachable..."
-    logger -t boot-report "Waiting for ($HOST) to become reachable..."
+    echo "boot_report : Waiting for $HOST to become reachable..." > /dev/kmsg
+    logger -t boot_report "Waiting for $HOST to become reachable..."
 
     i=0
     while ! ping -c 1 -W 1 "$HOST" ; do
         i=$((i + 1))
-        logger -t boot-report "Ping attempt $i failed. Retrying in $WAIT_SECONDS seconds..."
+        if [ "$i" -ge "$MAX_ATTEMPTS" ]; then
+            logger -t boot_report "Max attempts ($MAX_ATTEMPTS) reached. Giving up."
+            echo "boot_report : Max attempts reached. Skipping upload." > /dev/kmsg
+            return 0
+        fi
+        logger -t boot_report "Ping attempt $i failed. Retrying in $WAIT_SECONDS seconds..."
         sleep "$WAIT_SECONDS"
     done
 
-    echo "($HOST) is reachable. System boot completed successfully."
-    echo "Running firmware build date: $BUILD_DATE"
-    logger -t boot-report "($HOST) is reachable. System boot completed successfully."
-    logger -t boot-report "Running firmware build date: $BUILD_DATE"
+    echo "boot_report : $HOST is reachable. System boot completed." > /dev/kmsg
+    echo "boot_report : Running OpenWrt BUILD_DATE = $BUILD_DATE" > /dev/kmsg
+    logger -t boot_report "$HOST is reachable. System boot completed."
+    logger -t boot_report "Running OpenWrt BUILD_DATE = $BUILD_DATE"
 
     UPLOAD_URL="http://$HOST/cgi-bin/upload-raw.sh?filename=${HOSTNAME}_os-release_$TIMESTAMP"
     wget --post-file=/etc/os-release "$UPLOAD_URL" -O - >> /tmp/boot-report-upload.log
+
+    echo "boot_report : Upload ${HOSTNAME}_os-release_$TIMESTAMP to $HOST completed." > /dev/kmsg
+    logger -t boot_report "Upload ${HOSTNAME}_os-release_$TIMESTAMP to $HOST completed."
 }
