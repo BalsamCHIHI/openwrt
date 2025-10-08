@@ -1,10 +1,12 @@
 #!/bin/sh /etc/rc.common
 
-START=1
+START=01
 USE_PROCD=1
 
 boot() {
-    MARKER_FILE="/etc/wlan_fw_setup_done"
+    echo "ath11k_firmware_setup : ATH11K Firmware setup started." > /dev/kmsg
+
+    MARKER_FILE="/etc/ath11k_firmware_setup_done"
 
     if [ -f "$MARKER_FILE" ]; then
         return 0
@@ -13,8 +15,8 @@ boot() {
     bname=$(cat /proc/cmdline | awk -F'bname=' '{print $2}' | awk '{print $1}')
 
     if [ -z "$bname" ]; then
-        echo "bname variable not found."
-        logger -t wlan_fw-setup "bname variable not found."
+        echo "ath11k_firmware_setup : bname variable not found." > /dev/kmsg
+        echo "ath11k_firmware_setup : ATH11K Firmware setup failed." > /dev/kmsg
         return 0
     fi
 
@@ -40,6 +42,6 @@ boot() {
 
     touch "$MARKER_FILE"
 
-    echo "WLan FW setup completed successfully for bname type $bname."
-    logger -t wlan_fw-setup "WLan FW setup completed successfully for bname type $bname."
+    echo "ath11k_firmware_setup : bname = $bname." > /dev/kmsg
+    echo "ath11k_firmware_setup : ATH11K Firmware setup completed." > /dev/kmsg
 }

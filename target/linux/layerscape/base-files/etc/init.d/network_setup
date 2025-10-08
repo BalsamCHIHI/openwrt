@@ -1,9 +1,11 @@
 #!/bin/sh /etc/rc.common
 
-START=21
+START=95
 USE_PROCD=1
 
 boot() {
+    echo "network_setup : Network setup started." > /dev/kmsg
+
     MARKER_FILE="/etc/network_setup_done"
 
     if [ -f "$MARKER_FILE" ]; then
@@ -13,8 +15,8 @@ boot() {
     board=$(cat /proc/cmdline | awk -F'board=' '{print $2}' | awk '{print $1}')
 
     if [ -z "$board" ]; then
-        echo "Board variable not found."
-        logger -t network-setup "Board variable not found."
+        echo "network_setup : Board variable not found." > /dev/kmsg
+        echo "network_setup : Network setup failed." > /dev/kmsg
         return 0
     fi
 
@@ -71,6 +73,5 @@ boot() {
 
     touch "$MARKER_FILE"
 
-    echo "Network setup completed successfully for board type $board."
-    logger -t network-setup "Network setup completed successfully for board type $board."
+    echo "network_setup : Network setup completed." > /dev/kmsg
 }

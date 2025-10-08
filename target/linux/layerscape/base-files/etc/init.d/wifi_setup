@@ -1,9 +1,11 @@
 #!/bin/sh /etc/rc.common
 
-START=22
+START=96
 USE_PROCD=1
 
 boot() {
+    echo "wifi_setup : WiFi setup started." > /dev/kmsg
+
     MARKER_FILE="/etc/wifi_setup_done"
 
     if [ -f "$MARKER_FILE" ]; then
@@ -13,24 +15,10 @@ boot() {
     board=$(cat /proc/cmdline | awk -F'board=' '{print $2}' | awk '{print $1}')
 
     if [ -z "$board" ]; then
-        echo "Board variable not found."
-        logger -t wifi-setup "Board variable not found."
+        echo "wifi_setup : Board variable not found." > /dev/kmsg
+        echo "wifi_setup : WiFi setup failed." > /dev/kmsg
         return 0
     fi
-
-    case "$board" in
-        WAP)
-            uci set wireless.default_radio0.ssid='Connect-Wap-2.4GHz'
-            uci set wireless.default_radio1.ssid='Connect-Wap-5GHz'
-            ;;
-        SERVER)
-            uci set wireless.default_radio0.ssid='Connect-Server-2.4GHz'
-            uci set wireless.default_radio1.ssid='Connect-Server-5GHz'
-            ;;
-        *)
-            return 0
-            ;;
-    esac
 
     uci set wireless.radio0.htmode='HE40'
     uci set wireless.radio0.channel='auto'
@@ -50,11 +38,24 @@ boot() {
     uci set wireless.radio1.cell_density='3'
     uci set wireless.default_radio1.isolate='1'
 
+    case "$board" in
+        WAP)
+            uci set wireless.default_radio0.ssid='Connect-Wap-2.4GHz'
+            uci set wireless.default_radio1.ssid='Connect-Wap-5GHz'
+            ;;
+        SERVER)
+            uci set wireless.default_radio0.ssid='Connect-Server-2.4GHz'
+            uci set wireless.default_radio1.ssid='Connect-Server-5GHz'
+            ;;
+        *)
+            return 0
+            ;;
+    esac
+
     uci commit
-    reload_config
+    wifi reconf
 
     touch "$MARKER_FILE"
 
-    echo "WiFi setup completed successfully for board type $board."
-    logger -t wifi-setup "WiFi setup completed successfully for board type $board."
+    echo "wifi_setup : WiFi setup completed." > /dev/kmsg
 }
