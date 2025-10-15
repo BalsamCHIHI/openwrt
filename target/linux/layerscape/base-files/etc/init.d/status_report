@@ -1,0 +1,110 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+STOP=10
+USE_PROCD=1
+
+SERVER="10.10.0.190"
+HOSTNAME=$(cat /proc/sys/kernel/hostname)
+LOGREAD_FILE="/tmp/logread.log"
+
+wait_for_server() {
+    WAIT_SECONDS=2
+    MAX_ATTEMPTS=6
+
+    echo "status_report_wait_for_server : Waiting for $SERVER to become reachable..." > /dev/kmsg
+    logger -t status_report_wait_for_server "Waiting for $SERVER to become reachable..."
+
+    i=0
+    while ! ping -c 1 -W 1 "$SERVER"; do
+        i=$((i + 1))
+        if [ "$i" -ge "$MAX_ATTEMPTS" ]; then
+            echo "status_report_wait_for_server : Max attempts reached. Skipping upload." > /dev/kmsg
+            logger -t status_report_wait_for_server "Max attempts ($MAX_ATTEMPTS) reached. Giving up."
+
+            return 1
+        fi
+        echo "status_report_wait_for_server : Ping attempt $i failed. Retrying in $WAIT_SECONDS seconds..." > /dev/kmsg
+        logger -t status_report_wait_for_server "Ping attempt $i failed. Retrying in $WAIT_SECONDS seconds..."
+        sleep "$WAIT_SECONDS"
+    done
+
+    echo "status_report_wait_for_server : $SERVER is reachable." > /dev/kmsg
+    logger -t status_report_wait_for_server "$SERVER is reachable."
+
+    return 0
+}
+
+print_info() {
+    OS_RELEASE_FILE="/etc/os-release"
+    NAME=$(grep '^NAME=' "$OS_RELEASE_FILE" | cut -d= -f2 | tr -d '"')
+    VERSION=$(grep '^VERSION=' "$OS_RELEASE_FILE" | cut -d= -f2 | tr -d '"')
+    BUILD_ID=$(grep '^BUILD_ID=' "$OS_RELEASE_FILE" | cut -d= -f2 | tr -d '"')
+    BUILD_DATE=$(grep '^OPENWRT_BUILD_DATE=' "$OS_RELEASE_FILE" | cut -d= -f2 | tr -d '"')
+
+    echo "status_report_print_info : Hostname = $HOSTNAME" > /dev/kmsg
+    echo "status_report_print_info : NAME = $NAME" > /dev/kmsg
+    echo "status_report_print_info : VERSION = $VERSION" > /dev/kmsg
+    echo "status_report_print_info : BUILD_ID = $BUILD_ID" > /dev/kmsg
+    echo "status_report_print_info : OPENWRT_BUILD_DATE = $BUILD_DATE" > /dev/kmsg
+    echo "status_report_print_info : uptime = $(uptime)" > /dev/kmsg
+    logger -t status_report_print_info "Hostname = $HOSTNAME"
+    logger -t status_report_print_info "NAME = $NAME"
+    logger -t status_report_print_info "VERSION = $VERSION"
+    logger -t status_report_print_info "BUILD_ID = $BUILD_ID"
+    logger -t status_report_print_info "OPENWRT_BUILD_DATE = $BUILD_DATE"
+    logger -t status_report_print_info "uptime = $(uptime)"
+}
+
+create_logread() {
+    logread > "$LOGREAD_FILE"
+}
+
+delete_logread() {
+    rm -f "$LOGREAD_FILE"
+}
+
+upload_file() {
+    TAG=$1
+    FILE_PATH=$2
+    FILE_NAME=$(basename "$FILE_PATH")
+    TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+    UPLOAD_URL="http://$SERVER/cgi-bin/upload-raw.sh?filename=${HOSTNAME}-${FILE_NAME}-${TAG}-${TIMESTAMP}"
+
+    if [ -f "$FILE_PATH" ]; then
+        wget --post-file="$FILE_PATH" "$UPLOAD_URL" -O -
+        echo "$TAG : upload_file ${HOSTNAME}-${FILE_NAME}-${TAG}-${TIMESTAMP} to $SERVER completed." > /dev/kmsg
+        logger -t "$TAG" "upload_file ${HOSTNAME}-${FILE_NAME}-${TAG}-${TIMESTAMP} to $SERVER completed."
+    else
+        echo "$TAG : upload_file $FILE_PATH not found. Skipping upload." > /dev/kmsg
+        logger -t "$TAG" "upload_file $FILE_PATH not found. Skipping upload."
+    fi
+}
+
+boot() {
+    start_service
+}
+
+start_service() {
+    print_info
+    core_service "status_report_start"
+
+    return 0
+}
+
+stop_service() {
+    core_service "status_report_stop"
+
+    return 0
+}
+
+core_service() {
+    TAG=$1
+    if ! wait_for_server; then
+        return 1
+    fi
+
+    create_logread
+    upload_file "$TAG" "$LOGREAD_FILE"
+    delete_logread
+}
