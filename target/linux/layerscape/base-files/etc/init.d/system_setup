@@ -23,6 +23,7 @@ boot() {
 
     hostname="Connect-${board}-${variant}-${mac_suffix}"
 
+    uci set system.@system[0].ttylogin='1'
     uci set system.@system[0].hostname="$hostname"
     uci set system.@system[0].log_size='1024'
     uci set system.@system[0].zonename='UTC'
