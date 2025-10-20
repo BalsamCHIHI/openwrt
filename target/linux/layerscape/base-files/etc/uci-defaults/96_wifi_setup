@@ -1,0 +1,35 @@
+echo "wifi_setup : WiFi setup started." > /dev/kmsg
+
+board=$(cat /proc/cmdline | awk -F'board=' '{print $2}' | awk '{print $1}')
+
+[ -z "$board" ] && {
+    echo "wifi_setup : board variable not found, WiFi setup failed." > /dev/kmsg
+
+    exit 1
+}
+
+uci set wireless.default_radio0.ssid="Connect-${board}-2.4GHz"
+uci set wireless.radio0.htmode='HE40'
+uci set wireless.radio0.channel='auto'
+uci set wireless.radio0.cell_density='3'
+uci set wireless.radio0.country='FR'
+uci set wireless.radio0.disabled='0'
+uci set wireless.radio0.band='2g'
+uci set wireless.default_radio0.isolate='1'
+
+uci set wireless.default_radio1.ssid="Connect-${board}-5GHz"
+uci set wireless.radio1.htmode='HE160'
+uci set wireless.radio1.channel='auto'
+uci set wireless.radio1.cell_density='3'
+uci set wireless.radio1.country='FR'
+uci set wireless.radio1.disabled='0'
+uci set wireless.radio1.band='5g'
+uci set wireless.default_radio1.isolate='1'
+
+uci commit wireless
+wifi reconf
+reload_config
+
+echo "wifi_setup : WiFi setup completed." > /dev/kmsg
+
+exit 0
