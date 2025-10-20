@@ -26,8 +26,8 @@ TMP_LOG="/tmp/connect_sysupgrade.log"
 TMP_LOG_FILENAME=$(basename "$TMP_LOG")
 TMP_METADATA="/tmp/metadata.json"
 TMP_METADATA_FILENAME=$(basename "$TMP_METADATA")
-LOG_UPLOAD_URL="http://$SERVER/cgi-bin/upload-raw.sh?filename=${HOSTNAME}-${TMP_LOG_FILENAME}-$TIMESTAMP"
-METADATA_UPLOAD_URL="http://$SERVER/cgi-bin/upload-raw.sh?filename=${HOSTNAME}-${TMP_METADATA_FILENAME}-$TIMESTAMP"
+LOG_UPLOAD_URL="http://$SERVER/cgi-bin/upload-raw.sh?filename=${HOSTNAME}-${TMP_LOG_FILENAME}-${TIMESTAMP}"
+METADATA_UPLOAD_URL="http://$SERVER/cgi-bin/upload-raw.sh?filename=${HOSTNAME}-${TMP_METADATA_FILENAME}-${TIMESTAMP}"
 
 # Prevents hangs on flaky links
 WGET="wget -T 10 -q"
