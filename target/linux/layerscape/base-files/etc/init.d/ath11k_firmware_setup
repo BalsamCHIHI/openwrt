@@ -6,18 +6,12 @@ USE_PROCD=1
 boot() {
     echo "ath11k_firmware_setup : ATH11K Firmware setup started." > /dev/kmsg
 
-    MARKER_FILE="/etc/ath11k_firmware_setup_done"
-
-    if [ -f "$MARKER_FILE" ]; then
-        return 0
-    fi
-
     bname=$(cat /proc/cmdline | awk -F'bname=' '{print $2}' | awk '{print $1}')
 
     if [ -z "$bname" ]; then
-        echo "ath11k_firmware_setup : bname variable not found." > /dev/kmsg
-        echo "ath11k_firmware_setup : ATH11K Firmware setup failed." > /dev/kmsg
-        return 0
+        echo "ath11k_firmware_setup : bname variable not found, Ath11k Firmware setup failed." > /dev/kmsg
+
+        return 1
     fi
 
     case "$bname" in
@@ -30,6 +24,8 @@ boot() {
             SOURCE_2="/lib/firmware/ath11k/QCN9074/hw1.0/8devices/fwcfg-pci-0001:01:00.0.txt"
             ;;
         *)
+            echo "ath11k_firmware_setup : Unknown bname = $bname, skipping ath11k firmware setup." > /dev/kmsg
+
             return 0
             ;;
     esac
@@ -40,8 +36,7 @@ boot() {
     ln -sf "$SOURCE_1" "$TARGET_1"
     ln -sf "$SOURCE_2" "$TARGET_2"
 
-    touch "$MARKER_FILE"
+    echo "ath11k_firmware_setup : bname = $bname, Ath11k Firmware setup completed." > /dev/kmsg
 
-    echo "ath11k_firmware_setup : bname = $bname." > /dev/kmsg
-    echo "ath11k_firmware_setup : ATH11K Firmware setup completed." > /dev/kmsg
+    return 0
 }
