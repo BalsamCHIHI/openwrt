@@ -1,0 +1,48 @@
+echo "firewall_setup : Firewall setup started." > /dev/kmsg
+
+board=$(cat /proc/cmdline | awk -F'board=' '{print $2}' | awk '{print $1}')
+
+[ -z "$board" ] && {
+    echo "firewall_setup : board variable not found, Firewall setup failed." > /dev/kmsg
+
+    exit 1
+}
+
+# Delete first 11 firewall rules (if they exist)
+for i in $(seq 1 11); do
+    uci delete firewall.@rule[0]
+done
+
+uci set firewall.@defaults[0].input='ACCEPT'
+uci set firewall.@defaults[0].forward='ACCEPT'
+
+uci add firewall forwarding
+uci set firewall.@forwarding[-1].src='wan'
+uci set firewall.@forwarding[-1].dest='lan'
+
+uci del firewall.@zone[1].network
+
+case "$board" in
+    WAP)
+        uci add_list firewall.@zone[1].network='wan2'
+        uci add_list firewall.@zone[1].network='wan4'
+        uci add_list firewall.@zone[1].network='wan6'
+        uci add_list firewall.@zone[1].network='wan8'
+        ;;
+    SERVER)
+        uci add_list firewall.@zone[1].network='wan0'
+        ;;
+    *)
+        echo "network_setup : Unknown board = $board, skipping firewall setup." > /dev/kmsg
+        ;;
+esac
+
+uci set firewall.@zone[1].input='ACCEPT'
+uci set firewall.@zone[1].forward='ACCEPT'
+
+uci commit firewall
+reload_config
+
+echo "firewall_setup : Firewall setup completed." > /dev/kmsg
+
+exit 0
