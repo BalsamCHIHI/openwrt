@@ -3,6 +3,7 @@
 .*.swp
 /env
 /dl
+#/.config
 /.config.old
 /.toolchain_build_ver
 /bin
@@ -34,3 +35,4 @@ git-src
 .cproject
 .ccache
 .vscode*
+version.date
