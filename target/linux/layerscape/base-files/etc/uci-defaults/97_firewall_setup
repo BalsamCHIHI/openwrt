@@ -23,13 +23,13 @@ uci set firewall.@forwarding[-1].dest='lan'
 uci del firewall.@zone[1].network
 
 case "$board" in
-    WAP)
+    WAP | Wap | wap)
         uci add_list firewall.@zone[1].network='wan2'
         uci add_list firewall.@zone[1].network='wan4'
         uci add_list firewall.@zone[1].network='wan6'
         uci add_list firewall.@zone[1].network='wan8'
         ;;
-    SERVER)
+    SERVER | Server | server)
         uci add_list firewall.@zone[1].network='wan0'
         ;;
     *)
