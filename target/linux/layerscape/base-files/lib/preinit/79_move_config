@@ -24,11 +24,16 @@ move_config() {
 		;;
 	tq,ls1088a-tqmls1088a-mbls10xxa-sdboot | \
 	moment,ls1088a-tqmls1088a-connect-sdboot)
-			if [ -b $BOOTPART ]; then
+		if [ -b $BOOTPART ]; then
 			mkdir -p /boot
-			mount $BOOTPART /boot 2>&1
+			if mountpoint -q /boot; then
+				echo "/boot already mounted, skipping mount."
+			else
+				mount $BOOTPART /boot 2>&1
+				BOOT_MOUNTED_BY_SCRIPT=1
+			fi
 			[ -f "/boot/$BACKUP_FILE" ] && mv -f "/boot/$BACKUP_FILE" /
-			umount /boot
+			[ "$BOOT_MOUNTED_BY_SCRIPT" = "1" ] && umount /boot
 		fi
 		;;
 	esac

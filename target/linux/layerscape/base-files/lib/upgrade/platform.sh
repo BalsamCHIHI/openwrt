@@ -74,14 +74,20 @@ platform_do_upgrade_tqmls1088a_sdboot() {
 
 	if export_partdevice partdev 1; then
 		mkdir -p /boot
-		mount "/dev/$partdev" /boot
+		if mountpoint -q /boot; then
+			echo "/boot already mounted, skipping mount."
+		else
+			mount "/dev/$partdev" /boot
+			BOOT_MOUNTED_BY_SCRIPT=1
+		fi
+
 		echo "Writing os-release..."
 		tar xf "$tar_file" "${board_dir}/os-release" -O > /boot/os-release
 		echo "Writing Kernel..."
 		tar xf "$tar_file" "${board_dir}/Image" -O > /boot/Image
 		echo "Writing DTB..."
 		tar xf "$tar_file" "${board_dir}/fsl-ls1088a-tqmls1088a-connect.dtb" -O > /boot/fsl-ls1088a-tqmls1088a-connect.dtb
-		umount /boot
+		[ "$BOOT_MOUNTED_BY_SCRIPT" = "1" ] && umount /boot
 	fi
 
 	echo "Erasing RootFS..."
@@ -200,10 +206,16 @@ platform_copy_config_tqmls1088a_sdboot() {
 
 	if export_partdevice partdev 1; then
 		mkdir -p /boot
-		mount "/dev/$partdev" /boot 2>&1
+		if mountpoint -q /boot; then
+			echo "/boot already mounted, skipping mount."
+		else
+			mount "/dev/$partdev" /boot
+			BOOT_MOUNTED_BY_SCRIPT=1
+		fi
+
 		echo "Saving config backup..."
 		cp -af "$UPGRADE_BACKUP" "/boot/$BACKUP_FILE"
-		umount /boot
+		[ "$BOOT_MOUNTED_BY_SCRIPT" = "1" ] && umount /boot
 	fi
 }
 
