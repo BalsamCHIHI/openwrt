@@ -1,7 +1,6 @@
 #!/bin/sh /etc/rc.common
 
 START=01
-USE_PROCD=1
 
 boot() {
     echo "ath11k_firmware_setup : ATH11K Firmware setup started." > /dev/kmsg
@@ -32,6 +31,9 @@ boot() {
 
     TARGET_1="/lib/firmware/ath11k/fwcfg-pci-0000:01:00.0.txt"
     TARGET_2="/lib/firmware/ath11k/fwcfg-pci-0001:01:00.0.txt"
+
+    rm -f "$TARGET_1"
+    rm -f "$TARGET_2"
 
     ln -sf "$SOURCE_1" "$TARGET_1"
     ln -sf "$SOURCE_2" "$TARGET_2"
