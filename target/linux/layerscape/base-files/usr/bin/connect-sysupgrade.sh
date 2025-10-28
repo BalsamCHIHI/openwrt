@@ -88,8 +88,8 @@ $WGET -O "$TMP_PROFILE" "$PROFILE_URL" || {
 # epoch from top-level source_date_epoch : in profiles.json
 NEW_DATE="$(jsonfilter -i "$TMP_PROFILE" -e '@.source_date_epoch')"
 
-log "Running firmware BUILD_DATE : $CURRENT_DATE"
-log "New firmware     BUILD_DATE : $NEW_DATE"
+log "Running firmware BUILD_DATE : $CURRENT_DATE : $(date -d @"$CURRENT_DATE")"
+log "New firmware     BUILD_DATE : $NEW_DATE : $(date -d @"$NEW_DATE")"
 
 # Numeric compare
 if [ "$NEW_DATE" -le "$CURRENT_DATE" ]; then
