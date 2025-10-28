@@ -19,13 +19,13 @@ wait_for_server() {
     while ! ping -c 1 -W 1 "$SERVER"; do
         i=$((i + 1))
         if [ "$i" -ge "$MAX_ATTEMPTS" ]; then
-            echo "status_report_wait_for_server : Max attempts reached. Skipping upload." > /dev/kmsg
-            logger -t status_report_wait_for_server "Max attempts ($MAX_ATTEMPTS) reached. Giving up."
+            echo "status_report_wait_for_server : Max attempts $MAX_ATTEMPTS reached. Skipping upload." > /dev/kmsg
+            logger -t status_report_wait_for_server "Max attempts $MAX_ATTEMPTS reached. Skipping upload."
 
             return 1
         fi
-        echo "status_report_wait_for_server : Ping attempt $i failed. Retrying in $WAIT_SECONDS seconds..." > /dev/kmsg
-        logger -t status_report_wait_for_server "Ping attempt $i failed. Retrying in $WAIT_SECONDS seconds..."
+        echo "status_report_wait_for_server : Ping attempt $i / $MAX_ATTEMPTS failed. Retrying in $WAIT_SECONDS seconds..." > /dev/kmsg
+        logger -t status_report_wait_for_server "Ping attempt $i / $MAX_ATTEMPTS failed. Retrying in $WAIT_SECONDS seconds..."
         sleep "$WAIT_SECONDS"
     done
 
@@ -93,6 +93,7 @@ start_service() {
 }
 
 stop_service() {
+    print_info
     core_service "status_report_stop"
 
     return 0
