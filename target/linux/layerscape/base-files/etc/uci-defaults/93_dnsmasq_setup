@@ -1,0 +1,35 @@
+echo "dnsmasq_setup : DNSMasq setup started." > /dev/kmsg
+
+board=$(cat /proc/cmdline | awk -F'board=' '{print $2}' | awk '{print $1}')
+
+[ -z "$board" ] && {
+    echo "dnsmasq_setup : board variable not found, DNSMasq setup failed." > /dev/kmsg
+    exit 1
+}
+
+uci delete dhcp.wan
+
+case "$board" in
+    WAP | Wap | wap)
+        for i in 2 4 6 8; do
+            uci set dhcp.wan$i="dhcp"
+            uci set dhcp.wan$i.interface="wan$i"
+            uci set dhcp.wan$i.ignore="1"
+        done
+        ;;
+    SERVER | Server | server)
+        uci set dhcp.wan0="dhcp"
+        uci set dhcp.wan0.interface="wan0"
+        uci set dhcp.wan0.ignore="1"
+        ;;
+    *)
+        echo "dnsmasq_setup : Unknown board = $board." > /dev/kmsg
+        ;;
+esac
+
+uci commit dhcp
+reload_config
+
+echo "dnsmasq_setup : board = $board, DNSMasq setup completed." > /dev/kmsg
+
+exit 0
