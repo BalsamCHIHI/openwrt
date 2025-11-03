@@ -2,6 +2,7 @@ echo "system_setup : System setup started." > /dev/kmsg
 
 board=$(cat /proc/cmdline | awk -F'board=' '{print $2}' | awk '{print $1}')
 mac_suffix=$(cat /proc/cmdline | awk -F'mac_suffix=' '{print $2}' | awk '{print $1}')
+ce_server=$(cat /proc/cmdline | awk -F'ce_server=' '{print $2}' | awk '{print $1}')
 
 [ -z "$board" ] && {
     echo "system_setup : board variable not found, System setup failed." > /dev/kmsg
@@ -15,12 +16,14 @@ mac_suffix=$(cat /proc/cmdline | awk -F'mac_suffix=' '{print $2}' | awk '{print 
     exit 1
 }
 
+[ -z "$ce_server" ] && ce_server="172.100.1.1"
+
 hostname="Connect-${board}-${mac_suffix}"
 
 uci set system.@system[0].hostname="$hostname"
 uci set system.@system[0].zonename='UTC'
 uci set system.@system[0].log_size='1024'
-uci set system.@system[0].log_ip='10.10.0.190'
+uci set system.@system[0].log_ip="$ce_server"
 uci set system.@system[0].log_port='514'
 uci set system.@system[0].log_proto='tcp'
 uci set system.@system[0].conloglevel='8'

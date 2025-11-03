@@ -11,9 +11,13 @@ case "$MODE" in
         ;;
 esac
 
+SERVER=$(cat /proc/cmdline | awk -F'ce_server=' '{print $2}' | awk '{print $1}')
+
+# Fallback if ce_server is not set
+[ -z "$SERVER" ] && SERVER="172.100.1.1"
+
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 HOSTNAME=$(cat /proc/sys/kernel/hostname)
-SERVER="10.10.0.190"
 FIRMWARE_URL="http://$SERVER/downloads/openwrt-layerscape-armv8_64b-moment_ls1088a-tqmls1088a-connect-squashfs-sysupgrade.bin"
 FIRMWARE_URL_FILENAME=$(basename "$FIRMWARE_URL")
 CHECKSUM_URL="http://$SERVER/downloads/sha256sums"
