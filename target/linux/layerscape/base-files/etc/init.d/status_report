@@ -4,9 +4,13 @@ START=99
 STOP=10
 USE_PROCD=1
 
-SERVER="10.10.0.190"
+
 HOSTNAME=$(cat /proc/sys/kernel/hostname)
 LOGREAD_FILE="/tmp/logread.log"
+SERVER=$(cat /proc/cmdline | awk -F'ce_server=' '{print $2}' | awk '{print $1}')
+
+# Fallback if ce_server is not set
+[ -z "$SERVER" ] && SERVER="172.100.1.1"
 
 wait_for_server() {
     WAIT_SECONDS=2
