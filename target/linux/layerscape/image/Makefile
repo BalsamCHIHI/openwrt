@@ -108,10 +108,10 @@ define Build/tqmls1088a-sysupgrade
 	dd if=$(IMAGE_ROOTFS) of=$@.sysupgrade/sysupgrade-$(DEVICE_NAME)/rootfs bs=1024 conv=sync
 
 	# Optional QSPI firmware files
-	$(if $(wildcard $(TOPDIR)/../make-fw/out/qspi-atf-2gb.bin), \
-		$(CP) $(TOPDIR)/../make-fw/out/qspi-atf-2gb.bin $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/qspi-atf-2gb.bin)
-	$(if $(wildcard $(TOPDIR)/../make-fw/out/qspi-atf-4gb.bin), \
-		$(CP) $(TOPDIR)/../make-fw/out/qspi-atf-4gb.bin $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/qspi-atf-4gb.bin)
+	$(if $(wildcard $(TOPDIR)/bootloader/out/qspi-atf-2gb.bin), \
+		$(CP) $(TOPDIR)/bootloader/out/qspi-atf-2gb.bin $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/qspi-atf-2gb.bin)
+	$(if $(wildcard $(TOPDIR)/bootloader/out/qspi-atf-4gb.bin), \
+		$(CP) $(TOPDIR)/bootloader/out/qspi-atf-4gb.bin $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/qspi-atf-4gb.bin)
 
 	tar --sort=name --owner=0 --group=0 --numeric-owner -czf $@.tar -C $@.sysupgrade sysupgrade-$(DEVICE_NAME)
 	mv $@.tar $@
