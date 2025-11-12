@@ -36,3 +36,4 @@ git-src
 .ccache
 .vscode*
 version.date
+bootloader/out
