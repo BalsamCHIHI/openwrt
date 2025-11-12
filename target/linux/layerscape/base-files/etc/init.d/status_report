@@ -4,7 +4,6 @@ START=99
 STOP=10
 USE_PROCD=1
 
-
 HOSTNAME=$(cat /proc/sys/kernel/hostname)
 LOGREAD_FILE="/tmp/logread.log"
 SERVER=$(cat /proc/cmdline | awk -F'ce_server=' '{print $2}' | awk '{print $1}')
@@ -52,6 +51,7 @@ print_info() {
     echo "status_report_print_info : BUILD_ID = $BUILD_ID" > /dev/kmsg
     echo "status_report_print_info : OPENWRT_BUILD_DATE = $BUILD_DATE" > /dev/kmsg
     echo "status_report_print_info : uptime = $(uptime)" > /dev/kmsg
+
     logger -t status_report_print_info "Hostname = $HOSTNAME"
     logger -t status_report_print_info "NAME = $NAME"
     logger -t status_report_print_info "VERSION = $VERSION"
@@ -76,9 +76,13 @@ upload_file() {
     UPLOAD_URL="http://$SERVER/cgi-bin/upload-raw.sh?filename=${HOSTNAME}-${FILE_NAME}-${TAG}-${TIMESTAMP}"
 
     if [ -f "$FILE_PATH" ]; then
-        wget --post-file="$FILE_PATH" "$UPLOAD_URL" -O -
-        echo "$TAG : upload_file ${HOSTNAME}-${FILE_NAME}-${TAG}-${TIMESTAMP} to $SERVER completed." > /dev/kmsg
-        logger -t "$TAG" "upload_file ${HOSTNAME}-${FILE_NAME}-${TAG}-${TIMESTAMP} to $SERVER completed."
+        if wget --post-file="$FILE_PATH" "$UPLOAD_URL" -O -; then
+            echo "$TAG : upload_file ${HOSTNAME}-${FILE_NAME}-${TAG}-${TIMESTAMP} to $SERVER completed successfully." > /dev/kmsg
+            logger -t "$TAG" "upload_file ${HOSTNAME}-${FILE_NAME}-${TAG}-${TIMESTAMP} to $SERVER completed successfully."
+        else
+            echo "$TAG : upload_file ${HOSTNAME}-${FILE_NAME}-${TAG}-${TIMESTAMP} to $SERVER FAILED." > /dev/kmsg
+            logger -t "$TAG" "upload_file ${HOSTNAME}-${FILE_NAME}-${TAG}-${TIMESTAMP} to $SERVER FAILED."
+        fi
     else
         echo "$TAG : upload_file $FILE_PATH not found. Skipping upload." > /dev/kmsg
         logger -t "$TAG" "upload_file $FILE_PATH not found. Skipping upload."
