@@ -1,0 +1,8 @@
+echo "ttyd_setup : ttyd setup started." > /dev/kmsg
+
+/etc/init.d/ttyd stop
+/etc/init.d/ttyd disable
+
+echo "ttyd_setup : ttyd setup completed." > /dev/kmsg
+
+exit 0
