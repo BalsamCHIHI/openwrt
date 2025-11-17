@@ -1,0 +1,8 @@
+echo "socat_setup : socat setup started." > /dev/kmsg
+
+/etc/init.d/socat stop
+/etc/init.d/socat disable
+
+echo "socat_setup : socat setup completed." > /dev/kmsg
+
+exit 0
