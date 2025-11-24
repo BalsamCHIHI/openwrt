@@ -1,9 +1,14 @@
-#!/bin/sh /etc/rc.common
+echo "monitoring_setup : Monitoring setup started." > /dev/kmsg
 
-START=80
+uci add fstab mount
+uci set fstab.@mount[4].enabled='1'
+uci set fstab.@mount[4].device='/dev/mtdblock7'
+uci set fstab.@mount[4].target='/mnt/monitor'
+uci set fstab.@mount[4].fstype='jffs2'
+uci commit fstab
 
-start() {
-    # Find the MTD partition with the name "monitor"
+# Find the MTD partition with the name "monitor"
+(
     MONITOR_MTD=$(grep '"monitor"' /proc/mtd | awk -F: '{print $1}')
 
     if [ -z "$MONITOR_MTD" ]; then
@@ -23,4 +28,6 @@ start() {
     else
         echo "/dev/$MONITOR_MTD_BLOCK is already mounted."
     fi
-}
+) &
+
+echo "monitoring_setup : Monitoring setup finished." > /dev/kmsg
