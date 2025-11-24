@@ -1,5 +1,10 @@
 echo "ttyd_setup : ttyd setup started." > /dev/kmsg
 
+uci del ttyd.@ttyd[0].interface
+uci set ttyd.@ttyd[0].debug='1'
+uci commit ttyd
+reload_config
+
 /etc/init.d/ttyd stop
 /etc/init.d/ttyd disable
 
