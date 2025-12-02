@@ -1,0 +1,25 @@
+#!/bin/sh /etc/rc.common
+
+START=97
+
+boot() {
+    echo "ce_server_ip_setup : COM Express Server IP setup started." > /dev/kmsg
+
+    ce_server=$(cat /proc/cmdline | awk -F'ce_server=' '{print $2}' | awk '{print $1}')
+
+    if [ -z "$ce_server" ]; then
+        ce_server="172.100.1.1"
+        echo "ce_server_ip_setup : ce_server variable not found, COM Express Server IP setup failed." > /dev/kmsg
+
+        return 1
+    fi
+
+    uci set system.@system[0].log_ip="$ce_server"
+
+    uci commit system
+    reload_config
+
+    echo "ce_server_ip_setup : ce_server = $ce_server, COM Express Server IP setup completed." > /dev/kmsg
+
+    return 0
+}
