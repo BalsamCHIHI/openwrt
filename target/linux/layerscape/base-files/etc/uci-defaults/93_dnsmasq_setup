@@ -3,7 +3,7 @@ echo "dnsmasq_setup : DNSMasq setup started." > /dev/kmsg
 board=$(cat /proc/cmdline | awk -F'board=' '{print $2}' | awk '{print $1}')
 
 [ -z "$board" ] && {
-    echo "dnsmasq_setup : board variable not found, DNSMasq setup failed." > /dev/kmsg
+    echo "dnsmasq_setup : board variable not found, DNSmasq setup failed." > /dev/kmsg
     exit 1
 }
 
@@ -30,6 +30,6 @@ esac
 uci commit dhcp
 reload_config
 
-echo "dnsmasq_setup : board = $board, DNSMasq setup completed." > /dev/kmsg
+echo "dnsmasq_setup : board = $board, DNSmasq setup completed." > /dev/kmsg
 
 exit 0
