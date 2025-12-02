@@ -270,6 +270,3 @@ endif
 .PHONY: help FORCE
 .NOTPARALLEL:
 
-.PHONY: update-build-date
-update-build-date:
-	./scripts/update-build-date.sh
