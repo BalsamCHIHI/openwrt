@@ -207,6 +207,7 @@ if VERSIONOPT
 			 %t .. Build taint flags, e.g. "no-all busybox"
 			 %M .. Manufacturer name or "OpenWrt"
 			 %P .. Product name or "Generic"
+			 %F .. Firmware release or "v0.0.0"
 			 %h .. Hardware revision or "v0"
 
 	config VERSION_HOME_URL
@@ -246,6 +247,13 @@ if VERSIONOPT
 		prompt "Product name"
 		help
 			This is the product name embedded in /etc/device_info
+			Useful for OEMs building OpenWrt based firmware
+
+	config VERSION_FWREL
+		string
+		prompt "Firmware release"
+		help
+			This is the firmware release string embedded in /etc/device_info
 			Useful for OEMs building OpenWrt based firmware
 
 	config VERSION_HWREV
