@@ -5,8 +5,8 @@ STOP=10
 USE_PROCD=1
 
 HOSTNAME=$(cat /proc/sys/kernel/hostname)
-LOGREAD_FILE="/tmp/logread.log"
 SERVER=$(cat /proc/cmdline | awk -F'ce_server=' '{print $2}' | awk '{print $1}')
+LOGREAD_FILE="/tmp/logread.log"
 
 # Fallback if ce_server is not set
 [ -z "$SERVER" ] && SERVER="172.100.1.1"
@@ -40,24 +40,31 @@ wait_for_server() {
 
 print_info() {
     OS_RELEASE_FILE="/etc/os-release"
-    NAME=$(grep '^NAME=' "$OS_RELEASE_FILE" | cut -d= -f2 | tr -d '"')
-    VERSION=$(grep '^VERSION=' "$OS_RELEASE_FILE" | cut -d= -f2 | tr -d '"')
-    BUILD_ID=$(grep '^BUILD_ID=' "$OS_RELEASE_FILE" | cut -d= -f2 | tr -d '"')
-    BUILD_DATE=$(grep '^OPENWRT_BUILD_DATE=' "$OS_RELEASE_FILE" | cut -d= -f2 | tr -d '"')
+    OPENWRT_DEVICE_MANUFACTURER=$(grep '^OPENWRT_DEVICE_MANUFACTURER=' "$OS_RELEASE_FILE" | cut -d= -f2 | tr -d '"')
+    OPENWRT_DEVICE_MANUFACTURER_URL=$(grep '^OPENWRT_DEVICE_MANUFACTURER_URL=' "$OS_RELEASE_FILE" | cut -d= -f2 | tr -d '"')
+    OPENWRT_DEVICE_PRODUCT=$(grep '^OPENWRT_DEVICE_PRODUCT=' "$OS_RELEASE_FILE" | cut -d= -f2 | tr -d '"')
+    OPENWRT_RELEASE=$(grep '^OPENWRT_RELEASE=' "$OS_RELEASE_FILE" | cut -d= -f2 | tr -d '"')
+    OPENWRT_BUILD_DATE=$(grep '^OPENWRT_BUILD_DATE=' "$OS_RELEASE_FILE" | cut -d= -f2 | tr -d '"')
 
     echo "status_report_print_info : Hostname = $HOSTNAME" > /dev/kmsg
-    echo "status_report_print_info : NAME = $NAME" > /dev/kmsg
-    echo "status_report_print_info : VERSION = $VERSION" > /dev/kmsg
-    echo "status_report_print_info : BUILD_ID = $BUILD_ID" > /dev/kmsg
-    echo "status_report_print_info : OPENWRT_BUILD_DATE = $BUILD_DATE" > /dev/kmsg
+    echo "status_report_print_info : ce_server = $SERVER" > /dev/kmsg
     echo "status_report_print_info : uptime = $(uptime)" > /dev/kmsg
 
     logger -t status_report_print_info "Hostname = $HOSTNAME"
-    logger -t status_report_print_info "NAME = $NAME"
-    logger -t status_report_print_info "VERSION = $VERSION"
-    logger -t status_report_print_info "BUILD_ID = $BUILD_ID"
-    logger -t status_report_print_info "OPENWRT_BUILD_DATE = $BUILD_DATE"
+    logger -t status_report_print_info "ce_server = $SERVER"
     logger -t status_report_print_info "uptime = $(uptime)"
+
+    echo "status_report_print_info : DEVICE_MANUFACTURER = $OPENWRT_DEVICE_MANUFACTURER" > /dev/kmsg
+    echo "status_report_print_info : DEVICE_MANUFACTURER_URL = $OPENWRT_DEVICE_MANUFACTURER_URL" > /dev/kmsg
+    echo "status_report_print_info : DEVICE_PRODUCT = $OPENWRT_DEVICE_PRODUCT" > /dev/kmsg
+    echo "status_report_print_info : RELEASE = $OPENWRT_RELEASE" > /dev/kmsg
+    echo "status_report_print_info : BUILD_DATE = $OPENWRT_BUILD_DATE, $(date -d @"$OPENWRT_BUILD_DATE")" > /dev/kmsg
+
+    logger -t status_report_print_info "DEVICE_MANUFACTURER = $OPENWRT_DEVICE_MANUFACTURER"
+    logger -t status_report_print_info "DEVICE_MANUFACTURER_URL = $OPENWRT_DEVICE_MANUFACTURER_URL"
+    logger -t status_report_print_info "DEVICE_PRODUCT = $OPENWRT_DEVICE_PRODUCT"
+    logger -t status_report_print_info "RELEASE = $OPENWRT_RELEASE"
+    logger -t status_report_print_info "BUILD_DATE = $OPENWRT_BUILD_DATE, $(date -d @"$OPENWRT_BUILD_DATE")"
 }
 
 create_logread() {
