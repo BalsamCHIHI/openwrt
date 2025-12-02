@@ -72,13 +72,11 @@ define Build/tqmls1088a-sdcard
 	rm -rf $@.boot
 	mkdir -p $@.boot
 
-	# /boot/ partition
+	# Boot partition files
 	$(CP) $(KDIR)/Image $@.boot/Image
-	$(foreach dtb,$(DEVICE_DTS), \
-		$(CP) $(KDIR)/image-$(dtb).dtb $@.boot/$(dtb).dtb;)
-	$(CP) $(BUILD_DIR)/linux-layerscape_armv8_64b/base-files/ipkg-aarch64_generic/base-files/usr/lib64/os-release $@.boot/os-release
+	$(CP) $(KDIR)/image-$(DEVICE_DTS).dtb $@.boot/$(DEVICE_DTS).dtb
 
-	# RootFS partition
+	# Full sdcard image
 	GUID=$(IMG_PART_DISKGUID) \
 	PADDING=1 \
 	ALIGN=1024 \
@@ -95,23 +93,38 @@ endef
 define Build/tqmls1088a-sysupgrade
 	rm -f $@
 	rm -rf $@.sysupgrade
-	mkdir -p $@.sysupgrade/sysupgrade-$(DEVICE_NAME)
+	mkdir -p $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/bootloader
+	mkdir -p $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/boot
 
-	# /boot/ partition
-	echo "BOARD=$(DEVICE_NAME)" > $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/CONTROL
-	$(CP) $(KDIR)/Image $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/Image
-	$(foreach dtb,$(DEVICE_DTS), \
-		$(CP) $(KDIR)/image-$(dtb).dtb $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/$(dtb).dtb;)
-	$(CP) $(BUILD_DIR)/linux-layerscape_armv8_64b/base-files/ipkg-aarch64_generic/base-files/usr/lib64/os-release $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/os-release
+	# Generate CONTROL file with metadata
+	printf "%s\n" \
+	BOARD=$(if $(BOARD_NAME),$(BOARD_NAME),$(DEVICE_NAME)) \
+	"SUPPORTED_DEVICES=$(SUPPORTED_DEVICES)" \
+	"DEVICE_COMPAT_VERSION=$(DEVICE_COMPAT_VERSION)" \
+	"DEVICE_VENDOR=$(DEVICE_VENDOR)" \
+	"DEVICE_MODEL=$(DEVICE_MODEL)" \
+	"DEVICE_VARIANT=$(DEVICE_VARIANT)" \
+	"VERSION_DIST=$(VERSION_DIST)" \
+	"VERSION_NUMBER=$(VERSION_NUMBER)" \
+	"VERSION_CODE=$(VERSION_CODE)" \
+	"VERSION_FWREL=$(VERSION_FWREL)" \
+	"SOURCE_DATE_EPOCH=$(SOURCE_DATE_EPOCH)" \
+	> $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/CONTROL
 
-	# RootFS partition
+	# Bootloader binaries
+	$(CP) $(BIN_DIR)/bootloader/atf-2gb $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/bootloader/
+	$(CP) $(BIN_DIR)/bootloader/atf-4gb $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/bootloader/
+	$(CP) $(BIN_DIR)/bootloader/dpaa2 $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/bootloader/
+
+	# Boot files
+	$(CP) $(KDIR)/Image $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/boot/Image
+	$(CP) $(KDIR)/image-$(DEVICE_DTS).dtb $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/boot/$(DEVICE_DTS).dtb
+
+	# platfrom.sh, for sysupgrade compatibility
+	$(CP) $(TOPDIR)/target/linux/layerscape/base-files/lib/upgrade/platform.sh $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/platform.sh
+
+	# RootFS image file
 	dd if=$(IMAGE_ROOTFS) of=$@.sysupgrade/sysupgrade-$(DEVICE_NAME)/rootfs bs=1024 conv=sync
-
-	# Optional QSPI firmware files
-	$(if $(wildcard $(TOPDIR)/bootloader/out/qspi-atf-2gb.bin), \
-		$(CP) $(TOPDIR)/bootloader/out/qspi-atf-2gb.bin $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/qspi-atf-2gb.bin)
-	$(if $(wildcard $(TOPDIR)/bootloader/out/qspi-atf-4gb.bin), \
-		$(CP) $(TOPDIR)/bootloader/out/qspi-atf-4gb.bin $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/qspi-atf-4gb.bin)
 
 	tar --sort=name --owner=0 --group=0 --numeric-owner -czf $@.tar -C $@.sysupgrade sysupgrade-$(DEVICE_NAME)
 	mv $@.tar $@

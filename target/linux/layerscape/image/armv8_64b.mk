@@ -25,12 +25,6 @@ define Device/fsl-sdboot
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
 
-define Device/fsl-emmcboot
-  KERNEL = kernel-bin | gzip | fit gzip $$(DTS_DIR)/$$(DEVICE_DTS).dtb
-  IMAGES := emmc.img.gz sysupgrade.bin
-  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
-endef
-
 define Device/fsl_ls1012a-frdm
   DEVICE_VENDOR := NXP
   DEVICE_MODEL := FRDM-LS1012A
@@ -416,6 +410,8 @@ define Device/tq_ls1088a-tqmls1088a-mbls10xxa
   DEVICE_VENDOR := TQ
   DEVICE_MODEL := LS1088A-TQMLS1088A-MBLS10XXA
   DEVICE_VARIANT := SD Boot
+  #BOARD_NAME := layerscape
+  #DEVICE_NAME := tq_ls1088a-tqmls1088a-mbls10xxa
   DEVICE_COMPAT_VERSION := 2.0
   SUPPORTED_DEVICES := tq,ls1088a-tqmls1088a-mbls10xxa tq,ls1088a-tqmls1088a-mbls10xxa-sdboot
   DEVICE_DTS := fsl-ls1088a-tqmls1088a-mbls10xxa
@@ -430,6 +426,8 @@ define Device/moment_ls1088a-tqmls1088a-connect
   DEVICE_VENDOR := Moment
   DEVICE_MODEL := LS1088A-TQMLS1088A-Connect
   DEVICE_VARIANT := SD Boot
+  #BOARD_NAME := layerscape
+  #DEVICE_NAME := moment_ls1088a-tqmls1088a-connect
   DEVICE_COMPAT_VERSION := 2.0
   SUPPORTED_DEVICES := moment,ls1088a-tqmls1088a-connect moment,ls1088a-tqmls1088a-connect-sdboot
   DEVICE_DTS := fsl-ls1088a-tqmls1088a-connect
