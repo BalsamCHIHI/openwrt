@@ -8,9 +8,6 @@ uci set librespeed-go.config.database_type='none'  # no telemetry (lightest)
 uci commit librespeed-go
 reload_config
 
-/etc/init.d/librespeed-go stop
-/etc/init.d/librespeed-go disable
-
 echo "librespeed_setup : librespeed setup completed." > /dev/kmsg
 
 exit 0
