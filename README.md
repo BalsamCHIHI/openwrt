@@ -94,7 +94,7 @@ ls usb 0
 
 #### Load the Bootloader to DRAM and Flash it in the QSPI
 ```
-load usb 0 0xA0000000 qspi-atf-2gb.bin
+load usb 0 0xA0000000 bootloader-2gb-qspi.bin
 sf probe
 sf update $fileaddr 0x0 $filesize
 ```
@@ -139,7 +139,7 @@ Save and close the file.
 ##### Create TFTP Directory and Copy Files
 ```
 sudo mkdir -p /srv/tftp
-sudo cp qspi-atf-2gb.bin /srv/tftp
+sudo cp bootloader-2gb-qspi.bin /srv/tftp
 sudo cp openwrt-layerscape-armv8_64b-moment_ls1088a-tqmls1088a-connect-squashfs-sdcard.img.gz /srv/tftp
 ```
 
@@ -183,7 +183,7 @@ ping 172.100.1.1
 
 ##### Load the Bootloader to DRAM and Flash it in the QSPI
 ```
-tftpboot 0xA0000000 qspi-atf-2gb.bin
+tftpboot 0xA0000000 bootloader-2gb-qspi.bin
 sf probe
 sf update $fileaddr 0x0 $filesize
 ```
