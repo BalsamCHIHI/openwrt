@@ -3,7 +3,7 @@
 # Copyright 2020 NXP
 #
 
-RAMFS_COPY_BIN=""
+RAMFS_COPY_BIN="mountpoint ip ping logread dmesg sha256sum cmp wget jsonfilter blkid blkdiscard"
 RAMFS_COPY_DATA=""
 
 REQUIRE_IMAGE_METADATA=1
@@ -61,103 +61,196 @@ get_mtd_block_number() {
 	esac
 }
 
+dump_current_qspi_partitions() {
+	local dump_current_qspi_dir="/boot/connect-sysupgrade-tmp/qspi-dump_current"
+	mkdir -p "$dump_current_qspi_dir"
+
+	echo "Dumping current QSPI partitions..."
+	for name in pbl uboot mc dpc dpl; do
+		local mtd_block="/dev/mtdblock$(get_mtd_block_number "$name")"
+		local size_hex
+		case "$name" in
+			pbl)   size_hex="0x00100000" ;; # 1MB
+			uboot) size_hex="0x00300000" ;; # 3MB
+			mc)    size_hex="0x00300000" ;; # 3MB
+			dpc)   size_hex="0x00100000" ;; # 1MB
+			dpl)   size_hex="0x00100000" ;; # 1MB
+		esac
+		local size_dec=$((16#${size_hex#0x}))
+
+		if [ -e "$mtd_block" ]; then
+			dd if="$mtd_block" of="$dump_current_qspi_dir/${name}.current.bin" bs=1 count="$size_dec" status=none
+			sync
+			echo "Dumped $name ($size_dec bytes)"
+		else
+			echo "Skipping $name: $mtd_block not found"
+		fi
+	done
+}
+
+verify_flash() {
+	local part="$1" new_file="$2"
+	local mtd_block="/dev/mtdblock$(get_mtd_block_number "$part")"
+
+	# Compute SHA256 of new file
+	local new_sha current_sha
+	new_sha=$(sha256sum "$new_file" | awk '{print $1}')
+
+	# Read back same number of bytes from flash and compute SHA256
+	current_sha=$(dd if="$mtd_block" bs=1 count=$(wc -c < "$new_file") status=none | sha256sum | awk '{print $1}')
+	sync
+
+	if [ "$new_sha" = "$current_sha" ]; then
+		echo "Verified $part: SHA256 match"
+	else
+		echo "WARNING: Verification failed for $part!"
+	fi
+}
+
+flash_qspi_partitions() {
+	local tar_file="$1"
+	local board_dir="$2"
+	local variant="$3"
+
+	local new_dir="/boot/connect-sysupgrade-tmp/qspi-new"
+	mkdir -p "$new_dir"
+
+	echo "Extracting and flashing QSPI partitions (variant=${variant})..."
+	# Flash in safer order — critical boot first, PBL last
+	for name in dpl dpc mc uboot pbl; do
+		local file=""
+		case "$name" in
+			pbl)   file="${board_dir}/bootloader/atf-${variant}/bl2_qspi.pbl" ;;
+			uboot) file="${board_dir}/bootloader/atf-${variant}/fip.bin" ;;
+			mc)    file="${board_dir}/bootloader/dpaa2/mc_ls1088a_10.39.0.itb" ;;
+			dpc)   file="${board_dir}/bootloader/dpaa2/dpc-backplane_mac2-phy_mac3_mac10.dtb" ;;
+			dpl)   file="${board_dir}/bootloader/dpaa2/dpl-eth_mac2_mac10.dtb" ;;
+		esac
+
+		# Check presence in tarball (exact entry)
+		if ! tar tf "$tar_file" | grep -qx "$file"; then
+			echo "File for $name not found in sysupgrade archive, skipping."
+			continue
+		fi
+		sync
+
+		# Extract the new content
+		tar xf "$tar_file" "$file" -O > "$new_dir/${name}.new.bin" || {
+			echo "Failed to extract $file; skipping $name."
+			continue
+		}
+		sync
+
+		local current_file="/boot/connect-sysupgrade-tmp/qspi-dump_current/${name}.current.bin"
+		local new_file="$new_dir/${name}.new.bin"
+
+		# If no previous dump exists, flash directly
+		if [ ! -s "$current_file" ]; then
+			echo "No previous dump for $name; flashing directly..."
+			mtd -e "$(get_mtd_label "$name")" write "$new_file" "$(get_mtd_label "$name")" || {
+				echo "Error flashing $name"
+				return 1
+			}
+			sync
+			verify_flash "$name" "$new_file"
+			continue
+		fi
+
+		# Compare only the first N bytes (size of new file) to avoid EOF noise
+		local new_size
+		new_size=$(wc -c < "$new_file")
+		if cmp -n "$new_size" "$current_file" "$new_file"; then
+			echo "Skipping $name: no changes in content prefix (size ${new_size} bytes)"
+		else
+			echo "Flashing $name..."
+			mtd -e "$(get_mtd_label "$name")" write "$new_file" "$(get_mtd_label "$name")" || {
+				echo "Error flashing $name"
+				return 1
+			}
+			sync
+			verify_flash "$name" "$new_file"
+		fi
+	done
+
+	echo "QSPI update completed."
+}
+
 platform_do_upgrade_tqmls1088a_sdboot() {
 	local diskdev partdev
 	local tar_file="$1"
-	local board_dir=$(tar tf "$tar_file" | grep -m 1 '^sysupgrade-.*/$')
+	local board_dir
+	board_dir=$(tar tf "$tar_file" | grep -m 1 '^sysupgrade-.*/$')
 	board_dir=${board_dir%/}
 
+	# Mount /boot and update kernel + DTB
 	export_bootdevice && export_partdevice diskdev 0 || {
 		echo "Unable to determine upgrade device"
 		return 1
 	}
 
+	# Boot partition: kernel + dtb
 	if export_partdevice partdev 1; then
 		mkdir -p /boot
-		if mountpoint -q /boot; then
-			echo "/boot already mounted, skipping mount."
+		mount "/dev/$partdev" /boot
+
+		echo "Writing Kernel..."
+		tar xf "$tar_file" "${board_dir}/boot/Image" -O > /boot/Image || {
+			echo "Kernel Image not found in archive: ${board_dir}/boot/Image"
+		}
+		sync
+
+		echo "Writing DTB..."
+		tar xf "$tar_file" "${board_dir}/boot/fsl-ls1088a-tqmls1088a-connect.dtb" -O > /boot/fsl-ls1088a-tqmls1088a-connect.dtb || {
+			echo "DTB not found in archive: ${board_dir}/boot/fsl-ls1088a-tqmls1088a-connect.dtb"
+		}
+		sync
+
+		umount /boot
+	fi
+
+	# RootFS
+	if export_partdevice partdev 2; then
+		# Instant erase using blkdiscard
+		echo "Discarding current rootfs (TRIM)..."
+		if blkdiscard -f "/dev/$partdev"; then
+			echo "TRIM succeeded."
+			sync
 		else
-			mount "/dev/$partdev" /boot
-			BOOT_MOUNTED_BY_SCRIPT=1
+			# Clear first 16 MiB to remove current File System signatures (quick format behavior)
+			echo "TRIM failed or not supported; quick-clearing superblock..."
+			dd if=/dev/zero of="/dev/$partdev" bs=1M count=16 status=none
+			sync
 		fi
 
-		echo "Writing os-release..."
-		tar xf "$tar_file" "${board_dir}/os-release" -O > /boot/os-release
-		echo "Writing Kernel..."
-		tar xf "$tar_file" "${board_dir}/Image" -O > /boot/Image
-		echo "Writing DTB..."
-		tar xf "$tar_file" "${board_dir}/fsl-ls1088a-tqmls1088a-connect.dtb" -O > /boot/fsl-ls1088a-tqmls1088a-connect.dtb
-		[ "$BOOT_MOUNTED_BY_SCRIPT" = "1" ] && umount /boot
+		echo "Writing RootFS..."
+		tar xf "$tar_file" "${board_dir}/rootfs" -O | dd of="/dev/$partdev" bs=1M status=none
+		sync
 	fi
 
-	echo "Erasing RootFS..."
-	dd if=/dev/zero of=/dev/mmcblk0p2 bs=1024
-	echo "Writing RootFS..."
-	tar xf "$tar_file" "${board_dir}/rootfs" -O | dd of=/dev/mmcblk0p2 bs=1024
-
-	# Detect variant from kernel cmdline
+	# Variant detection
 	local variant
 	variant=$(awk -F'variant=' '{print $2}' /proc/cmdline | awk '{print $1}')
-	echo "variant: $variant"
+	echo "Detected variant: ${variant:-<none>}"
 
-	local qspi_bin=""
-	if [ "$variant" = "2gb" ]; then
-		qspi_bin="${board_dir}/qspi-atf-2gb.bin"
-	elif [ "$variant" = "4gb" ]; then
-		qspi_bin="${board_dir}/qspi-atf-4gb.bin"
-	else
-		echo "Error: Unknown or missing variant in kernel cmdline. Skipping QSPI flash to avoid bricking."
+	if [ -z "$variant" ]; then
+		echo "Error: Missing variant in kernel cmdline. Skipping QSPI flash."
 		return 0
 	fi
+	case "$variant" in
+		2gb|4gb) : ;;  # OK
+		*) echo "Error: Unknown variant '$variant'. Skipping QSPI flash."; return 0 ;;
+	esac
 
-	# Only proceed if the QSPI binary exists in the sysupgrade tar
-	if tar tf "$tar_file" | grep -q "$qspi_bin"; then
-		echo "Extracting QSPI partitions from Full binary ($qspi_bin)..."
-		tar xf "$tar_file" "$qspi_bin" -O > /tmp/qspi-full.bin
+	# Boot partition
+	if export_partdevice partdev 1; then
+		mkdir -p /boot
+		mount "/dev/$partdev" /boot
+	
+		# QSPI dump + flash + verify
+		dump_current_qspi_partitions
+		flash_qspi_partitions "$tar_file" "$board_dir" "$variant"
 
-		# Partition info: name, offset (bytes), size (bytes)
-		# Format: name:offset:size
-		local partitions="\
-pbl:0x00000000:0x00100000
-uboot:0x00100000:0x00300000
-mc:0x00500000:0x00300000
-dpc:0x00800000:0x00100000
-dpl:0x00900000:0x00100000"
-
-		echo "Flashing QSPI partitions..."
-		echo "$partitions" | while IFS=: read -r name offset size; do
-			# Convert offset and size from hex to decimal
-			offset_dec=$((16#${offset#0x}))
-			size_dec=$((16#${size#0x}))
-			# Get MTD label and block number
-			mtd_label=$(get_mtd_label "$name")
-			mtd_block_num=$(get_mtd_block_number "$name")
-			mtd_block="/dev/mtdblock${mtd_block_num}"
-			# Skip if label or block number is missing
-			if [ -z "$name" ] || [ -z "$mtd_label" ] || [ -z "$mtd_block_num" ]; then
-				echo "Skipping $name: missing MTD label or block number"
-				continue
-			fi
-			# Check if mtdblock device exists
-			if [ ! -e "$mtd_block" ]; then
-				echo "Skipping $name: $mtd_block not found"
-				continue
-			fi
-			echo "  - $name ($mtd_label): offset=$offset size=$size"
-			# Extract new partition slice from full binary
-			dd if=/tmp/qspi-full.bin of=/tmp/${name}.new.bin bs=1 skip=$offset_dec count=$size_dec iflag=skip_bytes,count_bytes
-			# Dump current partition content
-			dd if="$mtd_block" of="/tmp/${name}.old.bin" bs=1 count=$size_dec
-			# Compare old and new
-			if cmp /tmp/${name}.old.bin /tmp/${name}.new.bin; then
-				echo "Skipping $name: no changes"
-			else
-				echo "Updating $name: content differs"
-				mtd write /tmp/${name}.new.bin "$mtd_label"
-			fi
-		done
-	else
-		echo "No QSPI binary ($qspi_bin) found in sysupgrade archive, skipping QSPI flash."
+		umount /boot
 	fi
 }
 
@@ -206,16 +299,13 @@ platform_copy_config_tqmls1088a_sdboot() {
 
 	if export_partdevice partdev 1; then
 		mkdir -p /boot
-		if mountpoint -q /boot; then
-			echo "/boot already mounted, skipping mount."
-		else
-			mount "/dev/$partdev" /boot
-			BOOT_MOUNTED_BY_SCRIPT=1
-		fi
+		mount "/dev/$partdev" /boot
 
 		echo "Saving config backup..."
 		cp -af "$UPGRADE_BACKUP" "/boot/$BACKUP_FILE"
-		[ "$BOOT_MOUNTED_BY_SCRIPT" = "1" ] && umount /boot
+		sync
+
+		umount /boot
 	fi
 }
 

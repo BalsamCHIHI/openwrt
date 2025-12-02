@@ -47,7 +47,6 @@ switch_to_ramfs() {
 		ubidetach ubirsvol ubirmvol ubimkvol			\
 		snapshot snapshot_tool date logger			\
 		/usr/sbin/fw_printenv /usr/bin/fwtool			\
-		mountpoint ip ping logread dmesg sha256sum cmp wget jsonfilter \
 		$RAMFS_COPY_LOSETUP $RAMFS_COPY_LVM			\
 		$RAMFS_COPY_BIN
 	do
