@@ -58,7 +58,7 @@ prepare: $(target/stamp-compile)
 _clean: FORCE
 	rm -rf $(BUILD_DIR) $(STAGING_DIR) $(BIN_DIR) $(OUTPUT_DIR)/packages/$(ARCH_PACKAGES) $(TOPDIR)/staging_dir/packages
 
-clean: _clean
+clean: _clean update-build-date
 	rm -rf $(BUILD_LOG_DIR)
 
 targetclean: _clean
@@ -123,6 +123,8 @@ feedsversion: FORCE
 diffconfig: FORCE
 	mkdir -p $(BIN_DIR)
 	$(SCRIPT_DIR)/diffconfig.sh > $(BIN_DIR)/config.buildinfo
+	@echo "Generating .diffconfig_connect..."
+	$(CP) $(BIN_DIR)/config.buildinfo $(TOPDIR)/.diffconfig_connect
 
 buildinfo: FORCE
 	$(_SINGLE)$(SUBMAKE) -r diffconfig buildversion feedsversion
@@ -130,7 +132,7 @@ buildinfo: FORCE
 prepare: .config $(tools/stamp-compile) $(toolchain/stamp-compile)
 	$(_SINGLE)$(SUBMAKE) -r buildinfo
 
-world: prepare $(target/stamp-compile) $(package/stamp-compile) $(package/stamp-install) $(target/stamp-install) FORCE
+world: ls-bootloader-qspi prepare $(target/stamp-compile) $(package/stamp-compile) $(package/stamp-install) $(target/stamp-install) FORCE
 	$(_SINGLE)$(SUBMAKE) -r package/index
 	$(_SINGLE)$(SUBMAKE) -r json_overview_image_info
 	$(_SINGLE)$(SUBMAKE) -r checksum
@@ -138,6 +140,14 @@ ifneq ($(CONFIG_CCACHE),)
 	$(STAGING_DIR_HOST)/bin/ccache -s
 endif
 
-.PHONY: clean dirclean prereq prepare world package/symlinks package/symlinks-install package/symlinks-clean
+update-build-date: FORCE
+	@echo "Updating build date..."
+	@./scripts/update-build-date.sh
+
+ls-bootloader-qspi: FORCE
+	@echo "Building Layerscape bootloader QSPI..."
+	@./scripts/ls-bootloader-qspi.sh
+
+.PHONY: clean dirclean prereq prepare world update-build-date ls-bootloader-qspi package/symlinks package/symlinks-install package/symlinks-clean
 
 endif
