@@ -18,9 +18,9 @@ values_missing="0 0 0 0 0"
 
 get_board_type() {
     board_type=$(cat /proc/cmdline)
-    if echo "$board_type" | grep -q "SERVER"; then
+    if echo "$board_type" | grep -q "Server"; then
         board_type="server"
-    elif echo "$board_type" | grep -q "WAP"; then
+    elif echo "$board_type" | grep -q "Wap"; then
         board_type="wap"
     else
         board_type="comexpress"
