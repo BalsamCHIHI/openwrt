@@ -83,6 +83,7 @@ metadata_json = \
 			"dist": "$(call json_quote,$(VERSION_DIST))", \
 			"version": "$(call json_quote,$(VERSION_NUMBER))", \
 			"revision": "$(call json_quote,$(REVISION))", \
+			"firmware_release": "$(call json_quote,$(VERSION_FWREL))", \
 			"target": "$(call json_quote,$(TARGETID))", \
 			"board": "$(call json_quote,$(if $(BOARD_NAME),$(BOARD_NAME),$(DEVICE_NAME)))" \
 		} \

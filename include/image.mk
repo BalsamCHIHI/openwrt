@@ -657,6 +657,7 @@ define Device/Build/initramfs
 	SUBTARGET="$(SUBTARGET)" \
 	VERSION_NUMBER="$(VERSION_NUMBER)" \
 	VERSION_CODE="$(VERSION_CODE)" \
+	VERSION_FWREL="$(VERSION_FWREL)" \
 	SUPPORTED_DEVICES="$$(SUPPORTED_DEVICES)" \
 	$(TOPDIR)/scripts/json_add_image_info.py $$@
 endef
@@ -791,6 +792,7 @@ define Device/Build/image
 	SUBTARGET="$(SUBTARGET)" \
 	VERSION_NUMBER="$(VERSION_NUMBER)" \
 	VERSION_CODE="$(VERSION_CODE)" \
+	VERSION_FWREL="$(VERSION_FWREL)" \
 	SUPPORTED_DEVICES="$(SUPPORTED_DEVICES)" \
 	$(TOPDIR)/scripts/json_add_image_info.py $$@
 
@@ -845,6 +847,7 @@ define Device/Build/artifact
 	SUBTARGET="$(SUBTARGET)" \
 	VERSION_NUMBER="$(VERSION_NUMBER)" \
 	VERSION_CODE="$(VERSION_CODE)" \
+	VERSION_FWREL="$(VERSION_FWREL)" \
 	SUPPORTED_DEVICES="$(SUPPORTED_DEVICES)" \
 	$(TOPDIR)/scripts/json_add_image_info.py $$@
 

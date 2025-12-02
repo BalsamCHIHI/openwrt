@@ -18,6 +18,7 @@ PKG_CONFIG_DEPENDS += \
 	CONFIG_VERSION_MANUFACTURER_URL \
 	CONFIG_VERSION_PRODUCT \
 	CONFIG_VERSION_SUPPORT_URL \
+	CONFIG_VERSION_FWREL \
 	CONFIG_VERSION_HWREV \
 
 sanitize = $(call tolower,$(subst _,-,$(subst $(space),-,$(1))))
@@ -52,6 +53,9 @@ VERSION_SUPPORT_URL:=$(if $(VERSION_SUPPORT_URL),$(VERSION_SUPPORT_URL),https://
 
 VERSION_PRODUCT:=$(call qstrip,$(CONFIG_VERSION_PRODUCT))
 VERSION_PRODUCT:=$(if $(VERSION_PRODUCT),$(VERSION_PRODUCT),Generic)
+
+VERSION_FWREL:=$(call qstrip,$(CONFIG_VERSION_FWREL))
+VERSION_FWREL:=$(if $(VERSION_FWREL),$(VERSION_FWREL),v0.0.0)
 
 VERSION_HWREV:=$(call qstrip,$(CONFIG_VERSION_HWREV))
 VERSION_HWREV:=$(if $(VERSION_HWREV),$(VERSION_HWREV),v0)
@@ -104,6 +108,7 @@ VERSION_SED_SCRIPT:=$(SED) 's,%U,$(call sed_escape,$(VERSION_REPO)),g' \
 	-e 's,%u,$(call sed_escape,$(VERSION_HOME_URL)),g' \
 	-e 's,%s,$(call sed_escape,$(VERSION_SUPPORT_URL)),g' \
 	-e 's,%P,$(call sed_escape,$(VERSION_PRODUCT)),g' \
+	-e 's,%F,$(call sed_escape,$(VERSION_FWREL)),g' \
 	-e 's,%h,$(call sed_escape,$(VERSION_HWREV)),g' \
 	-e 's,%B,$(call sed_escape,$(SOURCE_DATE_EPOCH)),g'
 

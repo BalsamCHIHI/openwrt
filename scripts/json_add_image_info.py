@@ -55,6 +55,7 @@ else:
 file_info = {
     "metadata_version": 1,
     "target": "{}/{}".format(getenv("TARGET"), getenv("SUBTARGET")),
+    "version_fwrel": getenv("VERSION_FWREL"),
     "version_code": getenv("VERSION_CODE"),
     "version_number": getenv("VERSION_NUMBER"),
     "source_date_epoch": int(getenv("SOURCE_DATE_EPOCH")),
