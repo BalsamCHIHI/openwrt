@@ -71,9 +71,9 @@ get_board_type() {
         echo "Error: /proc/cmdline is not accessible."
         board_type="unknown"
     fi
-    if echo "$board_type" | grep -q "SERVER"; then
+    if echo "$board_type" | grep -q "Server"; then
         board_type="server"
-    elif echo "$board_type" | grep -q "WAP"; then
+    elif echo "$board_type" | grep -q "Wap"; then
         board_type="wap"
     else
         board_type="comexpress"

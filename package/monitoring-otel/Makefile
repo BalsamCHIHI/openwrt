@@ -35,10 +35,14 @@ endef
 define Package/monitoring-otel/install
 	# Create directories
 	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_DIR) $(1)/usr/bin
 		
 	# Install monitoring scripts
 	$(INSTALL_BIN) ./sfp_monitoring/sfp_network_otel.sh $(1)/etc/init.d/sfp_monitor
 	$(INSTALL_BIN) ./hwmon_monitoring/hwmon_network_otel.sh $(1)/etc/init.d/hwmon_monitor
+
+	# Install print_all_sensors script
+	$(INSTALL_BIN) ./print_all_sensors.sh $(1)/usr/bin/print_all_sensors
 endef
 
 $(eval $(call BuildPackage,monitoring-otel))
