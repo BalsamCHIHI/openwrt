@@ -3,7 +3,7 @@
 # Copyright 2020 NXP
 #
 
-RAMFS_COPY_BIN="mountpoint ip ping logread dmesg sha256sum cmp wget jsonfilter blkid blkdiscard"
+RAMFS_COPY_BIN="md5sum cmp blkdiscard"
 RAMFS_COPY_DATA=""
 
 REQUIRE_IMAGE_METADATA=1
@@ -79,7 +79,7 @@ dump_current_qspi_partitions() {
 		local size_dec=$((16#${size_hex#0x}))
 
 		if [ -e "$mtd_block" ]; then
-			dd if="$mtd_block" of="$dump_current_qspi_dir/${name}.current.bin" bs=1 count="$size_dec" status=none
+			dd if="$mtd_block" of="$dump_current_qspi_dir/${name}.current.bin" bs=1M count=$((size_dec / 1048576)) status=none
 			sync
 			echo "Dumped $name ($size_dec bytes)"
 		else
@@ -91,17 +91,18 @@ dump_current_qspi_partitions() {
 verify_flash() {
 	local part="$1" new_file="$2"
 	local mtd_block="/dev/mtdblock$(get_mtd_block_number "$part")"
+	local new_size blocks new_sha current_sha
 
-	# Compute SHA256 of new file
-	local new_sha current_sha
-	new_sha=$(sha256sum "$new_file" | awk '{print $1}')
+	new_size=$(wc -c < "$new_file")
+	blocks=$(( (new_size + 1048575) / 1048576 ))  # round up to 1 MiB blocks
+	new_sha=$(md5sum "$new_file" | awk '{print $1}')
 
-	# Read back same number of bytes from flash and compute SHA256
-	current_sha=$(dd if="$mtd_block" bs=1 count=$(wc -c < "$new_file") status=none | sha256sum | awk '{print $1}')
+	# Read back same number of bytes from flash and compute md5
+	current_sha=$(dd if="$mtd_block" bs=1M count=$blocks status=none 2>/dev/null | dd bs=1 count="$new_size" status=none | md5sum | awk '{print $1}')
 	sync
 
 	if [ "$new_sha" = "$current_sha" ]; then
-		echo "Verified $part: SHA256 match"
+		echo "Verified $part: md5 match"
 	else
 		echo "WARNING: Verification failed for $part!"
 	fi
@@ -159,7 +160,7 @@ flash_qspi_partitions() {
 		# Compare only the first N bytes (size of new file) to avoid EOF noise
 		local new_size
 		new_size=$(wc -c < "$new_file")
-		if cmp -n "$new_size" "$current_file" "$new_file"; then
+		if cmp -s -n "$new_size" "$current_file" "$new_file"; then
 			echo "Skipping $name: no changes in content prefix (size ${new_size} bytes)"
 		else
 			echo "Flashing $name..."
