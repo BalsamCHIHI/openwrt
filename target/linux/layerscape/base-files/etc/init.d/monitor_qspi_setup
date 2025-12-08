@@ -1,0 +1,95 @@
+#!/bin/sh /etc/rc.common
+# Mount monitoring JFFS2 on QSPI NOR ("monitor" partition) WITHOUT erasing.
+# Assumes the partition is factory-programmed. If not, log and stop.
+
+START=96
+
+LOG_TAG="monitor_qspi_setup"
+
+# --- Hard-wired defaults (no other files required) ---
+ENABLED=1
+NAME="monitor"                    # MTD partition name in /proc/mtd
+DEVICE=""                         # Optional override: /dev/mtdblock7 or /dev/mtd7
+TARGET="/mnt/monitor"
+OPTIONS="noatime,nodiratime"
+FF_SCAN=262144                    # bytes to scan at head to detect all-FF (256 KiB)
+
+dmesg_log() {
+    echo "$LOG_TAG : $*" > /dev/kmsg
+}
+
+# --- Helpers ---
+resolve_mtd() {
+    # Allow explicit device override
+    if [ -n "$DEVICE" ]; then
+        case "$DEVICE" in
+            /dev/mtdblock*) MTD_BLOCK="$DEVICE"; MTD_CHAR="$(echo "$DEVICE" | sed 's/mtdblock/mtd/')"; return 0;;
+            /dev/mtd*)      MTD_CHAR="$DEVICE";  MTD_BLOCK="$(echo "$DEVICE" | sed 's/mtd/mtdblock/')"; return 0;;
+            *) dmesg_log "invalid device path: $DEVICE"; return 1;;
+        esac
+    fi
+
+    # Resolve by partition name from /proc/mtd
+    local mtdline
+    mtdline="$(awk -F: -v n="\"$NAME\"" '$2 ~ n {print $1}' /proc/mtd)"
+    if [ -z "$mtdline" ]; then
+        dmesg_log "ERROR: MTD partition named '$NAME' not found in /proc/mtd"
+        return 1
+    fi
+    MTD_CHAR="/dev/$mtdline"
+    MTD_BLOCK="/dev/$(echo "$mtdline" | sed 's/mtd/mtdblock/')"
+    return 0
+}
+
+ensure_target_dir() { [ -d "$TARGET" ] || mkdir -p "$TARGET"; }
+is_mounted() { mountpoint -q "$TARGET"; }
+
+try_mount() {
+    ensure_target_dir
+    mount -t jffs2 -o "$OPTIONS" "$MTD_BLOCK" "$TARGET"
+}
+
+# Detect if volume appears unprogrammed (all 0xFF at the head)
+is_all_ff() {
+    local nbytes="$FF_SCAN"
+    dd if="$MTD_BLOCK" bs=4096 count=$(( (nbytes + 4095) / 4096 )) 2>/dev/null \
+      | od -An -tx1 \
+      | awk '{for(i=1;i<=NF;i++) if($i!="ff"){print "NONFF"; exit}}' \
+      | grep -q NONFF && return 1 || return 0
+}
+
+# --- procd lifecycle ---
+boot() {
+    dmesg_log "QSPI Monitoring setup started."
+
+    [ "$ENABLED" = "1" ] || { dmesg_log "disabled"; return 0; }
+
+    resolve_mtd || return 1
+
+    if is_mounted; then
+        dmesg_log "already mounted at $TARGET"
+        dmesg_log "QSPI Monitoring setup completed."
+
+        return 0
+    fi
+
+    # Fast path: mount without touching flash
+    if try_mount; then
+        dmesg_log "mounted $MTD_BLOCK -> $TARGET (factory-programmed)"
+        dmesg_log "QSPI Monitoring setup completed."
+
+        return 0
+    fi
+
+    # If mount failed, check if the device looks unprogrammed (all 0xFF)
+    if is_all_ff; then
+        dmesg_log "NOT PROGRAMMED: $MTD_BLOCK head is all 0xFF; program QSPI (U-Boot 'sf update' or 'mtd write' summarized JFFS2). Service stopped."
+
+        return 1
+    fi
+
+    # Otherwise, likely wrong/old content or corruption; do NOT erase here.
+    dmesg_log "MOUNT FAILED: $MTD_BLOCK seems programmed but not mountable. DO NOT ERASE. Reprogram a summarized JFFS2 image. Service stopped."
+
+    return 1
+}
