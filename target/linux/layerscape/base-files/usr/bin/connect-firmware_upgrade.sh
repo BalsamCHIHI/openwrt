@@ -26,12 +26,13 @@ LOG_UPLOAD_URL="http://$SERVER/cgi-bin/upload-raw.sh?filename=${HOSTNAME}-$(base
 WGET="wget -T 10 -q"
 
 # mount /boot
-mkdir -p "$BASE_DIR"
+mkdir -p /boot
 mount "/dev/mmcblk0p1" /boot
+mkdir -p "$BASE_DIR"
 
 # Logging
 log() {
-    echo "$1" | tee -a "$LOG_FILE"
+    echo "( $TIMESTAMP )>>> " "$1" | tee -a "$LOG_FILE"
     logger -t connect-sysupgrade "$1"
     sync
 }
