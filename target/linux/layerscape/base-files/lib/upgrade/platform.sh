@@ -3,7 +3,7 @@
 # Copyright 2020 NXP
 #
 
-RAMFS_COPY_BIN="md5sum cmp blkdiscard"
+RAMFS_COPY_BIN="md5sum cmp"
 RAMFS_COPY_DATA=""
 
 REQUIRE_IMAGE_METADATA=1
@@ -79,7 +79,7 @@ dump_current_qspi_partitions() {
 		local size_dec=$((16#${size_hex#0x}))
 
 		if [ -e "$mtd_block" ]; then
-			dd if="$mtd_block" of="$dump_current_qspi_dir/${name}.current.bin" bs=1M count=$((size_dec / 1048576)) status=none
+			dd if="$mtd_block" of="$dump_current_qspi_dir/${name}.current.bin" bs=1M count=$((size_dec / 1048576)) status=none conv=fsync
 			sync
 			echo "Dumped $name ($size_dec bytes)"
 		else
@@ -98,7 +98,7 @@ verify_flash() {
 	new_sha=$(md5sum "$new_file" | awk '{print $1}')
 
 	# Read back same number of bytes from flash and compute md5
-	current_sha=$(dd if="$mtd_block" bs=1M count=$blocks status=none 2>/dev/null | dd bs=1 count="$new_size" status=none | md5sum | awk '{print $1}')
+	current_sha=$(dd if="$mtd_block" bs=1M count=$blocks status=none conv=fsync 2>/dev/null | dd bs=1 count="$new_size" status=none conv=fsync | md5sum | awk '{print $1}')
 	sync
 
 	if [ "$new_sha" = "$current_sha" ]; then
@@ -211,20 +211,13 @@ platform_do_upgrade_tqmls1088a_sdboot() {
 
 	# RootFS
 	if export_partdevice partdev 2; then
-		# Instant erase using blkdiscard
-		echo "Discarding current rootfs (TRIM)..."
-		if blkdiscard -f "/dev/$partdev"; then
-			echo "TRIM succeeded."
-			sync
-		else
-			# Clear first 16 MiB to remove current File System signatures (quick format behavior)
-			echo "TRIM failed or not supported; quick-clearing superblock..."
-			dd if=/dev/zero of="/dev/$partdev" bs=1M count=16 status=none
-			sync
-		fi
+		# Clear first 16 MiB to remove current File System signatures (quick format behavior)
+		echo "Quick-clearing superblock..."
+		dd if=/dev/zero of="/dev/$partdev" bs=1M count=16 status=none conv=fsync
+		sync
 
 		echo "Writing RootFS..."
-		tar xf "$tar_file" "${board_dir}/rootfs" -O | dd of="/dev/$partdev" bs=1M status=none
+		tar xf "$tar_file" "${board_dir}/rootfs" -O | dd of="/dev/$partdev" bs=1M status=none conv=fsync
 		sync
 	fi
 
