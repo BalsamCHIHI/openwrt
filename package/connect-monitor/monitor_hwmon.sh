@@ -1,5 +1,6 @@
 #!/bin/sh /etc/rc.common
-START=98
+
+START=97
 STOP=10
 
 # Function to get flash usage percentage
