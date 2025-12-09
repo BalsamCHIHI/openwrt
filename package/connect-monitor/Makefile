@@ -2,7 +2,7 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=monitoring-otel
+PKG_NAME:=connect-monitor
 PKG_VERSION:=1.0.0
 PKG_RELEASE:=1
 
@@ -10,14 +10,14 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/monitoring-otel
+define Package/connect-monitor
 	SECTION:=net
 	CATEGORY:=Network
 	TITLE:=Syslog monitoring client for OpenWrt devices
 	URL:=
 endef
 
-define Package/monitoring-otel/description
+define Package/connect-monitor/description
 	Syslog monitoring client for OpenWrt devices.
 	Collects hardware metrics (SFP, HWMon) and sends them to syslog.
 endef
@@ -32,17 +32,17 @@ endef
 define Build/Compile
 endef
 
-define Package/monitoring-otel/install
+define Package/connect-monitor/install
 	# Create directories
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_DIR) $(1)/usr/bin
-		
+
 	# Install monitoring scripts
-	$(INSTALL_BIN) ./sfp_monitoring/sfp_network_otel.sh $(1)/etc/init.d/sfp_monitor
-	$(INSTALL_BIN) ./hwmon_monitoring/hwmon_network_otel.sh $(1)/etc/init.d/hwmon_monitor
+	$(INSTALL_BIN) ./monitor_hwmon.sh $(1)/etc/init.d/monitor_hwmon
+	$(INSTALL_BIN) ./monitor_sfp.sh $(1)/etc/init.d/monitor_sfp
 
 	# Install print_all_sensors script
-	$(INSTALL_BIN) ./print_all_sensors.sh $(1)/usr/bin/print_all_sensors
+	$(INSTALL_BIN) ./monitor_print_all_sensors.sh $(1)/usr/bin/monitor_print_all_sensors
 endef
 
-$(eval $(call BuildPackage,monitoring-otel))
+$(eval $(call BuildPackage,connect-monitor))
