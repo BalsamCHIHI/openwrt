@@ -124,7 +124,7 @@ define Build/tqmls1088a-sysupgrade
 	$(CP) $(TOPDIR)/target/linux/layerscape/base-files/lib/upgrade/platform.sh $@.sysupgrade/sysupgrade-$(DEVICE_NAME)/platform.sh
 
 	# RootFS image file
-	dd if=$(IMAGE_ROOTFS) of=$@.sysupgrade/sysupgrade-$(DEVICE_NAME)/rootfs bs=1024 conv=sync
+	dd if=$(IMAGE_ROOTFS) of=$@.sysupgrade/sysupgrade-$(DEVICE_NAME)/rootfs bs=1M conv=sync
 
 	tar --sort=name --owner=0 --group=0 --numeric-owner -czf $@.tar -C $@.sysupgrade sysupgrade-$(DEVICE_NAME)
 	mv $@.tar $@

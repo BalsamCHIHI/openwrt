@@ -211,13 +211,12 @@ platform_do_upgrade_tqmls1088a_sdboot() {
 
 	# RootFS
 	if export_partdevice partdev 2; then
-		# Clear first 16 MiB to remove current File System signatures (quick format behavior)
-		echo "Quick-clearing superblock..."
-		dd if=/dev/zero of="/dev/$partdev" bs=1M count=16 status=none conv=fsync
+		echo "Erase RootFS..."
+		dd if=/dev/zero of="/dev/$partdev" bs=64M status=none conv=fsync
 		sync
 
 		echo "Writing RootFS..."
-		tar xf "$tar_file" "${board_dir}/rootfs" -O | dd of="/dev/$partdev" bs=1M status=none conv=fsync
+		tar xf "$tar_file" "${board_dir}/rootfs" -O | dd of="/dev/$partdev" bs=4M status=none conv=fsync
 		sync
 	fi
 
