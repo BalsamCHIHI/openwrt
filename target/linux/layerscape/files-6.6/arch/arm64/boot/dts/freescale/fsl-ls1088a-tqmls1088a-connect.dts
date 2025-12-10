@@ -15,6 +15,7 @@
 		serial2 = "/soc/serial@21d0500";
 		serial3 = "/soc/serial@21d0600";
 		gpio_expander = &pca9555;
+		rtc0 = &rtc;
 	};
 
 	memory {
@@ -642,6 +643,7 @@
 			reg = <0x00 0x2800000 0x00 0x10000 0x00 0x1e34050 0x00 0x04>;
 			reg-names = "ftm\0pmctrl";
 			interrupts = <0x00 0x2c 0x04>;
+			status = "disabled";
 		};
 
 		i2c@2000000 {
@@ -655,18 +657,17 @@
 			status = "okay";
 
 			temp-sensor@18 {
-				compatible = "jc42";
+				compatible = "nxp,se97", "jedec,jc-42.4-temp";
 				reg = <0x18>;
 			};
 
 			eeprom@50 {
 				compatible = "atmel,24c02";
 				reg = <0x50>;
-				pagesize = <16>;
 				read-only;
 			};
 
-			rtc@51 {
+			rtc: rtc@51 {
 				compatible = "nxp,pcf85063";
 				reg = <0x51>;
 			};
