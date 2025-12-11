@@ -92,10 +92,17 @@ usb reset
 ls usb 0
 ```
 
-#### Load the Bootloader to DRAM and Flash it in the QSPI
+#### Load the Bootloader to DRAM and Flash it in the QSPI 0
 ```
 load usb 0 0xA0000000 bootloader-2gb-qspi.bin
-sf probe
+sf probe 0
+sf update $fileaddr 0x0 $filesize
+```
+
+#### Load the Monitor jffs2 to DRAM and Flash it in the QSPI 1
+```
+load usb 0 0xA0000000 monitor-qspi.bin
+sf probe 1
 sf update $fileaddr 0x0 $filesize
 ```
 
@@ -181,10 +188,17 @@ setenv serverip 172.100.1.1
 ping 172.100.1.1
 ```
 
-##### Load the Bootloader to DRAM and Flash it in the QSPI
+##### Load the Bootloader to DRAM and Flash it in the QSPI 0
 ```
 tftpboot 0xA0000000 bootloader-2gb-qspi.bin
-sf probe
+sf probe 0
+sf update $fileaddr 0x0 $filesize
+```
+
+##### Load the Monitor jffs2 to DRAM and Flash it in the QSPI 1
+```
+tftpboot 0xA0000000 monitor-qspi.bin
+sf probe 1
 sf update $fileaddr 0x0 $filesize
 ```
 
