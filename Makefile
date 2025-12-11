@@ -132,7 +132,7 @@ buildinfo: FORCE
 prepare: .config $(tools/stamp-compile) $(toolchain/stamp-compile)
 	$(_SINGLE)$(SUBMAKE) -r buildinfo
 
-world: ls-bootloader-qspi prepare $(target/stamp-compile) $(package/stamp-compile) $(package/stamp-install) $(target/stamp-install) FORCE
+world: connect-monitor-qspi-gen ls-bootloader-qspi prepare $(target/stamp-compile) $(package/stamp-compile) $(package/stamp-install) $(target/stamp-install) FORCE
 	$(_SINGLE)$(SUBMAKE) -r package/index
 	$(_SINGLE)$(SUBMAKE) -r json_overview_image_info
 	$(_SINGLE)$(SUBMAKE) -r checksum
@@ -148,6 +148,10 @@ ls-bootloader-qspi: FORCE
 	@echo "Building Layerscape bootloader QSPI..."
 	@./scripts/ls-bootloader-qspi.sh
 
-.PHONY: clean dirclean prereq prepare world update-build-date ls-bootloader-qspi package/symlinks package/symlinks-install package/symlinks-clean
+connect-monitor-qspi-gen: FORCE
+	@echo "Building Connect Monitor JFFS2 QSPI..."
+	@./scripts/connect-monitor-qspi-gen.sh
+
+.PHONY: clean dirclean prereq prepare world update-build-date connect-monitor-qspi-gen ls-bootloader-qspi package/symlinks package/symlinks-install package/symlinks-clean
 
 endif
