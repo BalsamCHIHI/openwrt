@@ -21,6 +21,10 @@ case "$board" in
         uci set dhcp.wan0="dhcp"
         uci set dhcp.wan0.interface="wan0"
         uci set dhcp.wan0.ignore="1"
+
+        uci set dhcp.wan8="dhcp"
+        uci set dhcp.wan8.interface="wan8"
+        uci set dhcp.wan8.ignore="1"
         ;;
     *)
         echo "dnsmasq_setup : Unknown board = $board." > /dev/kmsg

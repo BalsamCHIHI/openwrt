@@ -31,6 +31,7 @@ case "$board" in
         ;;
     SERVER | Server | server)
         uci add_list firewall.@zone[1].network='wan0'
+        uci add_list firewall.@zone[1].network='wan8'
         ;;
     *)
         echo "network_setup : Unknown board = $board, skipping firewall setup." > /dev/kmsg
