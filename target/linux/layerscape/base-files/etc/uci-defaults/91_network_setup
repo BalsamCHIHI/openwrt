@@ -8,12 +8,24 @@ board=$(cat /proc/cmdline | awk -F'board=' '{print $2}' | awk '{print $1}')
     exit 1
 }
 
+# Network config cleanup
 uci delete network.wan
-uci set network.@globals[0].packet_steering='0'
+
+# Global network config
+uci set network.@globals[0].packet_steering='2'
+uci set network.@globals[0].tcp_l3mdev='1'
+uci set network.@globals[0].udp_l3mdev='1'
+
+# Common network config
+uci delete network.lan.ip6assign
+uci set network.@device[0].stp='1'
+uci set network.@device[0].igmp_snooping='1'
+uci set network.@device[0].ipv6='0'
 
 case "$board" in
     WAP | Wap | wap)
         uci set network.@device[0].ports='eth1 eth3 eth5 eth7'
+
         uci set network.lan.ipaddr='192.168.20.1'
 
         for i in 2 4 6 8; do
@@ -23,7 +35,8 @@ case "$board" in
         done
         ;;
     SERVER | Server | server)
-        uci set network.@device[0].ports='eth1 eth2 eth3 eth4 eth5 eth6 eth7 eth8'
+        uci set network.@device[0].ports='eth1 eth2 eth3 eth4 eth5 eth6 eth7'
+
         uci set network.lan.ipaddr='192.168.10.1'
 
         uci set network.wan0=interface
@@ -34,6 +47,10 @@ case "$board" in
         uci set network.wan0.netmask='255.255.255.0'
         uci set network.wan0.dns='172.100.1.1 8.8.8.8 1.1.1.1'
         uci set network.wan0.mtu='9000'
+
+        uci set network.wan8=interface
+        uci set network.wan8.proto='dhcp'
+        uci set network.wan8.device="eth8"
         ;;
     *)
         echo "network_setup : Unknown board = $board." > /dev/kmsg
