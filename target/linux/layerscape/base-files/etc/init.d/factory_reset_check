@@ -1,0 +1,30 @@
+#!/bin/sh /etc/rc.common
+
+# OpenWrt early boot factory-reset-check via U-Boot env flag
+
+START=00
+USE_PROCD=0
+
+FW_PRINTENV=/usr/sbin/fw_printenv
+FW_SETENV=/usr/sbin/fw_setenv
+
+boot() {
+    echo "factory_reset_check : Factory Reset check started." > /dev/kmsg
+
+    local SET_OPER_MODE
+
+    SET_OPER_MODE="$("$FW_PRINTENV" "set_oper_mode" | awk -F= 'NF>1{print $2}')"
+
+    if [ "$SET_OPER_MODE" = "factory-reset" ]; then
+        echo "factory_reset_check : wiping overlay, resetting set_oper_mode flag to dev and rebooting..." > /dev/kmsg
+        "$FW_SETENV" set_oper_mode normal
+        firstboot -y -r
+        reboot -f -n
+
+        return 0
+    fi
+
+    echo "factory_reset_check : Factory Reset check completed." > /dev/kmsg
+
+    return 0
+}
