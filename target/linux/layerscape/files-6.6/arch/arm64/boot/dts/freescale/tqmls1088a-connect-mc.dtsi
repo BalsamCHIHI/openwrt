@@ -1,0 +1,152 @@
+/ {
+	aliases {
+		dpmac1 = &dpmac1;
+		dpmac2 = &dpmac2;
+		dpmac3 = &dpmac3;
+		dpmac4 = &dpmac4;
+		dpmac5 = &dpmac5;
+		dpmac6 = &dpmac6;
+		dpmac7 = &dpmac7;
+		dpmac8 = &dpmac8;
+		dpmac9 = &dpmac9;
+		dpmac10 = &dpmac10;
+
+		qsgmii-s1-p1 = &qsgmii1_phy1;
+		qsgmii-s1-p2 = &qsgmii1_phy2;
+		qsgmii-s1-p3 = &qsgmii1_phy3;
+		qsgmii-s1-p4 = &qsgmii1_phy4;
+		qsgmii-s2-p1 = &qsgmii2_phy1;
+		qsgmii-s2-p2 = &qsgmii2_phy2;
+		qsgmii-s2-p3 = &qsgmii2_phy3;
+		qsgmii-s2-p4 = &qsgmii2_phy4;
+	};
+};
+
+&dpmac1 {
+	status = "disabled";
+};
+
+&dpmac2 {
+	phy-connection-type = "xgmii";
+
+	fixed-link {
+		speed = <10000>;
+		full-duplex;
+	};
+};
+
+&dpmac3 {
+	phy-handle = <&qsgmii2_phy1>;
+	phy-connection-type = "qsgmii";
+	managed = "in-band-status";
+	pcs-handle = <&pcs3_0>;
+};
+
+&dpmac4 {
+	phy-handle = <&qsgmii2_phy2>;
+	phy-connection-type = "qsgmii";
+	managed = "in-band-status";
+	pcs-handle = <&pcs3_1>;
+};
+
+&dpmac5 {
+	phy-handle = <&qsgmii2_phy3>;
+	phy-connection-type = "qsgmii";
+	managed = "in-band-status";
+	pcs-handle = <&pcs3_2>;
+};
+
+&dpmac6 {
+	phy-handle = <&qsgmii2_phy4>;
+	phy-connection-type = "qsgmii";
+	managed = "in-band-status";
+	pcs-handle = <&pcs3_3>;
+};
+
+&dpmac7 {
+	phy-handle = <&qsgmii1_phy1>;
+	phy-connection-type = "qsgmii";
+	managed = "in-band-status";
+	pcs-handle = <&pcs7_0>;
+};
+
+&dpmac8 {
+	phy-handle = <&qsgmii1_phy2>;
+	phy-connection-type = "qsgmii";
+	managed = "in-band-status";
+	pcs-handle = <&pcs7_1>;
+};
+
+&dpmac9 {
+	phy-handle = <&qsgmii1_phy3>;
+	phy-connection-type = "qsgmii";
+	managed = "in-band-status";
+	pcs-handle = <&pcs7_2>;
+};
+
+&dpmac10 {
+	phy-handle = <&qsgmii1_phy4>;
+	phy-connection-type = "qsgmii";
+	managed = "in-band-status";
+	pcs-handle = <&pcs7_3>;
+};
+
+&emdio1 {
+	status = "okay";
+
+	qsgmii1_phy1: ethernet-phy@4 {
+		compatible = "ethernet-phy-ieee802.3-c22";
+		reg = <0x4>;
+		media = "fiber";
+	};
+
+	qsgmii1_phy2: ethernet-phy@5 {
+		compatible = "ethernet-phy-ieee802.3-c22";
+		reg = <0x5>;
+		media = "fiber";
+	};
+
+	qsgmii1_phy3: ethernet-phy@6 {
+		compatible = "ethernet-phy-ieee802.3-c22";
+		reg = <0x6>;
+		media = "copper";
+	};
+
+	qsgmii1_phy4: ethernet-phy@7 {
+		compatible = "ethernet-phy-ieee802.3-c22";
+		reg = <0x7>;
+		media = "copper";
+	};
+
+	qsgmii2_phy1: ethernet-phy@8 {
+		compatible = "ethernet-phy-ieee802.3-c22";
+		reg = <0x8>;
+		media = "fiber";
+	};
+
+	qsgmii2_phy2: ethernet-phy@9 {
+		compatible = "ethernet-phy-ieee802.3-c22";
+		reg = <0x9>;
+		media = "fiber";
+	};
+
+	qsgmii2_phy3: ethernet-phy@a {
+		compatible = "ethernet-phy-ieee802.3-c22";
+		reg = <0xa>;
+		media = "fiber";
+	};
+
+	qsgmii2_phy4: ethernet-phy@b {
+		compatible = "ethernet-phy-ieee802.3-c22";
+		reg = <0xb>;
+		media = "fiber";
+	};
+};
+
+&pcs_mdio3 {
+	status = "okay";
+};
+
+&pcs_mdio7 {
+	status = "okay";
+};

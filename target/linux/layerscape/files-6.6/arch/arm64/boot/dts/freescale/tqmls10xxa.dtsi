@@ -28,6 +28,7 @@
 &i2c0 {
 	status = "okay";
 
+	/* NXP SE97B with temperature sensor + eeprom */
 	temperature-sensor@18 {
 		compatible = "nxp,se97b", "jedec,jc-42.4-temp";
 		reg = <0x18>;
@@ -47,14 +48,16 @@
 	};
 
 	eeprom@57 {
-		compatible = "atmel,24c64";
+		compatible = "atmel,24c256", "microchip,24lc256";
 		reg = <0x57>;
-		pagesize = <32>;
+		pagesize = <64>;
 		vcc-supply = <&reg_vcc3v3>;
 	};
 };
 
 &esdhc {
+	status = "okay";
+
 	/* eSDHC or eMMC: set by bootloader */
 	non-removable;
 	disable-wp;
@@ -63,4 +66,5 @@
 	sd-uhs-sdr50;
 	sd-uhs-sdr25;
 	sd-uhs-sdr12;
+	cap-mmc-highspeed;
 };
