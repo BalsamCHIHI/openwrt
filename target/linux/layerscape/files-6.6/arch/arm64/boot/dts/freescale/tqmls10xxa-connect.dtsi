@@ -1,0 +1,115 @@
+/ {
+	reg_3v3: regulator-3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "V_3V3_MB";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+	};
+};
+
+&duart0 {
+	status = "okay";
+};
+
+&duart1 {
+	status = "okay";
+};
+
+&pcie1 {
+	status = "okay";
+};
+
+&pcie2 {
+	status = "okay";
+};
+
+&i2c0 {
+	status = "okay";
+
+	pca9555: pca9555@20 {
+		compatible = "nxp,pca9555";
+		reg = <0x20>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		vcc-supply = <&reg_3v3>;
+	};
+
+	tmp1075@48 {
+		label = "mb-sensor-temperature";
+		compatible = "ti,tmp1075";
+		reg = <0x48>;
+		vcc-supply = <&reg_3v3>;
+	};
+
+	tmp1075@49 {
+		label = "db-sensor-temperature";
+		compatible = "ti,tmp1075";
+		reg = <0x49>;
+		vcc-supply = <&reg_3v3>;
+	};
+
+	ads7830@4a {
+		label = "mb-sensor-adc";
+		compatible = "ti,ads7830";
+		reg = <0x4a>;
+		vref-supply = <&reg_3v3>;
+	};
+
+	ads7830@4b {
+		label = "db-sensor-adc";
+		compatible = "ti,ads7830";
+		reg = <0x4b>;
+		vref-supply = <&reg_3v3>;
+	};
+
+	at24cs01@52 {
+		compatible = "atmel,24c01";
+		label = "ant-eeprom";
+		reg = <0x52>;
+		vcc-supply = <&reg_3v3>;
+	};
+
+	at24cs01@54 {
+		compatible = "atmel,24c01";
+		label = "mb-eeprom";
+		reg = <0x54>;
+		vcc-supply = <&reg_3v3>;
+	};
+
+	at24cs01@55 {
+		compatible = "atmel,24c01";
+		label = "db-eeprom";
+		reg = <0x55>;
+		vcc-supply = <&reg_3v3>;
+	};
+
+	at24cs01@5a {
+		compatible = "atmel,24cs01";
+		label = "ant-uuid";
+		reg = <0x5a>;
+		vcc-supply = <&reg_3v3>;
+	};
+
+	at24cs01@5c {
+		compatible = "atmel,24cs01";
+		label = "mb-uuid";
+		reg = <0x5c>;
+		vcc-supply = <&reg_3v3>;
+	};
+
+	at24cs01@5d {
+		compatible = "atmel,24cs01";
+		label = "db-uuid";
+		reg = <0x5d>;
+		vcc-supply = <&reg_3v3>;
+	};
+};
+
+&usb0 {
+	status = "okay";
+};
+
+&usb1 {
+	status = "okay";
+};
