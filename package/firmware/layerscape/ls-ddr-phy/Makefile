@@ -28,7 +28,7 @@ define Package/layerscape-ddr-phy
   TITLE:=NXP Layerscape DDR PHY firmware
   DEPENDS:=@TARGET_layerscape
   DEFAULT:=y if TARGET_layerscape_armv8_64b
-  HIDDEN:=1
+  #HIDDEN:=1
 endef
 
 define Build/Compile

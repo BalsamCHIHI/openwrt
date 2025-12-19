@@ -26,7 +26,7 @@ define Package/layerscape-rcw
   TITLE:=NXP Layerscape RCW binaries
   DEPENDS:=@TARGET_layerscape
   DEFAULT:=y if TARGET_layerscape_armv7
-  HIDDEN:=1
+  #HIDDEN:=1
 endef
 
 BOARDS := \
