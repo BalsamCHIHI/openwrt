@@ -4,7 +4,7 @@
 /env
 /dl
 #/.config
-/.config.old
+#/.config.old
 /.toolchain_build_ver
 /bin
 /build_dir
@@ -36,4 +36,3 @@ git-src
 .ccache
 .vscode*
 version.date
-bootloader/out
