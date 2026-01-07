@@ -47,7 +47,7 @@
 			#size-cells = <1>;
 
 			monitor@00000000 {
-				label = "monitor";
+				label = "monitoring";
 				reg = <0x00000000 0x04000000>;
 			};
 		};

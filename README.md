@@ -99,9 +99,9 @@ sf probe 0
 sf update $fileaddr 0x0 $filesize
 ```
 
-#### Load the Monitor jffs2 to DRAM and Flash it in the QSPI 1
+#### Load the Monitoring jffs2 to DRAM and Flash it in the QSPI 1
 ```
-load usb 0 0xA0000000 monitor-qspi.bin
+load usb 0 0xA0000000 monitoring-qspi.bin
 sf probe 1
 sf update $fileaddr 0x0 $filesize
 ```
@@ -195,9 +195,9 @@ sf probe 0
 sf update $fileaddr 0x0 $filesize
 ```
 
-##### Load the Monitor jffs2 to DRAM and Flash it in the QSPI 1
+##### Load the Monitoring jffs2 to DRAM and Flash it in the QSPI 1
 ```
-tftpboot 0xA0000000 monitor-qspi.bin
+tftpboot 0xA0000000 monitoring-qspi.bin
 sf probe 1
 sf update $fileaddr 0x0 $filesize
 ```

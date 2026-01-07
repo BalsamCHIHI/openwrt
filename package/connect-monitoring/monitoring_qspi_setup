@@ -1,16 +1,16 @@
 #!/bin/sh /etc/rc.common
-# Mount monitoring JFFS2 on QSPI NOR ("monitor" partition) WITHOUT erasing.
+# Mount monitoring JFFS2 on QSPI NOR ("monitoring" partition) WITHOUT erasing.
 # Assumes the partition is factory-programmed. If not, log and stop.
 
 START=96
 
-LOG_TAG="monitor_qspi_setup"
+LOG_TAG="monitoring_qspi_setup"
 
 # --- Hard-wired defaults (no other files required) ---
 ENABLED=1
-NAME="monitor"                    # MTD partition name in /proc/mtd
+NAME="monitoring"                    # MTD partition name in /proc/mtd
 DEVICE=""                         # Optional override: /dev/mtdblock7 or /dev/mtd7
-TARGET="/mnt/monitor"
+TARGET="/var/monitoring"
 OPTIONS="noatime,nodiratime"
 FF_SCAN=262144                    # bytes to scan at head to detect all-FF (256 KiB)
 
