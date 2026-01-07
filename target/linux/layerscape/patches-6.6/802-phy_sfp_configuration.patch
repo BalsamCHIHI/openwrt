@@ -41,15 +41,6 @@
  static int vsc8584_config_host_serdes(struct phy_device *phydev)
  {
  	struct vsc8531_private *vsc8531 = phydev->priv;
-@@ -1674,7 +1695,7 @@ static int vsc8574_config_host_serdes(st
- 
- 		usleep_range(10000, 20000);
- 	}
--
-+	
- 	/* Disable SerDes for 100Base-FX */
- 	ret = vsc8584_cmd(phydev, PROC_CMD_FIBER_MEDIA_CONF |
- 			  PROC_CMD_FIBER_PORT(vsc8531->addr) |
 @@ -1695,6 +1716,7 @@ static int vsc8574_config_host_serdes(st
  static int vsc8584_config_init(struct phy_device *phydev)
  {
