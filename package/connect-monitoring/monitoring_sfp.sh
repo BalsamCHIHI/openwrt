@@ -11,8 +11,8 @@ get_flash_usage() {
 server_ip="192.168.10.1"
 server_port="12345"
 TIMEOUT=2
-flash_path="/mnt/monitor"
-pid_path="/var/run/sfp_monitor.pid"
+flash_path="/var/monitoring"
+pid_path="/var/run/sfp_monitoring.pid"
 max_flash_occupancy=90
 values_not_connected="0 25 0 0 0"
 values_missing="0 0 0 0 0"
@@ -114,7 +114,7 @@ parse_ethtool_output() {
             line_missing="$interface $line_missing"
         else
             # Send to syslog
-            logger -t "sfp_monitor" -p local0.info "board_type=$board_type interface=$interface temperature=$temperature vcc=$vcc tx_bias=$tx_bias tx_power=$tx_power rx_power=$rx_power"
+            logger -t "sfp_monitoring" -p local0.info "board_type=$board_type interface=$interface temperature=$temperature vcc=$vcc tx_bias=$tx_bias tx_power=$tx_power rx_power=$rx_power"
             
             # Also save locally as backup
             save_logs "$(date) $board_type $interface $data"
@@ -127,7 +127,7 @@ parse_ethtool_output() {
             line_missing="$interface $line_missing"
         else
             # Send to syslog
-            logger -t "sfp_monitor" -p local0.info "board_type=$board_type interface=$interface temperature=$temperature vcc=$vcc tx_bias=$tx_bias tx_power=$tx_power rx_power=$rx_power"
+            logger -t "sfp_monitoring" -p local0.info "board_type=$board_type interface=$interface temperature=$temperature vcc=$vcc tx_bias=$tx_bias tx_power=$tx_power rx_power=$rx_power"
             
             # Also save locally as backup
             save_logs "$(date) $interface $data"
@@ -170,7 +170,7 @@ main() {
             save_logs "$(date) $board_type $line_not_connected"
             if [ "$board_type" != "server" ]; then
                 # Send not connected status to syslog
-                logger -t "sfp_monitor" -p local0.warning "board_type=$board_type status=not_connected interfaces=$line_not_connected"
+                logger -t "sfp_monitoring" -p local0.warning "board_type=$board_type status=not_connected interfaces=$line_not_connected"
             fi
         fi
         
@@ -179,7 +179,7 @@ main() {
             save_logs "$(date) $board_type $line_missing"
             if [ "$board_type" != "server" ]; then
                 # Send missing status to syslog
-                logger -t "sfp_monitor" -p local0.err "board_type=$board_type status=missing interfaces=$line_missing"
+                logger -t "sfp_monitoring" -p local0.err "board_type=$board_type status=missing interfaces=$line_missing"
             fi
         fi
     done
@@ -188,7 +188,7 @@ main() {
 start() {
     # Check if the PID file already exists
     if [ -f "$pid_path" ]; then
-        echo "sfp monitor is already running."
+        echo "sfp monitoring is already running."
         exit 1
     fi
     
@@ -217,7 +217,7 @@ start() {
 }
 
 stop() {
-    echo "Stopping sfp_monitor"    
+    echo "Stopping sfp_monitoring"    
     if [ -f "$pid_path" ]; then
         kill "$(cat "$pid_path")" && rm -f "$pid_path"
     else

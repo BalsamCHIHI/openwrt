@@ -11,9 +11,9 @@ get_flash_usage() {
 server_ip="192.168.10.1"
 server_port="12345"
 TIMEOUT=2
-flash_path="/mnt/monitor"
+flash_path="/var/monitoring"
 max_flash_occupancy=90
-pid_path="/var/run/hwmon_monitor.pid"
+pid_path="/var/run/hwmon_monitoring.pid"
 
 save_logs() {
     line="$1"
@@ -104,7 +104,7 @@ main() {
             else
                 label=""
             fi
-            
+
             hwmon_name=$(basename "$hwmon" | sed 's/[^0-9]//g')
             sensor_data=""
 
@@ -153,7 +153,7 @@ main() {
             fi
 
             # Send HWMon data to syslog
-            logger -t "hwmon_monitor" -p local0.info "board_type=$board_type hwmon_id=$hwmon_name name=$name label=$label sensor_data=$sensor_data"
+            logger -t "hwmon_monitoring" -p local0.info "board_type=$board_type hwmon_id=$hwmon_name name=$name label=$label sensor_data=$sensor_data"
             
             # Also save locally as backup
             save_logs "$(date) $board_type $hwmon_name $label $name $sensor_data"
@@ -166,7 +166,7 @@ main() {
 start() {
     # Check if the PID file already exists
     if [ -f "$pid_path" ]; then
-        echo "hwmon monitor is already running."
+        echo "hwmon monitoring is already running."
         exit 1
     fi
     
@@ -200,7 +200,7 @@ start() {
 }
 
 stop() {
-    echo "Stopping hwmon_monitor"
+    echo "Stopping hwmon_monitoring"
     if [ -f "$pid_path" ]; then
         kill "$(cat "$pid_path")" && rm -f "$pid_path"
     else

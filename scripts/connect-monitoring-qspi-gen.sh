@@ -8,15 +8,15 @@ set -o pipefail
 #set -x
 
 # --- Config ---
-BIN_DIR="${1:-./bin/targets/layerscape/armv8_64b/monitor_qspi}"
+BIN_DIR="${1:-./bin/targets/layerscape/armv8_64b/monitoring_qspi}"
 ERASE_SIZE=8192                 # mkfs.jffs2 minimum (even if NOR is 4KiB)
 PAGE_SIZE=8192                  # sumtool page; matching ERASE_SIZE is fine for NOR
 FULL_MB=64
 FULL_BYTES=$((FULL_MB * 1024 * 1024))
 
-RAW_IMG="$BIN_DIR/monitor.jffs2"
-SUM_IMG="$BIN_DIR/monitor-summarized.jffs2"
-PAD_IMG="$BIN_DIR/monitor-qspi.bin"
+RAW_IMG="$BIN_DIR/monitoring.jffs2"
+SUM_IMG="$BIN_DIR/monitoring-summarized.jffs2"
+PAD_IMG="$BIN_DIR/monitoring-qspi.bin"
 
 # --- Tools check ---
 need() { command -v "$1" >/dev/null 2>&1 || { echo "Missing '$1'. Install with: sudo apt-get install -y mtd-utils"; exit 1; }; }
@@ -25,7 +25,7 @@ need sumtool
 
 # --- Workspace ---
 mkdir -p "$BIN_DIR"
-STAGE_DIR="$(mktemp -d -t monitor_qspi-XXXXXX)"
+STAGE_DIR="$(mktemp -d -t monitoring_qspi-XXXXXX)"
 trap 'rm -rf "$STAGE_DIR"' EXIT
 
 ROOT="$STAGE_DIR/root"
@@ -33,7 +33,7 @@ mkdir -p "$ROOT"
 
 # Small provenance marker (ensures FS non-empty)
 cat > "$ROOT/FS_STAMP.txt" <<EOF
-monitor JFFS2 Factory Image
+monitoring JFFS2 Factory Image
 Built (UTC): $(date -u +'%Y-%m-%dT%H:%M:%SZ')
 Host       : $(hostname || echo unknown)
 Notes      : Summarized image for fast mount; 64MiB padded 0xFF binary for U-Boot sf update.
