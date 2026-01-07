@@ -62,7 +62,7 @@ get_mtd_block_number() {
 }
 
 dump_current_qspi_partitions() {
-	local dump_current_qspi_dir="/boot/connect-sysupgrade-tmp/qspi-dump_current"
+	local dump_current_qspi_dir="/tmp/connect-sysupgrade-tmp/qspi-dump_current"
 	mkdir -p "$dump_current_qspi_dir"
 
 	echo "Dumping current QSPI partitions..."
@@ -98,7 +98,7 @@ verify_flash() {
 	new_sha=$(md5sum "$new_file" | awk '{print $1}')
 
 	# Read back same number of bytes from flash and compute md5
-	current_sha=$(dd if="$mtd_block" bs=1M count=$blocks status=none conv=fsync 2>/dev/null | dd bs=1 count="$new_size" status=none conv=fsync | md5sum | awk '{print $1}')
+	current_sha=$(dd if="$mtd_block" bs=1M count=$blocks status=none 2>/dev/null | dd bs=1 count="$new_size" status=none | md5sum | awk '{print $1}')
 	sync
 
 	if [ "$new_sha" = "$current_sha" ]; then
@@ -113,7 +113,7 @@ flash_qspi_partitions() {
 	local board_dir="$2"
 	local variant="$3"
 
-	local new_dir="/boot/connect-sysupgrade-tmp/qspi-new"
+	local new_dir="/tmp/connect-sysupgrade-tmp/qspi-new"
 	mkdir -p "$new_dir"
 
 	echo "Extracting and flashing QSPI partitions (variant=${variant})..."
@@ -142,7 +142,7 @@ flash_qspi_partitions() {
 		}
 		sync
 
-		local current_file="/boot/connect-sysupgrade-tmp/qspi-dump_current/${name}.current.bin"
+		local current_file="/tmp/connect-sysupgrade-tmp/qspi-dump_current/${name}.current.bin"
 		local new_file="$new_dir/${name}.new.bin"
 
 		# If no previous dump exists, flash directly
@@ -233,18 +233,10 @@ platform_do_upgrade_tqmls1088a_sdboot() {
 		2gb|4gb) : ;;  # OK
 		*) echo "Error: Unknown variant '$variant'. Skipping QSPI flash."; return 0 ;;
 	esac
-
-	# Boot partition
-	if export_partdevice partdev 1; then
-		mkdir -p /boot
-		mount "/dev/$partdev" /boot
 	
-		# QSPI dump + flash + verify
-		dump_current_qspi_partitions
-		flash_qspi_partitions "$tar_file" "$board_dir" "$variant"
-
-		umount /boot
-	fi
+	# QSPI dump + flash & verify
+	dump_current_qspi_partitions
+	flash_qspi_partitions "$tar_file" "$board_dir" "$variant"
 }
 
 platform_do_upgrade_traverse_slotubi() {
