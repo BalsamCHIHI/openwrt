@@ -4,14 +4,12 @@
 #include "tqmls10xxa-connect.dtsi"
 
 / {
-	model = "TQ-Systems GmbH LS1088A TQMLS1088A SoM on Moment Flymingo Connect board";
+	model = "TQMLS1088A SoM on Moment Flymingo Connect board";
 	compatible = "moment,ls1088a-tqmls1088a-connect", "tq,ls1088a-tqmls1088a", "fsl,ls1088a";
 
 	aliases {
 		serial0 = &duart0;
 		serial1 = &duart1;
-
-		gpio-expander = &pca9555;
 	};
 
 	chosen {

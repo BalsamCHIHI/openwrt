@@ -10,7 +10,18 @@
 #include "fsl-ls1088a.dtsi"
 #include "tqmls10xxa.dtsi"
 
+/ {
+	reg_vcc1v8: regulator-vcc1v8 {
+		compatible = "regulator-fixed";
+		regulator-name = "VCC1V8";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		regulator-always-on;
+	};
+};
+
 &qspi {
+	bus-num = <0>;
 	num-cs = <2>;
 	status = "okay";
 

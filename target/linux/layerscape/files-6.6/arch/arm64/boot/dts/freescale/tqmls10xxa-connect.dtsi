@@ -1,4 +1,57 @@
+#include <dt-bindings/input/input.h>
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/leds/common.h>
+
 / {
+	leds {
+		compatible = "gpio-leds";
+
+		led_1 {
+			label = "led-1";
+			gpios = <&pca9555 6 GPIO_ACTIVE_HIGH>;
+			color = <LED_COLOR_ID_GREEN>;
+			function = LED_FUNCTION_INDICATOR;
+			default-state = "off";
+			linux,default-trigger = "none";
+		};
+
+		mcu_boot0 {
+			label = "mcu-boot0";
+			gpios = <&pca9555 8 GPIO_ACTIVE_HIGH>;
+			color = <LED_COLOR_ID_MAX>;
+			function = LED_FUNCTION_BOOT;
+			default-state = "off";
+			linux,default-trigger = "none";
+		};
+
+		mcu_nrst {
+			label = "mcu-nrst";
+			gpios = <&pca9555 9 GPIO_ACTIVE_HIGH>;
+			color = <LED_COLOR_ID_MAX>;
+			function = LED_FUNCTION_BOOT;
+			default-state = "on";
+			linux,default-trigger = "none";
+		};
+
+		adcen_bat {
+			label = "adcen-bat";
+			gpios = <&pca9555 10 GPIO_ACTIVE_HIGH>;
+			color = <LED_COLOR_ID_MAX>;
+			function = LED_FUNCTION_STATUS;
+			default-state = "off";
+			linux,default-trigger = "none";
+		};
+
+		adcen_edlc {
+			label = "adcen-edlc";
+			gpios = <&pca9555 11 GPIO_ACTIVE_HIGH>;
+			color = <LED_COLOR_ID_MAX>;
+			function = LED_FUNCTION_STATUS;
+			default-state = "off";
+			linux,default-trigger = "none";
+		};
+	};
+
 	reg_3v3: regulator-3v3 {
 		compatible = "regulator-fixed";
 		regulator-name = "V_3V3_MB";
@@ -32,30 +85,28 @@
 		reg = <0x20>;
 		gpio-controller;
 		#gpio-cells = <2>;
-		vcc-supply = <&reg_3v3>;
 	};
 
 	tmp1075@48 {
 		label = "mb-sensor-temperature";
 		compatible = "ti,tmp1075";
 		reg = <0x48>;
-		vcc-supply = <&reg_3v3>;
 	};
 
 	tmp1075@49 {
 		label = "db-sensor-temperature";
 		compatible = "ti,tmp1075";
 		reg = <0x49>;
-		vcc-supply = <&reg_3v3>;
 	};
 
+	/* Internal 2.5V reference : No vref-supply */
 	ads7830@4a {
 		label = "mb-sensor-adc";
 		compatible = "ti,ads7830";
 		reg = <0x4a>;
-		vref-supply = <&reg_3v3>;
 	};
 
+	/* External 3.3V reference: vref-supply = 3.3v */
 	ads7830@4b {
 		label = "db-sensor-adc";
 		compatible = "ti,ads7830";
@@ -67,42 +118,36 @@
 		compatible = "atmel,24c01";
 		label = "ant-eeprom";
 		reg = <0x52>;
-		vcc-supply = <&reg_3v3>;
 	};
 
 	at24cs01@54 {
 		compatible = "atmel,24c01";
 		label = "mb-eeprom";
 		reg = <0x54>;
-		vcc-supply = <&reg_3v3>;
 	};
 
 	at24cs01@55 {
 		compatible = "atmel,24c01";
 		label = "db-eeprom";
 		reg = <0x55>;
-		vcc-supply = <&reg_3v3>;
 	};
 
 	at24cs01@5a {
 		compatible = "atmel,24cs01";
 		label = "ant-uuid";
 		reg = <0x5a>;
-		vcc-supply = <&reg_3v3>;
 	};
 
 	at24cs01@5c {
 		compatible = "atmel,24cs01";
 		label = "mb-uuid";
 		reg = <0x5c>;
-		vcc-supply = <&reg_3v3>;
 	};
 
 	at24cs01@5d {
 		compatible = "atmel,24cs01";
 		label = "db-uuid";
 		reg = <0x5d>;
-		vcc-supply = <&reg_3v3>;
 	};
 };
 
