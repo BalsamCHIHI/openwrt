@@ -1,0 +1,13 @@
+echo "prometheus-node-exporter-lua_setup : prometheus-node-exporter-lua setup started." > /dev/kmsg
+
+uci set prometheus-node-exporter-lua.main.listen_interface='*'
+uci set prometheus-node-exporter-lua.main.listen_port='9100'
+# uci set prometheus-node-exporter-lua.main.cert='/etc/uhttpd.crt'
+# uci set prometheus-node-exporter-lua.main.key='/etc/uhttpd.key'
+
+uci commit prometheus-node-exporter-lua
+reload_config
+
+echo "prometheus-node-exporter-lua_setup : prometheus-node-exporter-lua setup completed." > /dev/kmsg
+
+exit 0
