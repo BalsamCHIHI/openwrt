@@ -351,6 +351,7 @@ CONFIG_PACKAGE_exfat-fsck=y
 CONFIG_PACKAGE_exfat-mkfs=y
 CONFIG_PACKAGE_f2fs-tools=y
 CONFIG_PACKAGE_f2fsck=y
+CONFIG_PACKAGE_factory-test=y
 CONFIG_PACKAGE_file=y
 CONFIG_PACKAGE_gpioctl-sysfs=y
 CONFIG_PACKAGE_gpiod-tools=y
