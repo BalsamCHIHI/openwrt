@@ -69,6 +69,14 @@
 	status = "okay";
 };
 
+&duart2 {
+	status = "okay";
+};
+
+&duart3 {
+	status = "okay";
+};
+
 &pcie1 {
 	status = "okay";
 };
