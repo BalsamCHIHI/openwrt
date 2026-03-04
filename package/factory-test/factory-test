@@ -1,0 +1,6 @@
+#environment variables to trigger factory test
+config settings setConf
+    option enabled 1
+
+config settings startTest
+    option enabled 1
