@@ -98,4 +98,4 @@ fi
 
 # Run sysupgrade
 log "> Running sysupgrade Command..."
-exec sysupgrade -v "$FW_FILE"
+exec sysupgrade -v -F "$FW_FILE"
