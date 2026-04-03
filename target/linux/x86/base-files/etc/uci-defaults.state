@@ -1,0 +1,2 @@
+## This file contains uci-default scripts that
+## have run at first boot and should not run after sysupgrade.
