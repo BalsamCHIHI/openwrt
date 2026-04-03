@@ -1,0 +1,3 @@
+touch /tmp/first_boot_flag
+
+exit 0
