@@ -1,0 +1,368 @@
+CONFIG_TARGET_qualcommax=y
+CONFIG_TARGET_qualcommax_ipq95xx=y
+CONFIG_TARGET_qualcommax_ipq95xx_DEVICE_8devices_kiwi-dvk=y
+CONFIG_DEVEL=y
+CONFIG_BUSYBOX_CUSTOM=y
+CONFIG_ATH11K_THERMAL=y
+CONFIG_BUILD_LOG=y
+# CONFIG_BUSYBOX_CONFIG_FEATURE_EDITING_SAVEHISTORY is not set
+CONFIG_BUSYBOX_CONFIG_I2CDETECT=y
+CONFIG_BUSYBOX_CONFIG_I2CDUMP=y
+CONFIG_BUSYBOX_CONFIG_I2CGET=y
+CONFIG_BUSYBOX_CONFIG_I2CSET=y
+CONFIG_BUSYBOX_CONFIG_I2CTRANSFER=y
+CONFIG_BUSYBOX_CONFIG_LSUSB=y
+CONFIG_BUSYBOX_CONFIG_MPSTAT=y
+CONFIG_DISPLAY_SUPPORT=y
+# CONFIG_DROPBEAR_ED25519 is not set
+CONFIG_IMAGEOPT=y
+CONFIG_KERNEL_ARM_PMU=y
+# CONFIG_KERNEL_BTRFS_FS_POSIX_ACL is not set
+# CONFIG_KERNEL_CC_OPTIMIZE_FOR_PERFORMANCE is not set
+CONFIG_KERNEL_CC_OPTIMIZE_FOR_SIZE=y
+# CONFIG_KERNEL_CIFS_ACL is not set
+CONFIG_KERNEL_DEBUG_GPIO=y
+CONFIG_KERNEL_DYNAMIC_DEBUG=y
+# CONFIG_KERNEL_EXT4_FS_POSIX_ACL is not set
+# CONFIG_KERNEL_EXT4_FS_SECURITY is not set
+# CONFIG_KERNEL_F2FS_FS_POSIX_ACL is not set
+# CONFIG_KERNEL_F2FS_FS_SECURITY is not set
+# CONFIG_KERNEL_FS_POSIX_ACL is not set
+# CONFIG_KERNEL_HFSPLUS_FS_POSIX_ACL is not set
+# CONFIG_KERNEL_HFS_FS_POSIX_ACL is not set
+# CONFIG_KERNEL_IPV6_SEG6_LWTUNNEL is not set
+# CONFIG_KERNEL_JFFS2_FS_POSIX_ACL is not set
+# CONFIG_KERNEL_JFFS2_FS_SECURITY is not set
+# CONFIG_KERNEL_JFS_POSIX_ACL is not set
+CONFIG_KERNEL_KEXEC=y
+# CONFIG_KERNEL_MPTCP is not set
+# CONFIG_KERNEL_NET_L3_MASTER_DEV is not set
+# CONFIG_KERNEL_NFS_ACL_SUPPORT is not set
+CONFIG_KERNEL_PERF_EVENTS=y
+# CONFIG_KERNEL_REISER_FS_POSIX_ACL is not set
+CONFIG_KERNEL_SQUASHFS_FRAGMENT_CACHE_SIZE=2
+# CONFIG_KERNEL_TMPFS_POSIX_ACL is not set
+# CONFIG_KERNEL_UBIFS_FS_SECURITY is not set
+# CONFIG_KERNEL_WERROR is not set
+# CONFIG_KERNEL_XFS_POSIX_ACL is not set
+CONFIG_NETJSON_MONITORING_IWINFO=y
+CONFIG_PACKAGE_ATH_DEBUG=y
+CONFIG_PACKAGE_blkid=y
+CONFIG_PACKAGE_cgi-io=y
+CONFIG_PACKAGE_ethtool-full=y
+CONFIG_PACKAGE_f2fs-tools=y
+CONFIG_PACKAGE_f2fsck=y
+CONFIG_PACKAGE_fdisk=y
+CONFIG_PACKAGE_iperf3=y
+CONFIG_PACKAGE_kmod-ath11k=y
+CONFIG_PACKAGE_kmod-ath11k-ahb=y
+CONFIG_PACKAGE_kmod-ath11k-pci=y
+CONFIG_PACKAGE_kmod-crypto-crc32=y
+CONFIG_PACKAGE_kmod-fs-f2fs=y
+CONFIG_PACKAGE_kmod-fs-vfat=y
+CONFIG_PACKAGE_kmod-hwmon-core=y
+CONFIG_PACKAGE_kmod-i2c-algo-bit=y
+CONFIG_PACKAGE_kmod-i2c-core=y
+CONFIG_PACKAGE_kmod-libphy=y
+CONFIG_PACKAGE_kmod-mdio-netlink=y
+CONFIG_PACKAGE_kmod-nls-cp437=y
+CONFIG_PACKAGE_kmod-nls-iso8859-1=y
+CONFIG_PACKAGE_kmod-nls-utf8=y
+CONFIG_PACKAGE_kmod-phylink=y
+CONFIG_PACKAGE_kmod-pps=y
+CONFIG_PACKAGE_kmod-ptp=y
+CONFIG_PACKAGE_kmod-qrtr-smd=y
+CONFIG_PACKAGE_kmod-thermal=y
+CONFIG_PACKAGE_kmod-usb-dwc2=y
+CONFIG_PACKAGE_kmod-usb-ehci=y
+CONFIG_PACKAGE_kmod-usb-ledtrig-usbport=y
+CONFIG_PACKAGE_kmod-usb-ohci=y
+CONFIG_PACKAGE_kmod-usb-roles=y
+CONFIG_PACKAGE_kmod-usb2=y
+CONFIG_PACKAGE_libatomic=y
+CONFIG_PACKAGE_libf2fs=y
+CONFIG_PACKAGE_libfdisk=y
+CONFIG_PACKAGE_libiperf3=y
+CONFIG_PACKAGE_libkmod=y
+CONFIG_PACKAGE_liblucihttp=y
+CONFIG_PACKAGE_liblucihttp-ucode=y
+CONFIG_PACKAGE_libmount=y
+CONFIG_PACKAGE_libncurses=y
+CONFIG_PACKAGE_libpcap=y
+CONFIG_PACKAGE_libpci=y
+CONFIG_PACKAGE_luci=y
+CONFIG_PACKAGE_luci-app-firewall=y
+CONFIG_PACKAGE_luci-app-package-manager=y
+CONFIG_PACKAGE_luci-base=y
+CONFIG_PACKAGE_luci-light=y
+CONFIG_PACKAGE_luci-mod-admin-full=y
+CONFIG_PACKAGE_luci-mod-network=y
+CONFIG_PACKAGE_luci-mod-status=y
+CONFIG_PACKAGE_luci-mod-system=y
+CONFIG_PACKAGE_luci-proto-ipv6=y
+CONFIG_PACKAGE_luci-proto-ppp=y
+CONFIG_PACKAGE_luci-theme-bootstrap=y
+CONFIG_PACKAGE_mdio-tools=y
+CONFIG_PACKAGE_mii-tool=y
+CONFIG_PACKAGE_mkf2fs=y
+CONFIG_PACKAGE_pciids=y
+CONFIG_PACKAGE_pciutils=y
+CONFIG_PACKAGE_rpcd=y
+CONFIG_PACKAGE_rpcd-mod-file=y
+CONFIG_PACKAGE_rpcd-mod-iwinfo=y
+CONFIG_PACKAGE_rpcd-mod-luci=y
+CONFIG_PACKAGE_rpcd-mod-rrdns=y
+CONFIG_PACKAGE_rpcd-mod-ucode=y
+CONFIG_PACKAGE_swconfig=y
+CONFIG_PACKAGE_tcpdump=y
+CONFIG_PACKAGE_terminfo=y
+# CONFIG_PACKAGE_uboot-envtools is not set
+CONFIG_PACKAGE_ucode-mod-html=y
+CONFIG_PACKAGE_ucode-mod-math=y
+CONFIG_PACKAGE_uhttpd=y
+CONFIG_PACKAGE_uhttpd-mod-ubus=y
+CONFIG_PACKAGE_zyxel-bootconfig=y
+CONFIG_PKG_ASLR_PIE_NONE=y
+# CONFIG_PKG_ASLR_PIE_REGULAR is not set
+# CONFIG_USE_FS_ACL_ATTR is not set
+CONFIG_VERSIONOPT=y
+CONFIG_VERSION_BUG_URL=""
+CONFIG_VERSION_CODE=""
+CONFIG_VERSION_CODE_FILENAMES=y
+CONFIG_VERSION_DIST="OpenWrt"
+CONFIG_VERSION_FILENAMES=y
+CONFIG_VERSION_FIRMWARE_URL=""
+CONFIG_VERSION_HOME_URL=""
+CONFIG_VERSION_HWREV=""
+CONFIG_VERSION_MANUFACTURER=""
+CONFIG_VERSION_MANUFACTURER_URL=""
+CONFIG_VERSION_NUMBER="8dev-v1.3-20241009"
+CONFIG_VERSION_PRODUCT=""
+CONFIG_VERSION_REPO="https://downloads.openwrt.org/snapshots"
+CONFIG_VERSION_SUPPORT_URL=""
+CONFIG_NETJSON_MONITORING_IWINFO=y
+# CONFIG_PACKAGE_acme is not set
+# CONFIG_PACKAGE_alist is not set
+# CONFIG_PACKAGE_atlas-probe is not set
+# CONFIG_PACKAGE_atlas-sw-probe is not set
+# CONFIG_PACKAGE_atlas-sw-probe-rpc is not set
+# CONFIG_PACKAGE_babeld is not set
+# CONFIG_PACKAGE_backuppc is not set
+# CONFIG_PACKAGE_banhostlist is not set
+# CONFIG_PACKAGE_bmx7 is not set
+# CONFIG_PACKAGE_boringssl is not set
+# CONFIG_PACKAGE_bridge is not set
+# CONFIG_PACKAGE_cgroupfs-mount is not set
+# CONFIG_PACKAGE_checksec is not set
+# CONFIG_PACKAGE_checksec_automator is not set
+# CONFIG_PACKAGE_cmdpad is not set
+# CONFIG_PACKAGE_cshark is not set
+# CONFIG_PACKAGE_dhcp-forwarder is not set
+# CONFIG_PACKAGE_dysk is not set
+# CONFIG_PACKAGE_elektra-kdb is not set
+# CONFIG_PACKAGE_erlang-os_mon is not set
+# CONFIG_PACKAGE_esniper is not set
+# CONFIG_PACKAGE_gitlab-runner is not set
+# CONFIG_PACKAGE_golang is not set
+# CONFIG_PACKAGE_golang-doc is not set
+# CONFIG_PACKAGE_golang-src is not set
+# CONFIG_PACKAGE_gperftools-headers is not set
+# CONFIG_PACKAGE_gperftools-runtime is not set
+# CONFIG_PACKAGE_gping is not set
+# CONFIG_PACKAGE_hnet-full is not set
+# CONFIG_PACKAGE_hnet-full-l2tp is not set
+# CONFIG_PACKAGE_hnet-full-secure is not set
+# CONFIG_PACKAGE_hnetd-nossl is not set
+# CONFIG_PACKAGE_hnetd-openssl is not set
+# CONFIG_PACKAGE_inadyn is not set
+# CONFIG_PACKAGE_kcptun-client is not set
+# CONFIG_PACKAGE_kcptun-config is not set
+# CONFIG_PACKAGE_kcptun-server is not set
+# CONFIG_PACKAGE_kmod-ipt-compat-xtables is not set
+# CONFIG_PACKAGE_kmod-ipt-nathelper-rtsp is not set
+# CONFIG_PACKAGE_kmod-ovpn-dco-v2 is not set
+# CONFIG_PACKAGE_libantlr3c is not set
+# CONFIG_PACKAGE_libelektra-core is not set
+# CONFIG_PACKAGE_libelektra-cpp is not set
+# CONFIG_PACKAGE_libelektra-crypto is not set
+# CONFIG_PACKAGE_libelektra-curlget is not set
+# CONFIG_PACKAGE_libelektra-dbus is not set
+# CONFIG_PACKAGE_libelektra-ev is not set
+# CONFIG_PACKAGE_libelektra-extra is not set
+# CONFIG_PACKAGE_libelektra-lua is not set
+# CONFIG_PACKAGE_libelektra-plugins is not set
+# CONFIG_PACKAGE_libelektra-python3 is not set
+# CONFIG_PACKAGE_libelektra-resolvers is not set
+# CONFIG_PACKAGE_libelektra-uv is not set
+# CONFIG_PACKAGE_libelektra-xerces is not set
+# CONFIG_PACKAGE_libelektra-xml is not set
+# CONFIG_PACKAGE_libelektra-yajl is not set
+# CONFIG_PACKAGE_libelektra-yamlcpp is not set
+# CONFIG_PACKAGE_libelektra-zmq is not set
+# CONFIG_PACKAGE_libftdi is not set
+# CONFIG_PACKAGE_libgabe is not set
+# CONFIG_PACKAGE_libgpgmepp is not set
+# CONFIG_PACKAGE_libjcat is not set
+# CONFIG_PACKAGE_libmcrypt is not set
+# CONFIG_PACKAGE_libnetsnmp is not set
+# CONFIG_PACKAGE_liboil is not set
+# CONFIG_PACKAGE_libredblack is not set
+# CONFIG_PACKAGE_libyubikey is not set
+# CONFIG_PACKAGE_lpc21isp is not set
+# CONFIG_PACKAGE_lua-lzlib is not set
+# CONFIG_PACKAGE_luci-app-alist is not set
+# CONFIG_PACKAGE_luci-app-cshark is not set
+# CONFIG_PACKAGE_luci-app-dynapoint is not set
+# CONFIG_PACKAGE_luci-app-hnet is not set
+# CONFIG_PACKAGE_luci-app-lxc is not set
+# CONFIG_PACKAGE_luci-app-mjpg-streamer is not set
+# CONFIG_PACKAGE_luci-app-nft-qos is not set
+# CONFIG_PACKAGE_luci-app-olsrd2 is not set
+# CONFIG_PACKAGE_luci-app-openvpn is not set
+# CONFIG_PACKAGE_luci-app-qos is not set
+# CONFIG_PACKAGE_luci-app-radicale is not set
+# CONFIG_PACKAGE_luci-app-radicale2 is not set
+# CONFIG_PACKAGE_luci-app-siitwizard is not set
+# CONFIG_PACKAGE_luci-app-splash is not set
+# CONFIG_PACKAGE_luci-app-vnstat is not set
+# CONFIG_PACKAGE_luci-lib-docker is not set
+# CONFIG_PACKAGE_luci-lib-px5g is not set
+# CONFIG_PACKAGE_luci-lib-uqr is not set
+# CONFIG_PACKAGE_luci-mod-rpc is not set
+# CONFIG_PACKAGE_luci-proto-bonding is not set
+# CONFIG_PACKAGE_minimalist-pcproxy is not set
+# CONFIG_PACKAGE_mjpg-streamer is not set
+# CONFIG_PACKAGE_moc is not set
+# CONFIG_PACKAGE_mpack is not set
+# CONFIG_PACKAGE_mqttled is not set
+# CONFIG_PACKAGE_mxml is not set
+# CONFIG_PACKAGE_netstinky is not set
+# CONFIG_PACKAGE_netwhere is not set
+# CONFIG_PACKAGE_nfs-utils-libs is not set
+# CONFIG_PACKAGE_nft-qos is not set
+# CONFIG_PACKAGE_nginx-mod-brotli is not set
+# CONFIG_PACKAGE_nginx-mod-dav-ext is not set
+# CONFIG_PACKAGE_nginx-mod-geoip2 is not set
+# CONFIG_PACKAGE_nginx-mod-headers-more is not set
+# CONFIG_PACKAGE_nginx-mod-lua is not set
+# CONFIG_PACKAGE_nginx-mod-luci is not set
+# CONFIG_PACKAGE_nginx-mod-naxsi is not set
+# CONFIG_PACKAGE_nginx-mod-njs is not set
+# CONFIG_PACKAGE_nginx-mod-rtmp is not set
+# CONFIG_PACKAGE_nginx-mod-stream is not set
+# CONFIG_PACKAGE_nginx-mod-ts is not set
+# CONFIG_PACKAGE_nginx-mod-ubus is not set
+# CONFIG_PACKAGE_node is not set
+# CONFIG_PACKAGE_node-arduino-firmata is not set
+# CONFIG_PACKAGE_node-cylon is not set
+# CONFIG_PACKAGE_node-cylon-firmata is not set
+# CONFIG_PACKAGE_node-cylon-gpio is not set
+# CONFIG_PACKAGE_node-cylon-i2c is not set
+# CONFIG_PACKAGE_node-hid is not set
+# CONFIG_PACKAGE_node-homebridge is not set
+# CONFIG_PACKAGE_node-npm is not set
+# CONFIG_PACKAGE_node-serialport is not set
+# CONFIG_PACKAGE_node-serialport-bindings is not set
+# CONFIG_PACKAGE_oonf-dlep-proxy is not set
+# CONFIG_PACKAGE_oonf-dlep-radio is not set
+# CONFIG_PACKAGE_oonf-init-scripts is not set
+# CONFIG_PACKAGE_oonf-olsrd2 is not set
+# CONFIG_PACKAGE_oor is not set
+# CONFIG_PACKAGE_open2300 is not set
+# CONFIG_PACKAGE_openvpn-wolfssl is not set
+# CONFIG_PACKAGE_ostiary is not set
+# CONFIG_PACKAGE_pbr-netifd is not set
+# CONFIG_PACKAGE_pkg-config is not set
+# CONFIG_PACKAGE_port-mirroring is not set
+# CONFIG_PACKAGE_ptunnel-ng is not set
+# CONFIG_PACKAGE_python3-aiohttp is not set
+# CONFIG_PACKAGE_python3-aiohttp-cors is not set
+# CONFIG_PACKAGE_python3-aiosignal is not set
+# CONFIG_PACKAGE_python3-apipkg is not set
+# CONFIG_PACKAGE_python3-astral is not set
+# CONFIG_PACKAGE_python3-atomicwrites is not set
+# CONFIG_PACKAGE_python3-cgi is not set
+# CONFIG_PACKAGE_python3-cgitb is not set
+# CONFIG_PACKAGE_python3-chardet is not set
+# CONFIG_PACKAGE_python3-ciso8601 is not set
+# CONFIG_PACKAGE_python3-contextlib2 is not set
+# CONFIG_PACKAGE_python3-decorator is not set
+# CONFIG_PACKAGE_python3-distutils is not set
+# CONFIG_PACKAGE_python3-docker is not set
+# CONFIG_PACKAGE_python3-dockerpty is not set
+# CONFIG_PACKAGE_python3-email is not set
+# CONFIG_PACKAGE_python3-flup is not set
+# CONFIG_PACKAGE_python3-frozenlist is not set
+# CONFIG_PACKAGE_python3-jdcal is not set
+# CONFIG_PACKAGE_python3-lib2to3 is not set
+# CONFIG_PACKAGE_python3-more-itertools is not set
+# CONFIG_PACKAGE_python3-multidict is not set
+# CONFIG_PACKAGE_python3-netifaces is not set
+# CONFIG_PACKAGE_python3-paramiko is not set
+# CONFIG_PACKAGE_python3-parsley is not set
+# CONFIG_PACKAGE_python3-passlib is not set
+# CONFIG_PACKAGE_python3-pkg-resources is not set
+# CONFIG_PACKAGE_python3-ply is not set
+# CONFIG_PACKAGE_python3-pyinotify is not set
+# CONFIG_PACKAGE_python3-pyparsing is not set
+# CONFIG_PACKAGE_python3-pysocks is not set
+# CONFIG_PACKAGE_python3-speedtest-cli is not set
+# CONFIG_PACKAGE_python3-toml is not set
+# CONFIG_PACKAGE_python3-unidecode is not set
+# CONFIG_PACKAGE_python3-voluptuous is not set
+# CONFIG_PACKAGE_python3-voluptuous-serialize is not set
+# CONFIG_PACKAGE_python3-wcwidth is not set
+# CONFIG_PACKAGE_python3-websocket-client is not set
+# CONFIG_PACKAGE_python3-yarl is not set
+# CONFIG_PACKAGE_python3-zipp is not set
+# CONFIG_PACKAGE_radicale is not set
+# CONFIG_PACKAGE_radicale2 is not set
+# CONFIG_PACKAGE_radicale2-examples is not set
+# CONFIG_PACKAGE_redsocks is not set
+# CONFIG_PACKAGE_rpcd-mod-rad2-enc is not set
+# CONFIG_PACKAGE_snmp-utils is not set
+# CONFIG_PACKAGE_snmpd is not set
+# CONFIG_PACKAGE_snmptrapd is not set
+# CONFIG_PACKAGE_sox is not set
+# CONFIG_PACKAGE_stress is not set
+# CONFIG_PACKAGE_svox is not set
+# CONFIG_PACKAGE_tar is not set
+# CONFIG_PACKAGE_tcpbridge is not set
+# CONFIG_PACKAGE_tcpcapinfo is not set
+# CONFIG_PACKAGE_tcpliveplay is not set
+# CONFIG_PACKAGE_tcpprep is not set
+# CONFIG_PACKAGE_tcpreplay is not set
+# CONFIG_PACKAGE_tcpreplay-all is not set
+# CONFIG_PACKAGE_tcpreplay-edit is not set
+# CONFIG_PACKAGE_tcprewrite is not set
+# CONFIG_PACKAGE_temperusb is not set
+# CONFIG_PACKAGE_transmission-web-control is not set
+# CONFIG_PACKAGE_triggerhappy is not set
+# CONFIG_PACKAGE_trojan-go is not set
+# CONFIG_PACKAGE_ucode-mod-log is not set
+# CONFIG_PACKAGE_udp-broadcast-relay-redux is not set
+# CONFIG_PACKAGE_uledd is not set
+# CONFIG_PACKAGE_uspot is not set
+# CONFIG_PACKAGE_uspot-www is not set
+# CONFIG_PACKAGE_uw-imap is not set
+# CONFIG_PACKAGE_webui-aria2 is not set
+# CONFIG_PACKAGE_xmlrpc-c-internal is not set
+# CONFIG_PACKAGE_ykclient is not set
+# CONFIG_PACKAGE_ykpers is not set
+# CONFIG_PACKAGE_yubico-pam is not set
+# CONFIG_PACKAGE_zabbix-agentd-gnutls is not set
+# CONFIG_PACKAGE_zabbix-agentd-openssl is not set
+# CONFIG_PACKAGE_zabbix-extra-mac80211 is not set
+# CONFIG_PACKAGE_zabbix-extra-network is not set
+# CONFIG_PACKAGE_zabbix-extra-wifi is not set
+# CONFIG_PACKAGE_zabbix-get is not set
+# CONFIG_PACKAGE_zabbix-get-gnutls is not set
+# CONFIG_PACKAGE_zabbix-get-openssl is not set
+# CONFIG_PACKAGE_zabbix-proxy-gnutls is not set
+# CONFIG_PACKAGE_zabbix-proxy-openssl is not set
+# CONFIG_PACKAGE_zabbix-sender is not set
+# CONFIG_PACKAGE_zabbix-sender-gnutls is not set
+# CONFIG_PACKAGE_zabbix-sender-openssl is not set
+# CONFIG_PACKAGE_zabbix-server-frontend is not set
+# CONFIG_PACKAGE_zabbix-server-gnutls is not set
+# CONFIG_PACKAGE_zabbix-server-openssl is not set
