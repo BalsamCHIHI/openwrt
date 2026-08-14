@@ -1,0 +1,68 @@
+STATE_FILE="/etc/uci-defaults.state"
+SCRIPT_NAME="91-network-setup"
+
+# Check if this script's name is already in the state file
+if grep -qx "$SCRIPT_NAME" "$STATE_FILE" 2>/dev/null; then
+	echo "network_setup : Network setup skipped (already configured)." > /dev/kmsg
+	exit 0
+fi
+
+echo "network_setup : Network setup started." > /dev/kmsg
+
+# Delete all default global settings
+while uci get network.@globals[0]; do
+    uci delete network.@globals[0]
+done
+
+# Delete all default network interfaces
+while uci get network.@interface[0]; do
+    uci delete network.@interface[0]
+done
+
+# Delete all default network devices
+while uci get network.@device[0]; do
+    uci delete network.@device[0]
+done
+
+# Global network config
+uci set network.globals=globals
+#uci set network.globals.packet_steering='2'
+
+# lan1 Interface
+uci set network.lan1='interface'
+uci set network.lan1.device='lan1'
+uci set network.lan1.proto='static'
+uci set network.lan1.ipaddr='192.168.2.100'
+uci set network.lan1.netmask='255.255.255.0'
+
+# lan2 Interface
+uci set network.lan2='interface'
+uci set network.lan2.device='lan2'
+uci set network.lan2.proto='dhcp'
+
+# wan Interface
+uci set network.wan='interface'
+uci set network.wan.device='wan'
+uci set network.wan.proto='dhcp'
+
+# br-wlan Device
+uci set network.br_wlan='device'
+uci set network.br_wlan.name='br-wlan'
+uci set network.br_wlan.type='bridge'
+
+# wlan Interface
+uci set network.wlan='interface'
+uci set network.wlan.device='br-wlan'
+uci set network.wlan.proto='static'
+uci set network.wlan.ipaddr='192.168.3.100'
+uci set network.wlan.netmask='255.255.255.0'
+
+uci commit network
+reload_config
+
+# Append the script name to the state file so it never runs again
+echo "$SCRIPT_NAME" >> "$STATE_FILE"
+
+echo "network_setup : Network setup completed." > /dev/kmsg
+
+exit 0
