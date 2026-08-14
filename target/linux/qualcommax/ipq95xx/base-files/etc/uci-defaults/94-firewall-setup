@@ -1,0 +1,93 @@
+STATE_FILE="/etc/uci-defaults.state"
+SCRIPT_NAME="94-firewall-setup"
+
+# Check if this script's name is already in the state file
+if grep -qx "$SCRIPT_NAME" "$STATE_FILE" 2>/dev/null; then
+	echo "firewall_setup : Firewall setup skipped (already configured)." > /dev/kmsg
+	exit 0
+fi
+
+echo "firewall_setup : Firewall setup started." > /dev/kmsg
+
+# Delete all default firewall rules, zones and forwardings
+while uci get firewall.@rule[0]; do
+    uci delete firewall.@rule[0]
+done
+
+while uci get firewall.@zone[0]; do
+	uci delete firewall.@zone[0]
+done
+
+while uci get firewall.@forwarding[0]; do
+	uci delete firewall.@forwarding[0]
+done
+
+# Global Defaults
+uci set firewall.@defaults[0]=defaults
+uci set firewall.@defaults[0].input='ACCEPT'
+uci set firewall.@defaults[0].forward='ACCEPT'
+uci set firewall.@defaults[0].output='ACCEPT'
+uci set firewall.@defaults[0].synflood_protect='1'
+
+# LAN Zone
+uci set firewall.lan='zone'
+uci set firewall.lan.name='lan'
+uci set firewall.lan.input='ACCEPT'
+uci set firewall.lan.forward='ACCEPT'
+uci set firewall.lan.output='ACCEPT'
+uci add_list firewall.lan.network='lan1'
+uci add_list firewall.lan.network='lan2'
+
+# WLAN Zone
+uci set firewall.wlan='zone'
+uci set firewall.wlan.name='wlan'
+uci set firewall.wlan.input='ACCEPT'
+uci set firewall.wlan.forward='ACCEPT'
+uci set firewall.wlan.output='ACCEPT'
+uci add_list firewall.wlan.network='wlan'
+
+# WAN Zone
+uci set firewall.wan='zone'
+uci set firewall.wan.name='wan'
+uci set firewall.wan.input='ACCEPT'
+uci set firewall.wan.forward='ACCEPT'
+uci set firewall.wan.output='ACCEPT'
+uci set firewall.wan.masq='1'
+uci set firewall.wan.mtu_fix='1'
+uci add_list firewall.wan.network='wan'
+
+# Zone Forwarding Rules
+uci set firewall.forward_lan_wan='forwarding'
+uci set firewall.forward_lan_wan.src='lan'
+uci set firewall.forward_lan_wan.dest='wan'
+
+uci set firewall.forward_lan_wlan='forwarding'
+uci set firewall.forward_lan_wlan.src='lan'
+uci set firewall.forward_lan_wlan.dest='wlan'
+
+uci set firewall.forward_wan_lan='forwarding'
+uci set firewall.forward_wan_lan.src='wan'
+uci set firewall.forward_wan_lan.dest='lan'
+
+uci set firewall.forward_wlan_lan='forwarding'
+uci set firewall.forward_wlan_lan.src='wlan'
+uci set firewall.forward_wlan_lan.dest='lan'
+
+uci set firewall.forward_wlan_wan='forwarding'
+uci set firewall.forward_wlan_wan.src='wlan'
+uci set firewall.forward_wlan_wan.dest='wan'
+
+uci set firewall.forward_wan_wlan='forwarding'
+uci set firewall.forward_wan_wlan.src='wan'
+uci set firewall.forward_wan_wlan.dest='wlan'
+
+# Commit configurations
+uci commit firewall
+reload_config
+
+# Append the script name to the state file so it never runs again
+echo "$SCRIPT_NAME" >> "$STATE_FILE"
+
+echo "firewall_setup : Firewall setup completed." > /dev/kmsg
+
+exit 0
