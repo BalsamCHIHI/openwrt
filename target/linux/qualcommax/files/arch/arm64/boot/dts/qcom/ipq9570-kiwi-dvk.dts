@@ -71,6 +71,8 @@
 	qcom,phy-mdio-addr = <30>;
 	phy-handle = <&sfp>;
 	label = "wan";
+	pinctrl-0 = <&sfp_pins>; /* Apply the SFP pin configuration */
+	pinctrl-names = "default";
 };
 
 &dp5_syn {
@@ -97,7 +99,7 @@
 	ess-switch@3a000000 {
 		switch_lan_bmp = <(ESS_PORT1|ESS_PORT5)>; /* lan port bitmap */
 		switch_wan_bmp = <ESS_PORT6>; /* wan port bitmap */
-		switch_mac_mode = <MAC_MODE_10GBASE_R>; /* mac mode for uniphy instance0*/
+		switch_mac_mode = <MAC_MODE_SGMII_FIBER>; /* mac mode for 1Gbps SFP, mac mode for 1Gbps SFP uniphy instance0*/
 		switch_mac_mode1 = <MAC_MODE_SGMII_PLUS>; /* mac mode for uniphy instance1*/
 		switch_mac_mode2 = <MAC_MODE_USXGMII>; /* mac mode for uniphy instance2*/
 
@@ -106,6 +108,7 @@
 				port_id = <1>;
 				phy_address = <30>;
 				media-type = "sfp";
+				sfp_rx_los_pin = <&tlmm 46 GPIO_ACTIVE_HIGH>; /* ONLY give the driver the LOS pin */
 			};
 			port@5 {
 				port_id = <5>;
@@ -390,6 +393,21 @@
 			pins = "gpio39";
 			function = "mdio";
 			drive-strength = <8>;
+			bias-pull-up;
+		};
+	};
+
+	sfp_pins: sfp-state {
+		tx-disable-pins {
+			pins = "gpio47";
+			function = "gpio";
+			drive-strength = <8>;
+			bias-disable;
+			output-low; /* This forces the laser ON */
+		};
+		rx-los-pins {
+			pins = "gpio46";
+			function = "gpio";
 			bias-pull-up;
 		};
 	};
