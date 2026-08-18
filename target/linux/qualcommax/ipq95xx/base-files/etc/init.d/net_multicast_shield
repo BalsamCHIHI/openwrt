@@ -1,0 +1,48 @@
+#!/bin/sh /etc/rc.common
+
+# Start right after S20network
+START=21
+STOP=80
+
+wait_for_iface() {
+    local iface=$1
+    local timeout=15
+    # Check if the kernel has mapped the physical device yet
+    while [ ! -d "/sys/class/net/$iface" ] && [ $timeout -gt 0 ]; do
+        echo "net_multicast_shield : Waiting for network interface $iface..."
+        sleep 1
+        timeout=$((timeout - 1))
+    done
+}
+
+start() {
+    echo "net_multicast_shield : Starting Network Multicast Shield..."
+
+    # Wait smartly for the physical drivers to load
+    wait_for_iface "lan1"
+    wait_for_iface "lan2"
+    wait_for_iface "wan"
+
+    # Create the low-level netdev table
+    nft add table netdev devfilter 2>/dev/null
+
+    # --- LAN1 SHIELD ---
+    nft add chain netdev devfilter ingress_lan1 '{ type filter hook ingress device lan1 priority 0; policy accept; }' 2>/dev/null
+    nft add rule netdev devfilter ingress_lan1 ip daddr 239.0.0.0/8 drop
+
+    # --- LAN2 SHIELD ---
+    nft add chain netdev devfilter ingress_lan2 '{ type filter hook ingress device lan2 priority 0; policy accept; }' 2>/dev/null
+    nft add rule netdev devfilter ingress_lan2 ip daddr 239.0.0.0/8 drop
+
+    # --- WAN SHIELD ---
+    nft add chain netdev devfilter ingress_wan '{ type filter hook ingress device wan priority 0; policy accept; }' 2>/dev/null
+    nft add rule netdev devfilter ingress_wan ip daddr 239.0.0.0/8 drop
+    
+    echo "net_multicast_shield : Network Multicast Shield Applied."
+}
+
+stop() {
+    echo "net_multicast_shield : Stopping Network Multicast Shield..."
+    # Cleanly remove the table and all chains/rules inside it
+    nft delete table netdev devfilter 2>/dev/null
+}
