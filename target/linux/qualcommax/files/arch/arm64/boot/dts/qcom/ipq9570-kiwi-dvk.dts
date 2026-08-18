@@ -374,7 +374,7 @@
 
 	i2c1_pins: i2c1-default-state {
 		pins = "gpio36", "gpio37";
-		funcion = "blsp1_i2c";
+		function = "blsp1_i2c";
 		drive-strength = <8>;
 		bias-pull-up;
 	};
