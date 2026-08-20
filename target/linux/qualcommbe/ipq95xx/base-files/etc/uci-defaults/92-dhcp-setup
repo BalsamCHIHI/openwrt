@@ -1,0 +1,56 @@
+STATE_FILE="/etc/uci-defaults.state"
+SCRIPT_NAME="92-dhcp-setup"
+
+# Check if this script's name is already in the state file
+if grep -qx "$SCRIPT_NAME" "$STATE_FILE" 2>/dev/null; then
+	echo "dhcp_setup : DHCP setup skipped (already configured)." > /dev/kmsg
+	exit 0
+fi
+
+echo "dhcp_setup : DHCP setup started." > /dev/kmsg
+
+# Clear all default DHCP interface pools
+while uci get dhcp.@dhcp[0]; do
+	uci delete dhcp.@dhcp[0]
+done
+
+# Global DHCP config
+# Remove ipv6
+#[ -f /tmp/resolv.conf ] && sed -i '/::1/d' /tmp/resolv.conf
+# Use upstream DNS instead of local dnsmasq :
+# Disable use of the local dnsmasq resolver for the router itself.
+# This makes /tmp/resolv.conf point to the auto-generated upstream DNS
+# server list instead of using localhost entries such as 127.0.0.1 and ::1.
+uci set dhcp.@dnsmasq[0].localuse='0'
+
+# lan1 DHCP Server
+uci set dhcp.lan1='dhcp'
+uci set dhcp.lan1.interface='lan1'
+uci set dhcp.lan1.dhcpv4='server'
+
+# lan2 DHCP Server
+uci set dhcp.lan2='dhcp'
+uci set dhcp.lan2.interface='lan2'
+uci set dhcp.lan2.ignore='1'
+uci set dhcp.lan2.dhcpv4='disabled'
+
+# wan DHCP Client
+uci set dhcp.wan='dhcp'
+uci set dhcp.wan.interface='wan'
+uci set dhcp.wan.ignore='1'
+uci set dhcp.wan.dhcpv4='disabled'
+
+# wlan DHCP Server
+uci set dhcp.wlan='dhcp'
+uci set dhcp.wlan.interface='wlan'
+uci set dhcp.wlan.dhcpv4='server'
+
+uci commit dhcp
+reload_config
+
+# Append the script name to the state file so it never runs again
+echo "$SCRIPT_NAME" >> "$STATE_FILE"
+
+echo "dhcp_setup : DHCP setup completed." > /dev/kmsg
+
+exit 0
