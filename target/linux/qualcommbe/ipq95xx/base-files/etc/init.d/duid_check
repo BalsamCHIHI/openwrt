@@ -1,0 +1,21 @@
+#!/bin/sh /etc/rc.common
+
+START=17
+
+boot() {
+    echo "duid_check : Checking for legacy or cloned DUIDs in UCI..." > /dev/kmsg
+
+    # Check if a DUID exists in the configuration
+    if uci -q get network.globals.dhcp_default_duid > /dev/null; then
+        echo "duid_check : DUID detected! Eradicating to enforce MAC-based DHCP (RFC 2131)..." > /dev/kmsg
+
+        # Delete the DUID and commit the change
+        uci -q delete network.globals.dhcp_default_duid
+        uci commit network
+        reload_config
+
+        echo "duid_check : DUID successfully removed." > /dev/kmsg
+    else
+        echo "duid_check : No DUID found. System is clean." > /dev/kmsg
+    fi
+}
