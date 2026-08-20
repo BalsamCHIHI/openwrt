@@ -44,7 +44,7 @@
 		pinctrl-names = "default";
 		i2c-bus = <&blsp1_i2c1>;
 		los-gpios = <&tlmm 46 GPIO_ACTIVE_HIGH>;
-		tx-disable-gpios = <&tlmm 47 GPIO_ACTIVE_HIGH>;
+		/* tx-disable-gpios = <&tlmm 47 GPIO_ACTIVE_HIGH>; */
 	};
 };
 
@@ -87,10 +87,10 @@
 
 		xgmac1: port@1 {
 			reg = <1>;
-			phy-mode = "10gbase-r";
-			managed = "in-band-status";
+			phy-mode = "sgmii"; /* Changed from 10gbase-r */
+			/* managed = "in-band-status"; */
 			label = "wan";
-			sfp = <&sfp0>;
+			/* sfp = <&sfp0>; */
 			pcs-handle = <&pcs0_ch0>;
 			local-mac-address = [00 00 00 00 00 00];
 			clocks = <&nsscc NSS_CC_PORT1_MAC_CLK>,
@@ -105,6 +105,10 @@
 			reset-names = "mac",
 				      "rx",
 				      "tx";
+			fixed-link {
+				speed = <1000>;
+				full-duplex;
+			};
 		};
 
 		xgmac5: port@5 {
@@ -410,10 +414,17 @@
 	};
 
 	sfp0_default: sfp0-default-state {
-		pins = "gpio46", "gpio47";
+		pins = "gpio46"; /* Removed gpio47 */
 		function = "gpio";
 		drive-strength = <8>;
 		bias-pull-down;
+	};
+
+	sfp_tx_force_on {
+		gpio-hog;
+		gpios = <47 GPIO_ACTIVE_HIGH>;
+		output-low; /* This pulls the pin to ground, forcing the laser ON */
+		line-name = "sfp-tx-force-on";
 	};
 };
 
