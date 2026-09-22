@@ -1,0 +1,32 @@
+#!/bin/sh /etc/rc.common
+
+START=01
+
+boot() {
+    echo "ath12k_firmware_setup : ath12k Firmware setup started." > /dev/kmsg
+
+    SOURCE_1="/lib/firmware/ath12k/QCN9274/hw2.0/board-2.bin.kiwi_noni"
+    TARGET_1="/lib/firmware/ath12k/QCN9274/hw2.0/board-2.bin"
+
+    # Check if the source firmware file actually exists on the filesystem
+    if [ ! -f "$SOURCE_1" ]; then
+        echo "ath12k_firmware_setup : ath12k Firmware files are missing. setup failed." > /dev/kmsg
+        return 0
+    fi
+
+    # Read where the current symlink is pointing
+    LINK_1=$(readlink "$TARGET_1")
+
+    # If it already points to our custom firmware, do nothing
+    if [ "$LINK_1" = "$SOURCE_1" ]; then
+        echo "ath12k_firmware_setup : ath12k Firmware already correct. Skipping setup." > /dev/kmsg
+        return 0
+    fi
+
+    rm -f "$TARGET_1"
+    ln -sf "$SOURCE_1" "$TARGET_1"
+
+    echo "ath12k_firmware_setup : ath12k Firmware setup completed." > /dev/kmsg
+
+    return 0
+}
