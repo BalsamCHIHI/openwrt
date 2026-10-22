@@ -1,0 +1,24 @@
+STATE_FILE="/etc/uci-defaults.state"
+SCRIPT_NAME="99-ttyd-setup"
+
+# Check if this script's name is already in the state file
+if grep -qx "$SCRIPT_NAME" "$STATE_FILE" 2>/dev/null; then
+	echo "ttyd_setup : ttyd setup skipped (already configured)." > /dev/kmsg
+	exit 0
+fi
+
+# If we pass the check, now it actually starts
+echo "ttyd_setup : ttyd setup started." > /dev/kmsg
+
+uci del ttyd.@ttyd[0].interface
+uci set ttyd.@ttyd[0].debug='1'
+
+uci commit ttyd
+reload_config
+
+# Append the script name to the state file so it never runs again
+echo "$SCRIPT_NAME" >> "$STATE_FILE"
+
+echo "ttyd_setup : ttyd setup completed." > /dev/kmsg
+
+exit 0
