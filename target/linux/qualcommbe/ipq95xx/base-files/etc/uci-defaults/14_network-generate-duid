@@ -1,0 +1,21 @@
+# ==============================================================================
+# CUSTOM OVERRIDE: Disable OpenWrt Default DUID Generation
+# ==============================================================================
+# OpenWrt normally uses this script on first boot to generate a random RFC 4361
+# Type 4 DUID-UUID and saves it to /etc/config/network (dhcp_default_duid).
+#
+# We are intentionally skipping this generation for the following reasons:
+#
+# 1. Cloning Immunity: Saved DUIDs cause severe DHCP IP conflicts when configs
+#    are cloned across multiple hardware units via 'sysupgrade' or backups.
+# 2. Network Architecture: Our network architecture strictly relies on
+#    standard RFC 2131 MAC-based DHCP Client IDs (Type 01).
+# 3. Determinism: We dynamically generate unique, collision-proof Layer 2
+#    MAC addresses per VLAN (02:00:VID:MAC_SUFFIX) via the 'vlan_mac_check'
+#    init service.
+#
+# Exiting 0 prevents generation and allows OpenWrt to delete this script 
+# normally after first boot.
+# ==============================================================================
+
+exit 0

@@ -1,0 +1,25 @@
+STATE_FILE="/etc/uci-defaults.state"
+SCRIPT_NAME="99-prometheus_node_exporter_lua-setup"
+
+# Check if this script's name is already in the state file
+if grep -qx "$SCRIPT_NAME" "$STATE_FILE" 2>/dev/null; then
+    echo "prometheus-node-exporter-lua_setup : prometheus-node-exporter-lua setup skipped (already configured)." > /dev/kmsg
+    exit 0
+fi
+
+echo "prometheus-node-exporter-lua_setup : prometheus-node-exporter-lua setup started." > /dev/kmsg
+
+uci set prometheus-node-exporter-lua.main.listen_interface='*'
+uci set prometheus-node-exporter-lua.main.listen_port='9100'
+# uci set prometheus-node-exporter-lua.main.cert='/etc/uhttpd.crt'
+# uci set prometheus-node-exporter-lua.main.key='/etc/uhttpd.key'
+
+uci commit prometheus-node-exporter-lua
+reload_config
+
+# Append the script name to the state file so it never runs again
+echo "$SCRIPT_NAME" >> "$STATE_FILE"
+
+echo "prometheus-node-exporter-lua_setup : prometheus-node-exporter-lua setup completed." > /dev/kmsg
+
+exit 0
