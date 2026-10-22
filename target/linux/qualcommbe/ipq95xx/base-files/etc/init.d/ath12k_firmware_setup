@@ -1,0 +1,37 @@
+#!/bin/sh /etc/rc.common
+
+START=01
+
+boot() {
+    echo "ath12k_firmware_setup : ath12k Firmware setup started." > /dev/kmsg
+
+    FW_DIR="/lib/firmware/ath12k/QCN9274/hw2.0"
+
+    SOURCE_FW="$FW_DIR/firmware-2.bin-noni56m2-2x2_firmware_v1.0"
+    TARGET_FW="$FW_DIR/firmware-2.bin"
+
+    SOURCE_BOARD="$FW_DIR/board.bin-noni56m2_4x4-wideband-bdf_v1.0"
+    TARGET_BOARD="$FW_DIR/board.bin"
+
+    # Check if the required source files actually exist
+    if [ ! -f "$SOURCE_FW" ] || [ ! -f "$SOURCE_BOARD" ]; then
+        echo "ath12k_firmware_setup : Source files are missing. Setup failed." > /dev/kmsg
+        return 0
+    fi
+
+    # Set up firmware-2.bin symlink
+    if [ "$(readlink "$TARGET_FW")" != "$SOURCE_FW" ]; then
+        ln -sf "$SOURCE_FW" "$TARGET_FW"
+        echo "ath12k_firmware_setup : firmware-2.bin symlink updated." > /dev/kmsg
+    fi
+
+    # Set up board.bin symlink
+    if [ "$(readlink "$TARGET_BOARD")" != "$SOURCE_BOARD" ]; then
+        ln -sf "$SOURCE_BOARD" "$TARGET_BOARD"
+        echo "ath12k_firmware_setup : board.bin symlink updated." > /dev/kmsg
+    fi
+
+    echo "ath12k_firmware_setup : ath12k Firmware setup completed." > /dev/kmsg
+
+    return 0
+}
