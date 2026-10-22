@@ -1,0 +1,3 @@
+export HISTFILE=/root/.ash_history
+export HISTFILESIZE=512
+alias ll='ls -alhF --color=auto'

@@ -1,0 +1,21 @@
+{
+    "root": {
+        "description": "Full API access for root",
+        "read": {
+            "ubus": {
+                "*": [ "*" ]
+            },
+            "uci": [ "*" ],
+            "file": [ "*" ],
+            "cgi-io": [ "*" ]
+        },
+        "write": {
+            "ubus": {
+                "*": [ "*" ]
+            },
+            "uci": [ "*" ],
+            "file": [ "*" ],
+            "cgi-io": [ "*" ]
+        }
+    }
+}
