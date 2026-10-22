@@ -1,0 +1,48 @@
+STATE_FILE="/etc/uci-defaults.state"
+SCRIPT_NAME="90-system-setup"
+
+# Check if this script's name is already in the state file
+if grep -qx "$SCRIPT_NAME" "$STATE_FILE" 2>/dev/null; then
+	echo "system_setup : System setup skipped (already configured)." > /dev/kmsg
+	exit 0
+fi
+
+if [ -f /sys/class/net/wan/address ]; then
+    mac_suffix=$(awk -F: '{print $4$5$6}' /sys/class/net/wan/address 2>/dev/null)
+else
+    mac_suffix=''
+fi
+
+[ -z "$mac_suffix" ] && {
+    echo "system_setup : mac_suffix variable not found, System failed." > /dev/kmsg
+    exit 1
+}
+
+echo "system_setup : System setup started." > /dev/kmsg
+
+hostname="Kiwi_DVK-${mac_suffix}"
+
+uci set system.@system[0].hostname="$hostname"
+uci set system.@system[0].timezone='CET-1CEST,M3.5.0,M10.5.0/3'
+uci set system.@system[0].ttylogin='1'
+uci set system.@system[0].log_size='5120'
+uci set system.@system[0].urandom_seed='0'
+uci set system.@system[0].zonename='Europe/Paris'
+uci set system.@system[0].log_port='514'
+uci set system.@system[0].log_proto='tcp'
+uci set system.@system[0].conloglevel='8'
+uci set system.@system[0].cronloglevel='5'
+uci set system.@system[0].clock_timestyle='1'
+uci set system.@system[0].clock_hourcycle='h23'
+
+uci commit system
+/etc/init.d/system reload
+/etc/init.d/log reload
+reload_config
+
+# Append the script name to the state file so it never runs again
+echo "$SCRIPT_NAME" >> "$STATE_FILE"
+
+echo "system_setup : System setup completed." > /dev/kmsg
+
+exit 0
