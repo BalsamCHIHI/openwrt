@@ -1,0 +1,41 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+
+boot() {
+    echo "irq-affinity : Starting background wait for IRQs enumeration..." > /dev/kmsg
+
+    (
+        # Passively wait up to 60 seconds for ath12k DP_EXT_IRQ vectors to appear
+        for i in $(seq 1 60); do
+            if grep -q "DP_EXT_IRQ" /proc/interrupts; then
+                sleep 3 # Give the driver 3 seconds to finish mapping all vectors
+
+                # 1. Pin Ethernet EDMA Queues (rxdesc / txcmpl) to CPU 3
+                cpu=3
+                for pfx in rxdesc txcmpl; do
+                    for irq in $(awk -v p="$pfx" '$NF ~ "^"p"_" {sub(":","",$1); print $1}' /proc/interrupts); do
+                        echo $cpu > /proc/irq/$irq/smp_affinity_list
+                    done
+                done
+
+                # 2. Pin Integrated Kiwi Radios 0 and 1 DP_EXT_IRQ rings to CPU 2
+                cpu=2
+                for irq in $(awk '/0003:01:00.0/ && /DP_EXT_IRQ/ {sub(":","",$1); print $1}' /proc/interrupts); do
+                    echo $cpu > /proc/irq/$irq/smp_affinity_list
+                done
+
+                # 3. Spread Noni Radio 2 DP_EXT_IRQ rings across CPUs 1, 2 and 3
+                cpu=1
+                for irq in $(awk '/0002:01:00.0/ && /DP_EXT_IRQ/ {sub(":","",$1); print $1}' /proc/interrupts); do
+                    echo $cpu > /proc/irq/$irq/smp_affinity_list
+                    cpu=$(( (cpu % 3) + 1 ))
+                done
+
+                echo "irq-affinity : Successfully pinned IRQs to CPU cores." > /dev/kmsg
+                break
+            fi
+            sleep 1
+        done
+    ) &
+}
